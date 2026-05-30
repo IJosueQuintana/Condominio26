@@ -1,0 +1,31 @@
+@startuml
+
+left to right direction
+skinparam packageStyle rectangle
+
+' Esto fuerza a PlantUML a usar líneas rectas y ordenadas
+skinparam linetype orthogonal
+
+actor Residente
+
+rectangle "Módulo\n de Reservas de Espacios Comunes" {
+
+    usecase "Reservar Área\ncomún" as UC1
+    usecase "Reservar Salón\n de Eventos" as UC2
+    usecase "Reservar Área\n Recreacional" as UC3
+    usecase "Visualizar\nDisponibilidad de\nEspacios" as UC4
+    usecase "Cancelar Reserva" as UC5
+
+    ' Definimos las herencias (las flechas irán limpias hacia la izquierda)
+    UC2 -up-|> UC1
+    UC3 -down-|> UC1
+
+    ' El include se despliega hacia la derecha de forma lineal
+    UC1 .right.> UC4 : <<include>>
+}
+
+' El actor se conecta de forma limpia a las opciones principales
+Residente --> UC1
+Residente --> UC5
+
+@enduml
