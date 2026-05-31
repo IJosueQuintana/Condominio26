@@ -6,19 +6,6 @@ title Módulo GRB - Gestión de Usuarios y Administradores
 left to right direction
 skinparam packageStyle rectangle
 
-skinparam usecase {
-    BackgroundColor #EDE9FC
-    BorderColor #534AB7
-    ArrowColor #534AB7
-    ActorBorderColor #3C3489
-    ActorBackgroundColor #EEEDFE
-}
-
-skinparam note {
-    BackgroundColor #E8F8F5
-    BorderColor #1ABC9C
-}
-
 ' Definición de actores, casos de uso y relaciones
 rectangle {
 
