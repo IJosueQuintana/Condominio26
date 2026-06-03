@@ -1,0 +1,234 @@
+@startuml condominio_sistema_completo
+skinparam linetype orthogonal
+skinparam packageStyle rectangle
+
+' Configuración global de estilos
+skinparam usecase {
+    BackgroundColor #EEF2FF
+    BorderColor #6C63D4
+    FontColor #1a1a2e
+    FontSize 12
+}
+skinparam actor {
+    BackgroundColor #F5F5F5
+    BorderColor #444
+    FontColor #1a1a2e
+    FontSize 12
+}
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #AAAAAA
+    FontColor #333
+    FontSize 14
+    RoundCorner 10
+}
+
+rectangle "Condominio (El Sistema)" {
+    
+    ' =========================================================================
+    ' FILA 1
+    ' =========================================================================
+    
+    ' --- MÓDULO GRA ---
+    rectangle "GRA - Módulo de Pagos y Finanzas" as Modulo_Pagos {
+        actor "Administrador" as Admin_A
+        actor "Residente" as Residente_A
+        actor "Sistema (Automático)" as Sistema_A
+        
+        usecase "registrarDeuda" as GRA_RegistrarDeuda
+        usecase "registrarPagoEfectivo/Transferencia" as GRA_PagoAdmin
+        usecase "modificarFechaMaximaDePagoDeUnaDeuda" as GRA_ModificarFechaMax
+        usecase "definirValorMensualDeAlicuotas" as GRA_DefinirValorAlicuota
+        usecase "generarReporteDePagosRealizados" as GRA_ReportePagos
+        usecase "registrarEntidadBancaria" as GRA_RegistrarBanco
+        usecase "eliminarDeuda" as GRA_EliminarDeuda
+        usecase "registrarPago" as GRA_PagoResidente
+        usecase "definirPagoDeAlicuotasDeFormaMensual" as GRA_PagoMensualRecurrente
+        usecase "solicitarPagoEnCuotas" as GRA_SolicitarCuotas
+        usecase "eliminarFormaDePagoRecurrente" as GRA_EliminarRecurrencia
+        usecase "generarCertificadoDeNoDeudor" as GRA_CertificadoSolvencia
+        usecase "consultarDeuda" as GRA_ConsultarDeuda
+        usecase "consultarPagosEfectuados" as GRA_ConsultarPagos
+        usecase "registrarDeudaMensual" as GRA_DeudaMensualSistema
+        usecase "enviarRecordartorioDeDeudaPendiente" as GRA_RecordatorioDeuda
+        
+        Admin_A -right-> GRA_RegistrarDeuda
+        Admin_A -right-> GRA_PagoAdmin
+        Admin_A -right-> GRA_ModificarFechaMax
+        Admin_A -right-> GRA_DefinirValorAlicuota
+        Admin_A -right-> GRA_ReportePagos
+        Admin_A -right-> GRA_RegistrarBanco
+        Admin_A -right-> GRA_EliminarDeuda
+        Admin_A -right-> GRA_ConsultarDeuda
+        Admin_A -right-> GRA_ConsultarPagos
+        
+        Residente_A -right-> GRA_PagoResidente
+        Residente_A -right-> GRA_PagoMensualRecurrente
+        Residente_A -right-> GRA_SolicitarCuotas
+        Residente_A -right-> GRA_EliminarRecurrencia
+        Residente_A -right-> GRA_CertificadoSolvencia
+        Residente_A -right-> GRA_ConsultarDeuda
+        Residente_A -right-> GRA_ConsultarPagos
+        
+        GRA_DeudaMensualSistema -right-> Sistema_A
+        GRA_RecordatorioDeuda -right-> Sistema_A
+    }
+    
+    ' --- MÓDULO GRB ---
+    rectangle "GRB - Módulo de Gestión de Usuarios y Administradores" as Modulo_Usuarios {
+        actor "Usuario" as Usuario_B
+        actor "Administrador" as Admin_B
+        
+        usecase "Registrar cuenta" as GRB_RegistrarCuenta
+        usecase "Actualizar información de cuenta" as GRB_ActualizarCuenta
+        usecase "Desactivar cuenta" as GRB_DesactivarCuenta
+        usecase "Asignar rol a usuario" as GRB_AsignarRol
+        usecase "Definir permisos de rol" as GRB_DefinirPermisos
+        usecase "Iniciar sesión" as GRB_IniciarSesion
+        usecase "Actualizar perfil" as GRB_ActualizarPerfil
+        usecase "Recuperar contraseña" as GRB_RecuperarContrasena
+        usecase "Enviar token de restablecimiento" as GRB_EnviarToken
+        
+        Usuario_B -right-> GRB_IniciarSesion
+        Usuario_B -right-> GRB_RecuperarContrasena
+        Usuario_B -right-> GRB_ActualizarPerfil
+        
+        Admin_B -right-> GRB_IniciarSesion
+        Admin_B -right-> GRB_RegistrarCuenta
+        Admin_B -right-> GRB_ActualizarCuenta
+        Admin_B -right-> GRB_DesactivarCuenta
+        Admin_B -right-> GRB_AsignarRol
+        Admin_B -right-> GRB_DefinirPermisos
+        
+        GRB_RecuperarContrasena .right.> GRB_EnviarToken : <<include>>
+    }
+    
+    ' =========================================================================
+    ' FILA 2
+    ' =========================================================================
+    
+    ' --- MÓDULO GRC ---
+    rectangle "GRC - Módulo de Gestión de Inmuebles" as Modulo_Inmuebles {
+        actor "Administrador" as Admin_C
+        actor "Propietario" as Propietario_C
+        actor "Usuario" as Usuario_C
+        
+        usecase "Administrar inmuebles" as GRC_AdminInmuebles
+        usecase "Registrar edificios" as GRC_RegEdificios
+        usecase "Registrar departamentos, suites, estudios y locales" as GRC_RegUnidades
+        usecase "Mantener catálogo del condominio" as GRC_MantenerCatalogo
+        usecase "Gestionar características del condominio" as GRC_GestCaracteristicas
+        usecase "Gestionar propiedades" as GRC_GestPropiedades
+        usecase "Realizar reserva o agenda" as GRC_RealizarReserva
+        usecase "Gestionar notificaciones y recordatorios" as GRC_GestNotificaciones
+        usecase "Actualizar estado del inmueble" as GRC_ActualizarEstado
+        usecase "Generar reportes de cambios" as GRC_ReportesCambios
+        
+        Admin_C -right-> GRC_AdminInmuebles
+        Admin_C -right-> GRC_MantenerCatalogo
+        Admin_C -right-> GRC_GestPropiedades
+        Admin_C -right-> GRC_ActualizarEstado
+        
+        Propietario_C -right-> GRC_GestPropiedades
+        
+        Usuario_C -right-> GRC_RealizarReserva
+        
+        GRC_AdminInmuebles .right.> GRC_RegEdificios : <<include>>
+        GRC_AdminInmuebles .right.> GRC_RegUnidades : <<include>>
+        GRC_MantenerCatalogo .right.> GRC_GestCaracteristicas : <<include>>
+        GRC_RealizarReserva .right.> GRC_GestNotificaciones : <<include>>
+        GRC_ActualizarEstado .right.> GRC_ReportesCambios : <<include>>
+    }
+    
+    ' --- MÓDULO GRD ---
+    rectangle "GRD - Módulo de Reservas de Espacios Comunes" as Modulo_Reservas_EC {
+        actor "Residente" as Residente_D
+        
+        usecase "Reservar Área común" as GRD_ReservarArea
+        usecase "Reservar Salón de Eventos" as GRD_ReservarSalon
+        usecase "Reservar Área Recreacional" as GRD_ReservarRecreacional
+        usecase "Visualizar Disponibilidad de Espacios" as GRD_VisualizarDisp
+        usecase "Cancelar Reserva" as GRD_CancelarReserva
+        
+        Residente_D -right-> GRD_ReservarArea
+        Residente_D -right-> GRD_CancelarReserva
+        
+        GRD_ReservarSalon -up-|> GRD_ReservarArea
+        GRD_ReservarRecreacional -down-|> GRD_ReservarArea
+        GRD_ReservarArea .right.> GRD_VisualizarDisp : <<include>>
+    }
+    
+    ' =========================================================================
+    ' FILA 3
+    ' =========================================================================
+    
+    ' --- MÓDULO GRE ---
+    rectangle "GRE - Módulo Check-in" as Modulo_CheckIn {
+        actor "Administrador" as Admin_E
+        actor "Personal de Seguridad" as Seguridad_E
+        actor "Residente" as Residente_E
+        
+        usecase "enviarAlerta" as GRE_EnviarAlerta
+        usecase "programarVisita" as GRE_ProgramarVisita
+        usecase "registrarEntrada" as GRE_RegistrarEntrada
+        usecase "notificarEntrada" as GRE_NotificarEntrada
+        usecase "registrarHistorial" as GRE_RegistrarHistorial
+        usecase "registrarIngresoParqueadero" as GRE_RegParqueadero
+        
+        Admin_E -right-> GRE_EnviarAlerta
+        
+        Seguridad_E -right-> GRE_RegistrarEntrada
+        Seguridad_E -right-> GRE_EnviarAlerta
+        
+        Residente_E -left-> GRE_ProgramarVisita
+        GRE_ProgramarVisita -left-> Seguridad_E
+        GRE_EnviarAlerta -right-> Residente_E
+        
+        GRE_RegistrarEntrada .right.> GRE_NotificarEntrada : <<include>>
+        GRE_RegistrarEntrada .right.> GRE_RegistrarHistorial : <<include>>
+        GRE_RegParqueadero .right.> GRE_RegistrarEntrada : <<extend>>
+    }
+    
+    ' --- MÓDULO GRF ---
+    rectangle "GRF - Módulo de Comunicación" as Modulo_Comunicacion {
+        actor "Administrador" as Admin_F
+        actor "Residente" as Residente_F
+        actor "Trabajador" as Trabajador_F
+        actor "Sistema (Automático)" as Sistema_F
+        
+        usecase "enviarMensajeAResidentes" as GRF_MensajeResidente
+        usecase "enviarComunicadoATrabajadores" as GRF_ComunicadoTrabajador
+        usecase "enviarMensajeGlobal" as GRF_MensajeGlobal
+        usecase "crearAnuncioGeneral" as GRF_CrearAnuncio
+        usecase "modificarAnuncioGeneral" as GRF_ModificarAnuncio
+        usecase "eliminarAnuncioGeneral" as GRF_EliminarAnuncio
+        usecase "crearReporteDeComunicacion" as GRF_CrearReporte
+        usecase "consultarHistorialDeMensajes" as GRF_ConsultarHistorial
+        usecase "registrarHistorialDeComunicaciones" as GRF_RegHistorial
+        usecase "notificarMensajeRecibido" as GRF_NotificarMensaje
+        
+        Admin_F -right-> GRF_MensajeResidente
+        Admin_F -right-> GRF_ComunicadoTrabajador
+        Admin_F -right-> GRF_MensajeGlobal
+        Admin_F -right-> GRF_CrearAnuncio
+        Admin_F -right-> GRF_ModificarAnuncio
+        Admin_F -right-> GRF_EliminarAnuncio
+        Admin_F -right-> GRF_CrearReporte
+        Admin_F -right-> GRF_ConsultarHistorial
+        
+        Residente_F -left-> GRF_ConsultarHistorial
+        Trabajador_F -left-> GRF_ConsultarHistorial
+        
+        GRF_RegHistorial -right-> Sistema_F
+        GRF_NotificarMensaje -right-> Sistema_F
+    }
+}
+
+' Alineación en una sola columna vertical
+Modulo_Pagos -[hidden]down-> Modulo_Usuarios
+Modulo_Usuarios -[hidden]down-> Modulo_Inmuebles
+Modulo_Inmuebles -[hidden]down-> Modulo_Reservas_EC
+Modulo_Reservas_EC -[hidden]down-> Modulo_CheckIn
+Modulo_CheckIn -[hidden]down-> Modulo_Comunicacion
+
+@enduml
