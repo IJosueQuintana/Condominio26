@@ -14,19 +14,19 @@ rectangle {
     actor "Administrador" as ADM
 
     'Casos de uso
-    usecase "Registrar cuenta" as CU1 
-    usecase "Actualizar información de cuenta" as CU2 
-    usecase "Desactivar cuenta" as CU3
+    usecase "registrarCuenta" as CU1 
+    usecase "actualizarInformacionDeCuenta" as CU2 
+    usecase "desactivarCuenta" as CU3
 
-    usecase "Asignar rol a usuario" as CU4 
-    usecase "Definir permisos de rol" as CU5
+    usecase "asignarRolAUsuario" as CU4 
+    usecase "definirPermisosDeRol" as CU5
 
-    usecase "Iniciar sesión" as CU6 
+    usecase "iniciarSesion" as CU6 
 
-    usecase "Actualizar perfil" as CU7
-    usecase "Recuperar contraseña" as CU8 
+    usecase "actualizarPerfil" as CU7
+    usecase "recuperarContrasena" as CU8 
 
-    usecase "Enviar token de restablecimiento" as CU9 
+    usecase "enviarTokenDeRestablecimiento" as CU9 
 
     ' Relación include
     CU8 .> CU9 : <<include>>

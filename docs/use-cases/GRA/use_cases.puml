@@ -9,7 +9,7 @@ actor "Sistema (Automático)" as Sistema
 rectangle "Módulo de Pagos y Finanzas" {
     ' CASOS DE USO DEL ADMINISTRADOR
     usecase "registrarDeuda" as UC_RegistrarDeuda
-    usecase "registrarPagoEfectivo/Transferencia" as UC_PagoAdmin
+    usecase "registrarPagoEfectivoTransferencia" as UC_PagoAdmin
     usecase "modificarFechaMaximaDePagoDeUnaDeuda" as UC_R1
     usecase "definirValorMensualDeAlicuotas" as UC_R3
     usecase "generarReporteDePagosRealizados" as UC_B1
@@ -29,7 +29,7 @@ rectangle "Módulo de Pagos y Finanzas" {
 
     ' CASOS DE USO DEL SISTEMA
     usecase "registrarDeudaMensual" as UC_DeudaMensualSistema
-    usecase "enviarRecordartorioDeDeudaPendiente" as UC_B2
+    usecase "enviarRecordatorioDeDeudaPendiente" as UC_B2
 }
 
 ' --- Relaciones del Residente ---

@@ -2,19 +2,19 @@
 
 ## Índice
 
-- [CU-01 Registrar Cuenta](#cu-01-registrar-cuenta)
-- [CU-02 Actualizar Información de Cuenta](#cu-02-actualizar-información-de-cuenta)
-- [CU-03 Desactivar Cuenta](#cu-03-desactivar-cuenta)
-- [CU-04 Asignar Rol a Usuario](#cu-04-asignar-rol-a-usuario)
-- [CU-05 Definir Permisos de Rol](#cu-05-definir-permisos-de-rol)
-- [CU-06 Iniciar Sesión](#cu-06-iniciar-sesión)
-- [CU-07 Actualizar Perfil](#cu-07-actualizar-perfil)
-- [CU-08 Recuperar Contraseña](#cu-08-recuperar-contraseña)
-- [CU-09 Enviar Token de Restablecimiento](#cu-09-enviar-token-de-restablecimiento)
+- [CU-01 registrarCuenta](#cu-01-registrarcuenta)
+- [CU-02 actualizarInformacionDeCuenta](#cu-02-actualizarinformaciondecuenta)
+- [CU-03 desactivarCuenta](#cu-03-desactivarcuenta)
+- [CU-04 asignarRolAUsuario](#cu-04-asignarrolausuario)
+- [CU-05 definirPermisosDeRol](#cu-05-definirpermisosderol)
+- [CU-06 iniciarSesion](#cu-06-iniciarsesion)
+- [CU-07 actualizarPerfil](#cu-07-actualizarperfil)
+- [CU-08 recuperarContrasena](#cu-08-recuperarcontrasena)
+- [CU-09 enviarTokenDeRestablecimiento](#cu-09-enviartokenderestablecimiento)
 
 ---
 
-# CU-01 Registrar Cuenta
+# CU-01 registrarCuenta
 
 ## Descripción
 
@@ -65,7 +65,7 @@ Administrador
 
 ---
 
-# CU-02 Actualizar Información de Cuenta
+# CU-02 actualizarInformacionDeCuenta
 
 ## Descripción
 
@@ -120,7 +120,7 @@ Administrador
 
 ---
 
-# CU-03 Desactivar Cuenta
+# CU-03 desactivarCuenta
 
 ## Descripción
 
@@ -170,7 +170,7 @@ Administrador
 
 ---
 
-# CU-04 Asignar Rol a Usuario
+# CU-04 asignarRolAUsuario
 
 ## Descripción
 
@@ -217,7 +217,7 @@ Administrador
 
 ---
 
-# CU-05 Definir Permisos de Rol
+# CU-05 definirPermisosDeRol
 
 ## Descripción
 
@@ -267,7 +267,7 @@ Administrador
 
 ---
 
-# CU-06 Iniciar Sesión
+# CU-06 iniciarSesion
 
 ## Descripción
 
@@ -325,7 +325,7 @@ Usuario, Administrador
 
 ---
 
-# CU-07 Actualizar Perfil
+# CU-07 actualizarPerfil
 
 ## Descripción
 
@@ -372,7 +372,7 @@ Usuario
 
 ---
 
-# CU-08 Recuperar Contraseña
+# CU-08 recuperarContrasena
 
 ## Descripción
 
@@ -397,7 +397,7 @@ Usuario
 1. El caso de uso comienza cuando el Usuario intenta recuperar su contraseña.
 2. El Usuario proporciona el correo electrónico asociado a su cuenta.
 3. El Sistema valida que el correo electrónico exista.
-4. El Sistema ejecuta el caso de uso "Enviar token de restablecimiento".
+4. El Sistema ejecuta el caso de uso "enviarTokenDeRestablecimiento".
 5. El Usuario ingresa el token recibido.
 6. El Sistema valida el token de recuperación.
 7. El Usuario proporciona la nueva contraseña.
@@ -420,7 +420,7 @@ Usuario
 1. El caso de uso comienza cuando el Usuario intenta recuperar su contraseña.
 2. El Usuario proporciona el correo electrónico asociado a su cuenta.
 3. El Sistema valida que el correo electrónico exista.
-4. El Sistema ejecuta el caso de uso "Enviar token de restablecimiento".
+4. El Sistema ejecuta el caso de uso "enviarTokenDeRestablecimiento".
 5. El Usuario ingresa el token recibido.
 6. El Sistema detecta que el token es inválido o ha expirado.
 7. El Sistema muestra el mensaje "Token inválido o expirado".
@@ -431,7 +431,7 @@ Usuario
 1. El caso de uso comienza cuando el Usuario intenta recuperar su contraseña.
 2. El Usuario proporciona el correo electrónico asociado a su cuenta.
 3. El Sistema valida que el correo electrónico exista.
-4. El Sistema ejecuta el caso de uso "Enviar token de restablecimiento".
+4. El Sistema ejecuta el caso de uso "enviarTokenDeRestablecimiento".
 5. El Usuario ingresa el token recibido.
 6. El Sistema valida el token de recuperación.
 7. El Usuario proporciona una nueva contraseña.
@@ -441,7 +441,7 @@ Usuario
 
 ---
 
-# CU-09 Enviar Token de Restablecimiento
+# CU-09 enviarTokenDeRestablecimiento
 
 ## Descripción
 

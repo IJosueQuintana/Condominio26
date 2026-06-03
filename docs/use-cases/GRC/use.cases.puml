@@ -33,16 +33,16 @@ actor Propietario   as PROP
 actor Usuario       as USR
 
 rectangle "GRC – Módulo de Gestión de Inmuebles" {
-  usecase "Administrar inmuebles"                        as UC1
-  usecase "Registrar edificios"                          as UC2
-  usecase "Registrar departamentos,\nsuites, estudios y locales" as UC3
-  usecase "Mantener catálogo del condominio"             as UC4
-  usecase "Gestionar características\ndel condominio"    as UC5
-  usecase "Gestionar propiedades\nde cada propietario"   as UC6
-  usecase "Realizar reserva o agenda"                    as UC7
-  usecase "Gestionar notificaciones\ny recordatorios"    as UC8
-  usecase "Actualizar estado\ndel inmueble"              as UC9
-  usecase "Generar reportes\nde cambios"                 as UC10
+  usecase "administrarInmuebles"                        as UC1
+  usecase "registrarEdificios"                          as UC2
+  usecase "registrarDepartamentosSuitesEstudiosYLocales" as UC3
+  usecase "mantenerCatalogoDelCondominio"             as UC4
+  usecase "gestionarCaracteristicasDelCondominio"    as UC5
+  usecase "gestionarPropiedades"                      as UC6
+  usecase "realizarReservaOAgenda"                    as UC7
+  usecase "gestionarNotificacionesYRecordatorios"    as UC8
+  usecase "actualizarEstadoDelInmueble"              as UC9
+  usecase "generarReportesDeCambios"                 as UC10
 }
 
 ' --- Relaciones de actores ---

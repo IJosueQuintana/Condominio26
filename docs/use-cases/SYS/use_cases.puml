@@ -36,7 +36,7 @@ rectangle "Condominio (El Sistema)" {
         actor "Sistema (Automático)" as Sistema_A
         
         usecase "registrarDeuda" as GRA_RegistrarDeuda
-        usecase "registrarPagoEfectivo/Transferencia" as GRA_PagoAdmin
+        usecase "registrarPagoEfectivoTransferencia" as GRA_PagoAdmin
         usecase "modificarFechaMaximaDePagoDeUnaDeuda" as GRA_ModificarFechaMax
         usecase "definirValorMensualDeAlicuotas" as GRA_DefinirValorAlicuota
         usecase "generarReporteDePagosRealizados" as GRA_ReportePagos
@@ -50,7 +50,7 @@ rectangle "Condominio (El Sistema)" {
         usecase "consultarDeuda" as GRA_ConsultarDeuda
         usecase "consultarPagosEfectuados" as GRA_ConsultarPagos
         usecase "registrarDeudaMensual" as GRA_DeudaMensualSistema
-        usecase "enviarRecordartorioDeDeudaPendiente" as GRA_RecordatorioDeuda
+        usecase "enviarRecordatorioDeDeudaPendiente" as GRA_RecordatorioDeuda
         
         Admin_A -right-> GRA_RegistrarDeuda
         Admin_A -right-> GRA_PagoAdmin
@@ -79,15 +79,15 @@ rectangle "Condominio (El Sistema)" {
         actor "Usuario" as Usuario_B
         actor "Administrador" as Admin_B
         
-        usecase "Registrar cuenta" as GRB_RegistrarCuenta
-        usecase "Actualizar información de cuenta" as GRB_ActualizarCuenta
-        usecase "Desactivar cuenta" as GRB_DesactivarCuenta
-        usecase "Asignar rol a usuario" as GRB_AsignarRol
-        usecase "Definir permisos de rol" as GRB_DefinirPermisos
-        usecase "Iniciar sesión" as GRB_IniciarSesion
-        usecase "Actualizar perfil" as GRB_ActualizarPerfil
-        usecase "Recuperar contraseña" as GRB_RecuperarContrasena
-        usecase "Enviar token de restablecimiento" as GRB_EnviarToken
+        usecase "registrarCuenta" as GRB_RegistrarCuenta
+        usecase "actualizarInformacionDeCuenta" as GRB_ActualizarCuenta
+        usecase "desactivarCuenta" as GRB_DesactivarCuenta
+        usecase "asignarRolAUsuario" as GRB_AsignarRol
+        usecase "definirPermisosDeRol" as GRB_DefinirPermisos
+        usecase "iniciarSesion" as GRB_IniciarSesion
+        usecase "actualizarPerfil" as GRB_ActualizarPerfil
+        usecase "recuperarContrasena" as GRB_RecuperarContrasena
+        usecase "enviarTokenDeRestablecimiento" as GRB_EnviarToken
         
         Usuario_B -right-> GRB_IniciarSesion
         Usuario_B -right-> GRB_RecuperarContrasena
@@ -113,16 +113,16 @@ rectangle "Condominio (El Sistema)" {
         actor "Propietario" as Propietario_C
         actor "Usuario" as Usuario_C
         
-        usecase "Administrar inmuebles" as GRC_AdminInmuebles
-        usecase "Registrar edificios" as GRC_RegEdificios
-        usecase "Registrar departamentos, suites, estudios y locales" as GRC_RegUnidades
-        usecase "Mantener catálogo del condominio" as GRC_MantenerCatalogo
-        usecase "Gestionar características del condominio" as GRC_GestCaracteristicas
-        usecase "Gestionar propiedades" as GRC_GestPropiedades
-        usecase "Realizar reserva o agenda" as GRC_RealizarReserva
-        usecase "Gestionar notificaciones y recordatorios" as GRC_GestNotificaciones
-        usecase "Actualizar estado del inmueble" as GRC_ActualizarEstado
-        usecase "Generar reportes de cambios" as GRC_ReportesCambios
+        usecase "administrarInmuebles" as GRC_AdminInmuebles
+        usecase "registrarEdificios" as GRC_RegEdificios
+        usecase "registrarDepartamentosSuitesEstudiosYLocales" as GRC_RegUnidades
+        usecase "mantenerCatalogoDelCondominio" as GRC_MantenerCatalogo
+        usecase "gestionarCaracteristicasDelCondominio" as GRC_GestCaracteristicas
+        usecase "gestionarPropiedades" as GRC_GestPropiedades
+        usecase "realizarReservaOAgenda" as GRC_RealizarReserva
+        usecase "gestionarNotificacionesYRecordatorios" as GRC_GestNotificaciones
+        usecase "actualizarEstadoDelInmueble" as GRC_ActualizarEstado
+        usecase "generarReportesDeCambios" as GRC_ReportesCambios
         
         Admin_C -right-> GRC_AdminInmuebles
         Admin_C -right-> GRC_MantenerCatalogo
@@ -144,11 +144,11 @@ rectangle "Condominio (El Sistema)" {
     rectangle "GRD - Módulo de Reservas de Espacios Comunes" as Modulo_Reservas_EC {
         actor "Residente" as Residente_D
         
-        usecase "Reservar Área común" as GRD_ReservarArea
-        usecase "Reservar Salón de Eventos" as GRD_ReservarSalon
-        usecase "Reservar Área Recreacional" as GRD_ReservarRecreacional
-        usecase "Visualizar Disponibilidad de Espacios" as GRD_VisualizarDisp
-        usecase "Cancelar Reserva" as GRD_CancelarReserva
+        usecase "reservarAreaComun" as GRD_ReservarArea
+        usecase "reservarSalonDeEventos" as GRD_ReservarSalon
+        usecase "reservarAreaRecreacional" as GRD_ReservarRecreacional
+        usecase "visualizarDisponibilidadDeEspacios" as GRD_VisualizarDisp
+        usecase "cancelarReserva" as GRD_CancelarReserva
         
         Residente_D -right-> GRD_ReservarArea
         Residente_D -right-> GRD_CancelarReserva

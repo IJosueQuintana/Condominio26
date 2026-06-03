@@ -2,7 +2,7 @@
 
 ---
 
-## UC1: Administrar inmuebles
+## UC1: administrarInmuebles
 
 **Descripción**
 Permite al Administrador gestionar los inmuebles registrados en el condominio, incluyendo edificios, departamentos, suites, estudios y locales comerciales.
@@ -22,7 +22,7 @@ Ninguno
 - Los cambios quedan almacenados en la base de datos.
 
 **Flujo Principal**
-1. El Administrador selecciona la opción "Administrar Inmuebles".
+1. El Administrador selecciona la opción "administrarInmuebles".
 2. El sistema muestra el listado de inmuebles registrados.
 3. El Administrador selecciona una acción (crear, editar, consultar o eliminar).
 4. El sistema solicita los datos correspondientes.
@@ -42,7 +42,7 @@ Ninguno
 
 ---
 
-## UC2: Registrar edificios
+## UC2: registrarEdificios
 
 **Descripción**
 Permite al Administrador registrar nuevos edificios dentro del condominio como parte de la gestión de inmuebles.
@@ -55,7 +55,7 @@ Ninguno
 
 **Precondiciones**
 - El Administrador ha iniciado sesión.
-- El Administrador está ejecutando el caso de uso "Administrar inmuebles".
+- El Administrador está ejecutando el caso de uso "administrarInmuebles".
 
 **Postcondiciones**
 - El edificio queda registrado en el catálogo del condominio.
@@ -77,7 +77,7 @@ Ninguno
 
 ---
 
-## UC3: Registrar departamentos, suites, estudios y locales
+## UC3: registrarDepartamentosSuitesEstudiosYLocales
 
 **Descripción**
 Permite al Administrador registrar unidades específicas (departamentos, suites, estudios, locales) dentro de los edificios del condominio.
@@ -90,7 +90,7 @@ Ninguno
 
 **Precondiciones**
 - El edificio padre ya está registrado.
-- El Administrador está ejecutando "Administrar inmuebles".
+- El Administrador está ejecutando "administrarInmuebles".
 
 **Postcondiciones**
 - La unidad queda registrada y asociada a su edificio correspondiente.
@@ -111,7 +111,7 @@ Ninguno
 
 ---
 
-## UC4: Mantener catálogo del condominio
+## UC4: mantenerCatalogoDelCondominio
 
 **Descripción**
 Permite al Administrador mantener actualizado el catálogo general del condominio, incluyendo servicios, áreas comunes y reglamentos.
@@ -129,7 +129,7 @@ Ninguno
 - El catálogo queda actualizado con la nueva información.
 
 **Flujo Principal**
-1. El Administrador accede a "Mantener catálogo".
+1. El Administrador accede a "mantenerCatalogoDelCondominio".
 2. El sistema muestra el catálogo actual.
 3. El Administrador agrega, edita o elimina elementos.
 4. El sistema valida y guarda.
@@ -143,7 +143,7 @@ Ninguno
 
 ---
 
-## UC5: Gestionar características del condominio
+## UC5: gestionarCaracteristicasDelCondominio
 
 **Descripción**
 Permite al Administrador definir y modificar las características generales del condominio (nombre, reglas, horarios, políticas, etc.).
@@ -155,13 +155,13 @@ Administrador
 Ninguno
 
 **Precondiciones**
-- El Administrador está en "Mantener catálogo del condominio".
+- El Administrador está en "mantenerCatalogoDelCondominio".
 
 **Postcondiciones**
 - Las características del condominio se actualizan.
 
 **Flujo Principal**
-1. El Administrador selecciona "Características del condominio".
+1. El Administrador selecciona "gestionarCaracteristicasDelCondominio".
 2. El sistema muestra las características actuales.
 3. El Administrador modifica los valores.
 4. El sistema valida y guarda.
@@ -175,7 +175,7 @@ Ninguno
 
 ---
 
-## UC6: Gestionar propiedades
+## UC6: gestionarPropiedades
 
 **Descripción**
 Permite al Administrador y al Propietario gestionar la relación entre propietarios y las unidades que poseen dentro del condominio.
@@ -194,7 +194,7 @@ Ninguno
 - La propiedad queda asignada o actualizada correctamente.
 
 **Flujo Principal**
-1. El actor selecciona "Gestionar propiedades".
+1. El actor selecciona "gestionarPropiedades".
 2. El sistema muestra las propiedades existentes.
 3. El actor asigna o modifica la relación propietario-unidad.
 4. El sistema valida que el propietario y la unidad existan.
@@ -211,7 +211,7 @@ Ninguno
 
 ---
 
-## UC7: Realizar reserva o agenda
+## UC7: realizarReservaOAgenda
 
 **Descripción**
 Permite al Usuario (residente o inquilino) realizar reservas de áreas comunes o agendar eventos en el condominio.
@@ -231,7 +231,7 @@ Ninguno
 - Se generan notificaciones automáticas.
 
 **Flujo Principal**
-1. El Usuario selecciona "Realizar reserva".
+1. El Usuario selecciona "realizarReservaOAgenda".
 2. El sistema muestra los recursos disponibles.
 3. El Usuario elige fecha, hora y recurso.
 4. El sistema verifica disponibilidad.
@@ -247,7 +247,7 @@ Ninguno
 
 ---
 
-## UC8: Gestionar notificaciones y recordatorios
+## UC8: gestionarNotificacionesYRecordatorios
 
 **Descripción**
 Permite gestionar el envío de notificaciones y recordatorios relacionados con reservas, pagos o eventos del condominio.
@@ -279,7 +279,7 @@ Administrador, Propietario
 
 ---
 
-## UC9: Actualizar estado del inmueble
+## UC9: actualizarEstadoDelInmueble
 
 **Descripción**
 Permite al Administrador actualizar el estado operativo de un inmueble (disponible, en mantenimiento, inhabilitado, etc.).
@@ -298,7 +298,7 @@ Ninguno
 - Se registra el cambio en el historial.
 
 **Flujo Principal**
-1. El Administrador selecciona "Actualizar estado del inmueble".
+1. El Administrador selecciona "actualizarEstadoDelInmueble".
 2. El sistema muestra el listado de inmuebles.
 3. El Administrador selecciona uno y el nuevo estado.
 4. El sistema valida la transición de estado.
@@ -314,7 +314,7 @@ Ninguno
 
 ---
 
-## UC10: Generar reportes de cambios
+## UC10: generarReportesDeCambios
 
 **Descripción**
 Permite al Administrador generar reportes históricos de los cambios realizados sobre inmuebles, estados o asignaciones.
@@ -332,7 +332,7 @@ Ninguno
 - Se genera un reporte con los cambios solicitados.
 
 **Flujo Principal**
-1. El Administrador selecciona "Generar reportes de cambios".
+1. El Administrador selecciona "generarReportesDeCambios".
 2. El sistema solicita filtros (fecha, tipo de cambio, inmueble).
 3. El Administrador ingresa los filtros.
 4. El sistema consulta el historial.

@@ -44,7 +44,7 @@ A continuación se definen los actores que interactúan con el sistema:
 *   **Flujos Alternativos:**
     *   **A1. Datos inválidos:** El Sistema muestra un mensaje de error y no registra la deuda.
 
-#### UC-GRA-02: registrarPagoEfectivo/Transferencia (Anderson)
+#### UC-GRA-02: registrarPagoEfectivoTransferencia (Anderson)
 *   **Descripción:** Permite al Administrador registrar manualmente un pago recibido por transferencia bancaria o en efectivo.
 *   **Actor Principal:** Administrador
 *   **Precondiciones:** El Administrador ha iniciado sesión. La deuda identificada existe en estado "PENDIENTE".
@@ -190,7 +190,7 @@ A continuación se definen los actores que interactúan con el sistema:
 *   **Actor Principal:** Sistema (Automático)
 *   **Postcondiciones:** Se crean deudas en estado "PENDIENTE" para cada departamento y suite según el valor configurado.
 
-#### UC-GRA-16: enviarRecordartorioDeDeudaPendiente (Sistema / Bryan)
+#### UC-GRA-16: enviarRecordatorioDeDeudaPendiente (Sistema / Bryan)
 *   **Descripción:** Envía notificaciones de cobro automáticas al correo de los residentes que tienen deudas pendientes o en mora.
 *   **Actor Principal:** Sistema (Automático)
 *   **Flujo Principal:**
@@ -202,7 +202,7 @@ A continuación se definen los actores que interactúan con el sistema:
 
 ### 3.2. GRB - Módulo de Gestión de Usuarios y Administradores
 
-#### UC-GRB-01: Registrar cuenta
+#### UC-GRB-01: registrarCuenta
 *   **Descripción:** Permite al Administrador registrar un nuevo usuario (residente, guardia, trabajador) en el sistema.
 *   **Actor Principal:** Administrador
 *   **Precondiciones:** El Administrador ha iniciado sesión y tiene permisos.
@@ -212,7 +212,7 @@ A continuación se definen los actores que interactúan con el sistema:
     3. El Administrador define la contraseña inicial.
     4. El Sistema guarda la cuenta y envía un correo con credenciales de acceso.
 
-#### UC-GRB-02: Actualizar información de cuenta
+#### UC-GRB-02: actualizarInformacionDeCuenta
 *   **Descripción:** Permite modificar datos básicos de una cuenta existente.
 *   **Actor Principal:** Administrador
 *   **Flujo Principal:**
@@ -220,7 +220,7 @@ A continuación se definen los actores que interactúan con el sistema:
     2. El Administrador modifica los datos y guarda.
     3. El Sistema valida y aplica los cambios.
 
-#### UC-GRB-03: Desactivar cuenta
+#### UC-GRB-03: desactivarCuenta
 *   **Descripción:** Permite desactivar el acceso de un usuario al sistema temporal o definitivamente, sin borrar su historial de transacciones.
 *   **Actor Principal:** Administrador
 *   **Flujo Principal:**
@@ -228,7 +228,7 @@ A continuación se definen los actores que interactúan con el sistema:
     2. El Sistema solicita confirmación.
     3. Al confirmar, el estado de la cuenta cambia a "desactivada" y se revoca su token de sesión.
 
-#### UC-GRB-04: Asignar rol a usuario
+#### UC-GRB-04: asignarRolAUsuario
 *   **Descripción:** Permite cambiar el rol asignado a un usuario (ej. de Residente a Directiva, o agregar rol Conserje).
 *   **Actor Principal:** Administrador
 *   **Flujo Principal:**
@@ -236,14 +236,14 @@ A continuación se definen los actores que interactúan con el sistema:
     2. Selecciona "Asignar nuevo rol" y elige de la lista de roles del sistema.
     3. Guarda los cambios. Los nuevos permisos se aplican inmediatamente.
 
-#### UC-GRB-05: Definir permisos de rol
+#### UC-GRB-05: definirPermisosDeRol
 *   **Descripción:** Permite configurar las acciones autorizadas para cada rol en el sistema.
 *   **Actor Principal:** Administrador
 *   **Flujo Principal:**
     1. El Administrador ingresa el nombre del rol y selecciona los permisos.
     2. El Sistema guarda o actualiza el mapeo de permisos del rol.
 
-#### UC-GRB-06: Iniciar sesión
+#### UC-GRB-06: iniciarSesion
 *   **Descripción:** Permite la autenticación de usuarios y administradores en la plataforma.
 *   **Actor Principal:** Usuario
 *   **Flujo Principal:**
@@ -254,7 +254,7 @@ A continuación se definen los actores que interactúan con el sistema:
     *   **A1. Credenciales incorrectas:** Se muestra "Credenciales incorrectas" y se niega el ingreso.
     *   **A2. Cuenta desactivada:** Se emite "La cuenta se encuentra desactivada".
 
-#### UC-GRB-07: Actualizar perfil
+#### UC-GRB-07: actualizarPerfil
 *   **Descripción:** Permite a cualquier usuario logueado cambiar su información personal (foto, teléfono, contraseña).
 *   **Actor Principal:** Usuario
 *   **Flujo Principal:**
@@ -262,17 +262,17 @@ A continuación se definen los actores que interactúan con el sistema:
     2. Modifica la información deseada.
     3. El Sistema valida y almacena los cambios.
 
-#### UC-GRB-08: Recuperar contraseña
+#### UC-GRB-08: recuperarContrasena
 *   **Descripción:** Permite a un usuario restablecer su contraseña olvidada mediante un correo electrónico.
 *   **Actor Principal:** Usuario
 *   **Flujo Principal:**
     1. El Usuario ingresa su correo en la página de inicio.
     2. El Sistema valida que la cuenta exista.
-    3. El Sistema ejecuta el caso de uso "Enviar token de restablecimiento".
+    3. El Sistema ejecuta el caso de uso "enviarTokenDeRestablecimiento".
     4. El Usuario ingresa el token recibido y su nueva contraseña.
     5. El Sistema valida la contraseña, actualiza la cuenta y confirma.
 
-#### UC-GRB-09: Enviar token de restablecimiento
+#### UC-GRB-09: enviarTokenDeRestablecimiento
 *   **Descripción:** Caso de uso automático que genera un token temporal único para recuperar contraseñas.
 *   **Actor Principal:** Sistema (Automático)
 *   **Postcondiciones:** Se asocia el token de seguridad a la cuenta y se envía al correo del usuario.
@@ -281,33 +281,33 @@ A continuación se definen los actores que interactúan con el sistema:
 
 ### 3.3. GRC - Módulo de Gestión de Inmuebles
 
-#### UC-GRC-01: Administrar inmuebles
+#### UC-GRC-01: administrarInmuebles
 *   **Descripción:** Permite al Administrador gestionar los elementos físicos del condominio.
 *   **Actor Principal:** Administrador
 *   **Flujo Principal:**
-    1. El Administrador selecciona "Administrar Inmuebles".
+    1. El Administrador selecciona "administrarInmuebles".
     2. El Sistema despliega la lista de inmuebles.
     3. El Administrador puede agregar, editar o eliminar registros de unidades.
-*   **Relaciones:** Incluye `Registrar edificios` y `Registrar departamentos, suites, estudios y locales`.
+*   **Relaciones:** Incluye `registrarEdificios` y `registrarDepartamentosSuitesEstudiosYLocales`.
 
-#### UC-GRC-02: Registrar edificios
+#### UC-GRC-02: registrarEdificios
 *   **Descripción:** Permite ingresar nuevos edificios/bloques dentro de la infraestructura del condominio.
-*   **Actor Principal:** Administrador (incluido en Administrar inmuebles)
+*   **Actor Principal:** Administrador (incluido en administrarInmuebles)
 
-#### UC-GRC-03: Registrar departamentos, suites, estudios y locales
+#### UC-GRC-03: registrarDepartamentosSuitesEstudiosYLocales
 *   **Descripción:** Permite registrar unidades habitacionales específicas asociadas a un edificio padre.
-*   **Actor Principal:** Administrador (incluido en Administrar inmuebles)
+*   **Actor Principal:** Administrador (incluido en administrarInmuebles)
 
-#### UC-GRC-04: Mantener catálogo del condominio
+#### UC-GRC-04: mantenerCatalogoDelCondominio
 *   **Descripción:** Permite actualizar el listado global de áreas comunes, servicios y reglamentos del condominio.
 *   **Actor Principal:** Administrador
-*   **Relaciones:** Incluye `Gestionar características del condominio`.
+*   **Relaciones:** Incluye `gestionarCaracteristicasDelCondominio`.
 
-#### UC-GRC-05: Gestionar características del condominio
+#### UC-GRC-05: gestionarCaracteristicasDelCondominio
 *   **Descripción:** Configura variables del condominio (horarios generales, políticas, reglas de convivencia).
-*   **Actor Principal:** Administrador (incluido en Mantener catálogo)
+*   **Actor Principal:** Administrador (incluido en mantenerCatalogoDelCondominio)
 
-#### UC-GRC-06: Gestionar propiedades
+#### UC-GRC-06: gestionarPropiedades
 *   **Descripción:** Permite definir qué propietario es dueño de qué unidades específicas (departamentos, locales, estacionamientos).
 *   **Actor Principal:** Administrador, Propietario
 *   **Flujo Principal:**
@@ -315,22 +315,22 @@ A continuación se definen los actores que interactúan con el sistema:
     2. Asigna o modifica la relación entre la unidad y el propietario.
     3. El Administrador puede asignar a cualquier cuenta; el Propietario solo visualiza y gestiona sus relaciones asignadas.
 
-#### UC-GRC-07: Realizar reserva o agenda
+#### UC-GRC-07: realizarReservaOAgenda
 *   **Descripción:** Permite solicitar el uso de una instalación del condominio en una fecha y hora determinadas.
 *   **Actor Principal:** Usuario (Residente)
-*   **Relaciones:** Incluye `Gestionar notificaciones y recordatorios` (UC8).
+*   **Relaciones:** Incluye `gestionarNotificacionesYRecordatorios` (UC8).
 
-#### UC-GRC-08: Gestionar notificaciones y recordatorios
+#### UC-GRC-08: gestionarNotificacionesYRecordatorios
 *   **Descripción:** Permite configurar y disparar alertas relacionadas con las reservaciones.
 *   **Actor Principal:** Usuario
 *   **Postcondiciones:** Se envían confirmaciones y alertas periódicas por los canales configurados (SMS, correo, app).
 
-#### UC-GRC-09: Actualizar estado del inmueble
+#### UC-GRC-09: actualizarEstadoDelInmueble
 *   **Descripción:** Permite cambiar la operatividad de un inmueble (disponible, mantenimiento, inhabilitado).
 *   **Actor Principal:** Administrador
-*   **Relaciones:** Incluye `Generar reportes de cambios`.
+*   **Relaciones:** Incluye `generarReportesDeCambios`.
 
-#### UC-GRC-10: Generar reportes de cambios
+#### UC-GRC-10: generarReportesDeCambios
 *   **Descripción:** Muestra un histórico detallado de los cambios de estado y modificaciones del inmueble.
 *   **Actor Principal:** Administrador
 
@@ -338,7 +338,7 @@ A continuación se definen los actores que interactúan con el sistema:
 
 ### 3.4. GRD - Módulo de Reservas de Espacios Comunes
 
-#### UC-GRD-01: Reservar Área común
+#### UC-GRD-01: reservarAreaComun
 *   **Descripción:** Permite al Residente agendar un espacio del condominio.
 *   **Actor Principal:** Residente
 *   **Precondiciones:** El espacio se encuentra disponible en la fecha seleccionada.
@@ -347,19 +347,19 @@ A continuación se definen los actores que interactúan con el sistema:
     2. Visualiza la disponibilidad de horarios (incluido).
     3. Confirma la reserva de fecha y hora.
 *   **Relaciones:**
-    *   Especializaciones: `Reservar Salón de Eventos` (UC2) y `Reservar Área Recreacional` (UC3).
-    *   Incluye: `Visualizar Disponibilidad de Espacios` (UC4).
+    *   Especializaciones: `reservarSalonDeEventos` (UC2) y `reservarAreaRecreacional` (UC3).
+    *   Incluye: `visualizarDisponibilidadDeEspacios` (UC4).
 
-#### UC-GRD-02: Reservar Salón de Eventos
-*   **Descripción:** Reserva específica del salón comunal para eventos privados (hereda de Reservar Área común).
+#### UC-GRD-02: reservarSalonDeEventos
+*   **Descripción:** Reserva específica del salón comunal para eventos privados (hereda de reservarAreaComun).
 
-#### UC-GRD-03: Reservar Área Recreacional
-*   **Descripción:** Reserva específica de canchas, piscinas o parrillas (hereda de Reservar Área común).
+#### UC-GRD-03: reservarAreaRecreacional
+*   **Descripción:** Reserva específica de canchas, piscinas o parrillas (hereda de reservarAreaComun).
 
-#### UC-GRD-04: Visualizar Disponibilidad de Espacios
-*   **Descripción:** Permite consultar los horarios libres de cada área común en tiempo real (incluido en Reservar Área común).
+#### UC-GRD-04: visualizarDisponibilidadDeEspacios
+*   **Descripción:** Permite consultar los horarios libres de cada área común en tiempo real (incluido en reservarAreaComun).
 
-#### UC-GRD-05: Cancelar Reserva
+#### UC-GRD-05: cancelarReserva
 *   **Descripción:** Permite al Residente dar de baja una reserva programada con anticipación.
 *   **Actor Principal:** Residente
 *   **Flujo Principal:**

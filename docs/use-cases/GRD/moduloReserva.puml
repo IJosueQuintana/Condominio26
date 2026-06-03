@@ -10,11 +10,11 @@ actor Residente
 
 rectangle "Módulo\n de Reservas de Espacios Comunes" {
 
-    usecase "Reservar Área\ncomún" as UC1
-    usecase "Reservar Salón\n de Eventos" as UC2
-    usecase "Reservar Área\n Recreacional" as UC3
-    usecase "Visualizar\nDisponibilidad de\nEspacios" as UC4
-    usecase "Cancelar Reserva" as UC5
+    usecase "reservarAreaComun" as UC1
+    usecase "reservarSalonDeEventos" as UC2
+    usecase "reservarAreaRecreacional" as UC3
+    usecase "visualizarDisponibilidadDeEspacios" as UC4
+    usecase "cancelarReserva" as UC5
 
     ' Definimos las herencias (las flechas irán limpias hacia la izquierda)
     UC2 -up-|> UC1
