@@ -13,6 +13,17 @@ rectangle {
     actor "Usuario" as USR
     actor "Administrador" as ADM
 
+    note bottom of USR
+        Actor genérico utilizado para:
+        • Presidente
+        • Propietario
+        • Personal de Seguridad
+        • Residente
+
+        Todos comparten los mismos
+        casos de uso en este módulo.
+    end note
+
     'Casos de uso
     usecase "registrarCuenta" as CU1 
     usecase "actualizarInformacionDeCuenta" as CU2 
