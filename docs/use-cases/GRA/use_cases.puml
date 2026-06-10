@@ -2,58 +2,84 @@
 skinparam actorStyle awesome
 left to right direction
 
-actor "Administrador" as Admin
+actor "Presidente" as Presidente
 actor "Residente" as Residente
 actor "Sistema (Automático)" as Sistema
 
+note as N1
+Administrador puede realizar
+todos los casos de uso
+del módulo.
+end note
+
 rectangle "Módulo de Pagos y Finanzas" {
-    ' CASOS DE USO DEL ADMINISTRADOR
-    usecase "registrarDeuda" as UC_RegistrarDeuda
-    usecase "registrarPagoEfectivoTransferencia" as UC_PagoAdmin
-    usecase "modificarFechaMaximaDePagoDeUnaDeuda" as UC_R1
-    usecase "definirValorMensualDeAlicuotas" as UC_R3
-    usecase "generarReporteDePagosRealizados" as UC_B1
-    usecase "registrarEntidadBancaria" as UC_F1
-    usecase "eliminarDeuda" as UC_F5
+
+    ' CASOS DE USO DEL PRESIDENTE
+    usecase "registrarDeuda" as RegistrarDeuda
+    usecase "registrarPagoEfectivoTransferencia" as RegistrarPagoEfectivoTransferencia
+    usecase "modificarFechaMaximaPago" as ModificarFechaMaximaPago
+    usecase "definirValorMensualAlicuotas" as DefinirValorMensualAlicuotas
+    usecase "generarReportePagosRealizados" as GenerarReportePagos
+    usecase "registrarEntidadBancaria" as RegistrarEntidadBancaria
+    usecase "eliminarDeuda" as EliminarDeuda
+    usecase "generarReporteRendicionCuentas" as GenerarReporteRendicionCuentas
+    usecase "registrarPagoServicioBasico" as RegistrarPagoServicioBasico
+    usecase "registrarPagoSueldosHonorarios" as RegistrarPagoSueldosHonorarios
+    usecase "registrarPagoOtrosGastos" as RegistrarPagoOtrosGastos
+    usecase "generarReporteGastos" as GenerarReporteGastos
 
     ' CASOS DE USO DEL RESIDENTE
-    usecase "registrarPago" as UC_PagoResidente
-    usecase "definirPagoDeAlicuotasDeFormaMensual" as UC_R4
-    usecase "solicitarPagoEnCuotas" as UC_F3
-    usecase "eliminarFormaDePagoRecurrente" as UC_F4
-    usecase "generarCertificadoDeNoDeudor" as UC_F6
+    usecase "registrarPago" as RegistrarPago
+    usecase "definirPagoMensualAlicuotas" as DefinirPagoMensualAlicuotas
+    usecase "solicitarPagoCuotas" as SolicitarPagoCuotas
+    usecase "eliminarFormaPagoRecurrente" as EliminarFormaPagoRecurrente
+    usecase "generarCertificadoNoDeudor" as GenerarCertificadoNoDeudor
+    usecase "consultarReporteRendicionCuentas" as ConsultarReporteRendicionCuentas
 
-    ' CASOS DE USO COMPARTIDOS (Admin y Residente)
-    usecase "consultarDeuda" as UC_ConsultarDeuda
-    usecase "consultarPagosEfectuados" as UC_F2
+    ' CASOS DE USO COMPARTIDOS
+    usecase "consultarDeuda" as ConsultarDeuda
+    usecase "consultarPagosEfectuados" as ConsultarPagosEfectuados
 
     ' CASOS DE USO DEL SISTEMA
-    usecase "registrarDeudaMensual" as UC_DeudaMensualSistema
-    usecase "enviarRecordatorioDeDeudaPendiente" as UC_B2
+    usecase "registrarDeudaMensual" as RegistrarDeudaMensual
+    usecase "enviarRecordatorioDeudaPendiente" as EnviarRecordatorioDeuda
 }
 
-' --- Relaciones del Residente ---
-Residente --> UC_PagoResidente
-Residente --> UC_ConsultarDeuda
-Residente --> UC_F2
-Residente --> UC_F3
-Residente --> UC_F4
-Residente --> UC_F6
-Residente --> UC_R4
+' ------------------------
+' Relaciones del Residente
+' ------------------------
+Residente --> RegistrarPago
+Residente --> ConsultarDeuda
+Residente --> ConsultarPagosEfectuados
+Residente --> SolicitarPagoCuotas
+Residente --> EliminarFormaPagoRecurrente
+Residente --> GenerarCertificadoNoDeudor
+Residente --> DefinirPagoMensualAlicuotas
+Residente --> ConsultarReporteRendicionCuentas
 
-' --- Relaciones del Administrador ---
-Admin --> UC_RegistrarDeuda
-Admin --> UC_PagoAdmin
-Admin --> UC_ConsultarDeuda
-Admin --> UC_R1
-Admin --> UC_R3
-Admin --> UC_B1
-Admin --> UC_F1
-Admin --> UC_F2
-Admin --> UC_F5
+' ------------------------
+' Relaciones del Presidente
+' ------------------------
+Presidente --> RegistrarDeuda
+Presidente --> RegistrarPagoEfectivoTransferencia
+Presidente --> ConsultarDeuda
+Presidente --> ModificarFechaMaximaPago
+Presidente --> DefinirValorMensualAlicuotas
+Presidente --> GenerarReportePagos
+Presidente --> RegistrarEntidadBancaria
+Presidente --> ConsultarPagosEfectuados
+Presidente --> EliminarDeuda
+Presidente --> GenerarReporteRendicionCuentas
+Presidente --> RegistrarPagoServicioBasico
+Presidente --> RegistrarPagoSueldosHonorarios
+Presidente --> RegistrarPagoOtrosGastos
+Presidente --> GenerarReporteGastos
 
-' --- Relaciones del Sistema (Procesos Automáticos) ---
-Sistema --> UC_B2
-Sistema --> UC_DeudaMensualSistema
+' ------------------------
+' Relaciones del Sistema
+' ------------------------
+Sistema --> EnviarRecordatorioDeuda
+Sistema --> RegistrarDeudaMensual
+
 
 @enduml
