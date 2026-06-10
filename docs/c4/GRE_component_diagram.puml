@@ -68,7 +68,7 @@ Rel_D(controladorCheckIn, servicioHistorial, "Consulta historial", "Java")
 
 Rel_R(servicioEntradas, moduloUsuarios, "Valida persona relacionada", "Java")
 Rel_R(servicioVisitas, moduloUsuarios, "Valida residente", "Java")
-
+Rel_R(servicioVisitas, servicioParqueadero, "Solicita asignar parqueadero de visita", "Java")
 Rel_R(servicioEntradas, servicioNotificaciones, "Solicita notificar entrada", "Java")
 Rel_R(servicioVisitas, servicioNotificaciones, "Solicita notificar visita", "Java")
 Rel_R(servicioAlertas, servicioNotificaciones, "Solicita enviar alerta", "Java")
