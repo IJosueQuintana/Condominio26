@@ -6,6 +6,7 @@ LAYOUT_TOP_DOWN()
 LAYOUT_WITH_LEGEND()
 
 title Diagrama de Componentes - Módulo GRE: Check-in
+
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam linetype ortho
@@ -25,50 +26,62 @@ System_Boundary(sistema, "Sistema de Gestión de Condominio") {
 
     Container_Boundary(appEscritorio, "Aplicación de Escritorio", "JavaFX") {
 
-        Boundary(moduloCheckIn, "Módulo Check-in") {
+        Boundary(moduloCheckIn, "Módulo GRE") {
 
-            Component(vistaCheckIn, "Vista Check-in", "JavaFX", "Interfaz para registrar entradas, programar visitas, asignar parqueaderos, enviar alertas y consultar historial.")
+            Component(vistaPresidente, "Vista Presidente", "JavaFX", "Interfaz para consultar historial de entradas y enviar alertas del condominio.")
+            Component(vistaSeguridad, "Vista Seguridad", "JavaFX", "Interfaz para registrar entradas, controlar accesos y gestionar parqueaderos de visita.")
+            Component(vistaResidente, "Vista Residente", "JavaFX", "Interfaz para programar visitas y consultar notificaciones relacionadas.")
 
-            Component(controladorCheckIn, "Controlador Check-in", "Java Controller", "Recibe las acciones de la interfaz y coordina los gestores del módulo.")
+            Component(controladorEntradas, "Controlador de Entradas", "Java Controller", "Recibe solicitudes de registro de entradas de residentes, visitantes y personas externas.")
+            Component(controladorVisitas, "Controlador de Visitas", "Java Controller", "Gestiona las solicitudes relacionadas con la programación de visitas.")
+            Component(controladorParqueadero, "Controlador de Parqueaderos", "Java Controller", "Coordina las solicitudes de asignación y registro de parqueaderos de visita.")
+            Component(controladorAlertas, "Controlador de Alertas", "Java Controller", "Gestiona las solicitudes para enviar alertas rápidas.")
+            Component(controladorHistorial, "Controlador de Historial", "Java Controller", "Procesa las solicitudes de consulta del historial de entradas.")
 
-            Component(servicioEntradas, "Gestor de Registro de Entradas", "Java Service", "Registra entradas de residentes, visitantes y personas externas.")
-
-            Component(servicioVisitas, "Gestor de Programación de Visitas", "Java Service", "Permite registrar visitas programadas por los residentes.")
-
-            Component(servicioParqueadero, "Gestor de Parqueaderos", "Java Service", "Coordina y registra el uso de parqueaderos de visita.")
-
-            Component(servicioAlertas, "Gestor de Alertas", "Java Service", "Gestiona alertas rápidas en caso de emergencia o simulacro.")
-
-            Component(servicioHistorial, "Gestor de Historial Entrada", "Java Service", "Consulta y gestiona el historial de entradas.")
-
-            Component(servicioNotificaciones, "Gestor de Notificaciones", "Java Service", "Prepara notificaciones de entradas, visitas programadas y alertas.")
+            Component(servicioEntradas, "Servicio de Registro de Entradas", "Java Service", "Registra entradas de residentes, visitantes y personas externas.")
+            Component(servicioVisitas, "Servicio de Programación de Visitas", "Java Service", "Permite registrar visitas programadas por los residentes.")
+            Component(servicioParqueadero, "Servicio de Parqueaderos", "Java Service", "Coordina y registra el uso de parqueaderos de visita.")
+            Component(servicioAlertas, "Servicio de Alertas", "Java Service", "Gestiona alertas rápidas en caso de emergencia o simulacro.")
+            Component(servicioHistorial, "Servicio de Historial Entrada", "Java Service", "Consulta y gestiona el historial de entradas.")
+            Component(servicioNotificaciones, "Servicio de Notificaciones", "Java Service", "Prepara notificaciones de entradas, visitas programadas y alertas.")
 
             Component(repositorioCheckIn, "Repositorio Check-in", "DAO / Repository", "Accede a los datos de entradas, visitas, parqueaderos, alertas e historial.")
         }
 
-        Component(moduloUsuarios, "Módulo de Usuarios y Administradores", "Java / JavaFX", "Valida residentes, presidente, roles y permisos.")
+        Component(moduloUsuarios, "Módulo GRA", "Java / JavaFX", "Valida residentes, presidente, roles y permisos.")
 
-        Component(moduloComunicacion, "Módulo de Comunicación", "Java / JavaFX", "Envía mensajes, notificaciones y alertas.")
+        Component(moduloGRC, "Módulo GRC", "Java / JavaFX", "Gestiona la disponibilidad y uso de parqueaderos y áreas comunes.")
+
+        Component(moduloComunicacion, "Módulo GRF", "Java / JavaFX", "Envía mensajes, notificaciones y alertas.")
     }
 
     ContainerDb(baseDatos, "Base de Datos", "MySQL", "Almacena visitantes, residentes, entradas, visitas programadas, parqueaderos, alertas e historial.")
 }
 
-Rel_D(presidente, vistaCheckIn, "Consulta historial y envía alertas", "UI")
-Rel_D(security, vistaCheckIn, "Registra entradas y parqueaderos", "UI")
-Rel_D(residente, vistaCheckIn, "Programa visitas", "UI")
+Rel_D(presidente, vistaPresidente, "Consulta historial y envía alertas", "UI")
+Rel_D(security, vistaSeguridad, "Registra entradas y parqueaderos", "UI")
+Rel_D(residente, vistaResidente, "Programa visitas", "UI")
 
-Rel_D(vistaCheckIn, controladorCheckIn, "Envía solicitudes", "Eventos / DTO")
+Rel_D(vistaSeguridad, controladorEntradas, "Solicita registrar entrada", "Eventos / DTO")
+Rel_D(vistaSeguridad, controladorParqueadero, "Solicita asignar parqueadero", "Eventos / DTO")
 
-Rel_D(controladorCheckIn, servicioEntradas, "Gestiona entradas", "Java")
-Rel_D(controladorCheckIn, servicioVisitas, "Gestiona visitas", "Java")
-Rel_D(controladorCheckIn, servicioParqueadero, "Gestiona parqueaderos", "Java")
-Rel_D(controladorCheckIn, servicioAlertas, "Gestiona alertas", "Java")
-Rel_D(controladorCheckIn, servicioHistorial, "Consulta historial", "Java")
+Rel_D(vistaResidente, controladorVisitas, "Solicita programar visita", "Eventos / DTO")
+
+Rel_D(vistaPresidente, controladorHistorial, "Solicita consultar historial", "Eventos / DTO")
+Rel_D(vistaPresidente, controladorAlertas, "Solicita enviar alerta", "Eventos / DTO")
+
+Rel_D(controladorEntradas, servicioEntradas, "Coordina registro de entradas", "Java")
+Rel_D(controladorVisitas, servicioVisitas, "Coordina programación de visitas", "Java")
+Rel_D(controladorParqueadero, servicioParqueadero, "Coordina uso de parqueaderos", "Java")
+Rel_D(controladorAlertas, servicioAlertas, "Coordina envío de alertas", "Java")
+Rel_D(controladorHistorial, servicioHistorial, "Coordina consulta de historial", "Java")
 
 Rel_R(servicioEntradas, moduloUsuarios, "Valida persona relacionada", "Java")
 Rel_R(servicioVisitas, moduloUsuarios, "Valida residente", "Java")
+
 Rel_R(servicioVisitas, servicioParqueadero, "Solicita asignar parqueadero de visita", "Java")
+Rel_R(servicioParqueadero, moduloGRC, "Consulta disponibilidad de parqueaderos", "Java")
+
 Rel_R(servicioEntradas, servicioNotificaciones, "Solicita notificar entrada", "Java")
 Rel_R(servicioVisitas, servicioNotificaciones, "Solicita notificar visita", "Java")
 Rel_R(servicioAlertas, servicioNotificaciones, "Solicita enviar alerta", "Java")
@@ -76,15 +89,32 @@ Rel_R(servicioAlertas, servicioNotificaciones, "Solicita enviar alerta", "Java")
 Rel_R(servicioNotificaciones, moduloComunicacion, "Envía notificaciones", "Java")
 
 Rel_D(servicioEntradas, repositorioCheckIn, "Guarda entradas", "SQL")
+Rel_D(servicioVisitas, repositorioCheckIn, "Guarda visitas programadas", "SQL")
 Rel_D(servicioParqueadero, repositorioCheckIn, "Guarda parqueaderos", "SQL")
 Rel_D(servicioHistorial, repositorioCheckIn, "Consulta historial", "SQL")
 
 Rel_D(repositorioCheckIn, baseDatos, "Lee y escribe datos", "JDBC / SQL")
 
-Lay_D(vistaCheckIn, controladorCheckIn)
-Lay_D(controladorCheckIn, servicioEntradas)
+Lay_D(vistaPresidente, controladorHistorial)
+Lay_D(vistaSeguridad, controladorEntradas)
+Lay_D(vistaResidente, controladorVisitas)
+
+Lay_D(controladorEntradas, servicioEntradas)
+Lay_D(controladorVisitas, servicioVisitas)
+Lay_D(controladorParqueadero, servicioParqueadero)
+Lay_D(controladorAlertas, servicioAlertas)
+Lay_D(controladorHistorial, servicioHistorial)
+
 Lay_D(servicioEntradas, repositorioCheckIn)
 Lay_D(repositorioCheckIn, baseDatos)
+
+Lay_R(vistaPresidente, vistaSeguridad)
+Lay_R(vistaSeguridad, vistaResidente)
+
+Lay_R(controladorEntradas, controladorVisitas)
+Lay_R(controladorVisitas, controladorParqueadero)
+Lay_R(controladorParqueadero, controladorAlertas)
+Lay_R(controladorAlertas, controladorHistorial)
 
 Lay_R(servicioEntradas, servicioVisitas)
 Lay_R(servicioVisitas, servicioParqueadero)
