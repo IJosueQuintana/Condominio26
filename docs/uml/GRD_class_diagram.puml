@@ -1,0 +1,177 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+package "Capa de Presentación (JavaFX UI & Controllers)" {
+    class VistaSeleccionReserva <<class>> {
+        + mostrarHorariosDisponibles()
+        + solicitarReserva()
+    }
+
+    class ControladorSeleccionReserva <<class>> {
+        - gestionReservasService: GestionReservasService
+        + consultarDisponibilidad(fecha: Date, espacio: EspacioComun): List<Horario>
+        + generarSolicitudReserva(espacio: EspacioComun, fecha: Date, hora: Time): void
+    }
+
+    class VistaReservaUsuario <<class>> {
+        + mostrarReservasUsuario()
+        + solicitarCancelacion()
+        + agregarObservacion()
+    }
+
+    class ControladorReservaUsuario <<class>> {
+        - gestionReservasService: GestionReservasService
+        + cargarReservasPorResidente(residenteId: String): List<Reserva>
+        + cancelarReserva(reservaId: String): void
+        + registrarObservacion(reservaId: String, textoObservacion: String): void
+    }
+
+    class VistaVisualizacionReservas <<class>> {
+        + mostrarTodasLasReservas()
+        + filtrarReservas()
+        + solicitarMulta()
+    }
+
+    class ControladorVisualizacionReservas <<class>> {
+        - gestionReservasService: GestionReservasService
+        - multasService: MultasService
+        + obtenerTodasReservas(): List<Reserva>
+        + filtrarReservas(criterio: String): List<Reserva>
+        + adjudicarMulta(reservaId: String, residenteId: String, motivo: String): void
+        + registrarObservacion(reservaId: String, texto: String): void
+    }
+}
+
+package "Capa de Lógica de Negocio (Java Services)" {
+    class GestionReservasService <<class>> {
+        - reservaDAO: ReservaDAO
+        + crearReserva(reserva: Reserva): boolean
+        + cancelarReserva(reservaId: String): boolean
+        + consultarDisponibilidad(espacioId: String, fecha: Date): boolean
+        + agregarObservacion(reservaId: String, observacion: Observacion): boolean
+    }
+
+    class MultasService <<class>> {
+        - moduloGRA_API: APIClient
+        + adjudicarMultaPorConflicto(residente: Residente, reserva: Reserva, motivo: String, monto: Double): Multa
+        - enviarSolicitudPagoGRA(multa: Multa): void
+    }
+}
+
+package "Capa de Acceso a Datos (Java DAO)" {
+    interface ReservaDAO <<interface>> {
+        + guardar(reserva: Reserva): void
+        + actualizar(reserva: Reserva): void
+        + buscarPorId(id: String): Reserva
+        + buscarPorResidente(residenteId: String): List<Reserva>
+        + buscarTodas(): List<Reserva>
+    }
+    
+    class ReservaDAOImpl <<class>> {
+        - dbConnection: Connection
+        + guardar(reserva: Reserva): void
+        + actualizar(reserva: Reserva): void
+        + buscarPorId(id: String): Reserva
+        + buscarPorResidente(residenteId: String): List<Reserva>
+        + buscarTodas(): List<Reserva>
+    }
+}
+
+package "Entidades del Dominio (Models)" {
+    abstract class Usuario <<abstract>> {
+        # id: String
+        # nombre: String
+        # identificacion: String
+    }
+
+    class Residente <<class>> {
+        - numeroDepartamento: String
+    }
+
+    class Administrador <<class>> {
+        - cargo: String
+    }
+
+    class Reserva <<class>> {
+        - id: String
+        - fechaCreacion: Date
+        - fechaReserva: Date
+        - horaInicio: Time
+        - horaFin: Time
+        - estado: EstadoReserva
+        + cambiarEstado(nuevoEstado: EstadoReserva): void
+        + agregarObservacion(obs: Observacion): void
+    }
+
+    enum EstadoReserva <<enumeration>> {
+        PENDIENTE
+        CONFIRMADA
+        CANCELADA
+        FINALIZADA
+    }
+
+    class Observacion <<class>> {
+        - id: String
+        - texto: String
+        - fechaHora: Date
+        - autor: Usuario
+    }
+
+    abstract class EspacioComun <<abstract>> {
+        # id: String
+        # nombre: String
+        # aforoMaximo: int
+        + estaDisponible(fecha: Date, inicio: Time, fin: Time): boolean
+    }
+
+    class SalonDeEventos <<class>> {
+        - costoReserva: Double
+        - requiereGarantia: boolean
+    }
+
+    class AreaRecreacional <<class>> {
+        - tipoCancha: String
+        - requiereEquipamiento: boolean
+    }
+
+    class Multa <<class>> {
+        - id: String
+        - monto: Double
+        - motivo: String
+        - fechaEmision: Date
+        - estadoPago: String
+    }
+}
+
+' Relaciones de Herencia (Generalización)
+Usuario <|-- Residente
+Usuario <|-- Administrador
+EspacioComun <|-- SalonDeEventos
+EspacioComun <|-- AreaRecreacional
+ReservaDAO <|.. ReservaDAOImpl
+
+' Relaciones del Dominio
+Reserva "*" --> "1" Residente : "realizada por >"
+Reserva "*" --> "1" EspacioComun : "asociada a >"
+Reserva "1" *-- "*" Observacion : "contiene >"
+Reserva "1" --> "1" EstadoReserva : "tiene estado >"
+Multa "*" --> "1" Residente : "aplicada a >"
+Multa "1" --> "1" Reserva : "originada en >"
+Observacion "*" --> "1" Usuario : "escrita por >"
+
+' Relaciones de Arquitectura (Dependencias y Asociaciones)
+VistaSeleccionReserva ..> ControladorSeleccionReserva
+VistaReservaUsuario ..> ControladorReservaUsuario
+VistaVisualizacionReservas ..> ControladorVisualizacionReservas
+
+ControladorSeleccionReserva --> GestionReservasService
+ControladorReservaUsuario --> GestionReservasService
+ControladorVisualizacionReservas --> GestionReservasService
+ControladorVisualizacionReservas --> MultasService
+
+GestionReservasService --> ReservaDAO
+
+@enduml
