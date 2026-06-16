@@ -96,7 +96,6 @@ Rel_R(servicioNotificaciones, moduloComunicacion, "Envía\nnotificaciones", "Jav
 
 Rel_D(servicioEntradas, repositorioCheckIn, "Guarda\nentradas", "SQL")
 Rel_D(servicioVisitas, repositorioCheckIn, "Guarda visitas\nprogramadas", "SQL")
-Rel_D(servicioParqueadero, repositorioCheckIn, "Guarda\nparqueaderos", "SQL")
 Rel_D(servicioHistorial, repositorioCheckIn, "Consulta\nhistorial", "SQL")
 
 Rel_D(repositorioCheckIn, baseDatos, "Lee y escribe\ndatos", "JDBC / SQL")
