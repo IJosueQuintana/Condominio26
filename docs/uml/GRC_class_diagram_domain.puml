@@ -1,0 +1,166 @@
+@startuml DomainClassDiagram
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' ==========================================
+' JERARQUÍA DE USUARIOS (ABSTRACTA)
+' ==========================================
+abstract class Usuario {
+    - idUsuario : int
+    - nombre : String
+    - correo : String
+    - telefono : String
+    
+    + {abstract} login()
+    + consultarDatos()
+}
+
+class Residente
+class Presidente
+class Administrador
+
+Usuario <|-- Residente
+Usuario <|-- Presidente
+Usuario <|-- Administrador
+
+' ==========================================
+' CLASE ABSTRACTA PADRE (INMUEBLE)
+' ==========================================
+abstract class Inmueble {
+    - idInmueble : int
+    - codigo : String
+    - estado : String
+    - disponibleAlquiler : boolean
+    - disponibleVenta : boolean
+
+    + {abstract} registrar()
+    + actualizarEstado()
+    + {abstract} consultar()
+}
+
+' ==========================================
+' CLASES HIJAS (Jerarquía de Inmueble)
+' ==========================================
+class Edificio {
+    - idEdificio : int
+    - nombre : String
+    - direccion : String
+    - numeroPisos : int
+
+    + registrar()
+    + modificar()
+    + eliminar()
+    + consultar()
+}
+
+class Departamento {
+    - numeroDepartamento : int
+    - piso : int
+    - nroHabitaciones : int
+}
+
+class Suite {
+    - tieneBalcon : boolean
+}
+
+class EspacioComun {
+    - nombreEspacio : String
+    - reglamentoUso : String
+}
+
+class Parqueadero {
+    - idParqueadero : int
+    - numero : String
+    - disponible : boolean
+
+    + registrar()
+    + consultar()
+    + actualizarDisponibilidad()
+}
+
+' Relaciones de Herencia de Inmueble
+Inmueble <|-- Edificio
+Inmueble <|-- Departamento
+Inmueble <|-- Suite
+Inmueble <|-- EspacioComun
+Inmueble <|-- Parqueadero
+
+' ==========================================
+' COMPONENTES Y GESTIÓN
+' ==========================================
+class CaracteristicaInmueble {
+    - idCaracteristica : int
+    - areaMetrosCuadrados : double
+    - numeroHabitaciones : int
+    - numeroBanos : int
+    - numeroParqueaderos : int
+    - descripcion : String
+
+    + registrarCaracteristicas()
+    + modificarCaracteristicas()
+    + consultarCaracteristicas()
+}
+
+class CatalogoCondominio {
+    - idCatalogo : int
+    - fechaActualizacion : Date
+
+    + agregarInmueble()
+    + eliminarInmueble()
+    + actualizarCatalogo()
+    + consultarCatalogo()
+}
+
+class ReporteCambio {
+    - idReporte : int
+    - fechaGeneracion : Date
+    - tipoCambio : String
+    - descripcionCambio : String
+
+    + registrarCambio()
+    + generarReporte()
+    + consultarReporte()
+}
+
+class Propiedad {
+    - idPropiedad : int
+    - enAlquiler : boolean
+    - fechaRegistro : Date
+
+    + consultarPropiedad()
+    + consultarResidentes()
+    + actualizarEstadoAlquiler()
+}
+
+class CasoFortuito {
+    - idCaso : int
+    - tipo : String
+    - descripcion : String
+    - fecha : Date
+    - estado : String
+
+    + registrarCaso()
+    + actualizarCaso()
+    + cerrarCaso()
+}
+
+class Notificacion {
+    - idNotificacion : int
+    - mensaje : String
+}
+
+' ==========================================
+' DISPOSICIÓN DE RELACIONES
+' ==========================================
+CatalogoCondominio "1" o-right- "*" Inmueble
+Inmueble "1" *-- "1" CaracteristicaInmueble
+Inmueble "1" --> "*" ReporteCambio
+Inmueble "1" --> "*" CasoFortuito
+
+CasoFortuito "1" --> "*" Notificacion
+
+Propiedad "*" --> "1" Inmueble
+Propiedad "*" --> "1" Usuario
+Propiedad "1" --> "*" Residente
+
+@enduml

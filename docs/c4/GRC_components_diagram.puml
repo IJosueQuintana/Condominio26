@@ -3,36 +3,86 @@
 
 title Diagrama de Componentes - Módulo GRC: Gestión de Inmuebles
 
+' ==========================================
+' ACTORES REALES (De la imagen image_f2a3b6.png)
+' ==========================================
+Person(propietario, "Propietario", "Interesado en gestionar sus propiedades específicas en el sistema.")
+Person(administrador, "Administrador", "Encargado de actualizar estados, registrar edificios, departamentos, suites, estudios y locales.")
+Person(presidente, "Presidente", "Encargado de administrar inmuebles, mantener el catálogo y gestionar casos fortuitos.")
+
+' ==========================================
+' CONTENEDORES EXTERNOS
+' ==========================================
 ContainerDb(database, "Base de Datos", "MySQL", "Almacena inmuebles, edificios, catálogos e incidencias.")
 Container(grf_module, "Módulo GRF", "Java Module", "Notificaciones y comunicados.")
 
-Container_Boundary(desktop_app, "Módulo GRC") {
-    ' Capa Presentación
-    Component(prop_ctrl, "Controlador Propiedades", "JavaFX", "UI para gestión de edificios y unidades.")
-    Component(cat_ctrl, "Controlador Catálogo", "JavaFX", "UI para características del condominio.")
-    Component(event_ctrl, "Controlador Incidencias", "JavaFX", "UI para casos fortuitos.")
+' ==========================================
+' APLICACIÓN DE ESCRITORIO - LÍMITE DEL MÓDULO
+' ==========================================
+Container_Boundary(desktop_app, "Aplicación de Escritorio - Módulo GRC") {
 
-    ' Capa Lógica
-    Component(prop_service, "Servicio Propiedades", "Java Service", "Lógica de registro de unidades y estados.")
-    Component(cat_service, "Servicio Catálogo", "Java Service", "Lógica de gestión de características.")
-    Component(event_service, "Servicio Incidencias", "Java Service", "Lógica de casos fortuitos y alertas.")
-    Component(report_service, "Servicio Reportes", "Java Service", "Genera bitácora de cambios.")
+    ' ------------------------------------------
+    ' CAPA VISTA (JavaFX UI Panels)
+    ' ------------------------------------------
+    Component(prop_view, "Vista de Gestión de Propiedades", "JavaFX", "Panel donde se registran y administran los edificios, departamentos, suites, estudios, locales y sus estados.")
+    Component(cat_view, "Vista de Catálogo del Condominio", "JavaFX", "Panel para la parametrización y mantenimiento de las características generales del condominio.")
+    Component(event_view, "Vista de Gestión de Casos Fortuitos", "JavaFX", "Panel destinado al registro de incidencias, averías o situaciones de emergencia.")
 
-    ' Capa Datos
-    Component(prop_repo, "Repositorio Propiedades", "Java DAO", "Consultas SQL para Inmuebles.")
-    Component(event_repo, "Repositorio Incidencias", "Java DAO", "Persistencia de casos fortuitos.")
+    ' ------------------------------------------
+    ' CAPA CONTROLADOR (JavaFX Controllers)
+    ' ------------------------------------------
+    Component(prop_ctrl, "Controlador de Propiedades", "JavaFX Controller", "Coordina las acciones de registro de bloques/unidades y las actualizaciones de estado.")
+    Component(cat_ctrl, "Controlador de Catálogo", "JavaFX Controller", "Maneja los eventos de la UI vinculados a la administración de características comunales.")
+    Component(event_ctrl, "Controlador de Casos Fortuitos", "JavaFX Controller", "Procesa el ingreso de reportes de incidencias y la activación de alertas inmediatas.")
+
+    ' ------------------------------------------
+    ' CAPA SERVICIO (Lógica de Negocio)
+    ' ------------------------------------------
+    Component(prop_service, "Servicio de Gestión de Inmuebles", "Java Service", "Implementa las reglas de negocio para el alta de inmuebles y el flujo de cambio de estados.")
+    Component(cat_service, "Servicio de Catálogo", "Java Service", "Lógica para el mantenimiento y validación de las especificaciones del condominio.")
+    Component(event_service, "Servicio de Incidencias", "Java Service", "Administra el procesamiento de casos fortuitos y coordina el envío de avisos urgentes.")
+    Component(report_service, "Servicio de Reportes", "Java Service", "Genera de manera automatizada la bitácora e historial de cambios sobre los inmuebles.")
+
+    ' ------------------------------------------
+    ' CAPA REPOSITORIO (Persistencia DAO)
+    ' ------------------------------------------
+    Component(prop_repo, "Repositorio de Propiedades", "Java DAO", "Realiza operaciones SQL/CRUD relativas a inmuebles, unidades y configuraciones de catálogo.")
+    Component(event_repo, "Repositorio de Incidencias", "Java DAO", "Persiste y consulta el historial físico de casos fortuitos y logs de eventos.")
 }
 
-Rel(prop_ctrl, prop_service, "Usa")
-Rel(cat_ctrl, cat_service, "Usa")
-Rel(event_ctrl, event_service, "Usa")
+' ==========================================
+' RELACIONES Y FLUJOS BASADOS EN CASOS DE USO
+' ==========================================
 
-Rel(prop_service, report_service, "Registra cambios")
-Rel(event_service, grf_module, "Notifica eventos")
+' Interacciones de Actores con las Vistas (image_f2a3b6.png)
+Rel(propietario, prop_view, "Gestiona propiedades de su pertenencia [UI]")
+Rel(administrador, prop_view, "Actualiza estados del inmueble y registra estructuras [UI]")
+Rel(presidente, prop_view, "Administra inmuebles generales [UI]")
+Rel(presidente, cat_view, "Mantiene catálogo del condominio [UI]")
+Rel(presidente, event_view, "Gestiona casos fortuitos [UI]")
 
-Rel(prop_service, prop_repo, "CRUD")
-Rel(event_service, event_repo, "Persiste log")
+' Vinculación Vista -> Controlador
+Rel(prop_view, prop_ctrl, "Envía solicitud de registro o cambio de estado")
+Rel(cat_view, cat_ctrl, "Envía petición de actualización de catálogo")
+Rel(event_view, event_ctrl, "Envía parámetros del caso fortuito reportado")
 
-Rel(prop_repo, database, "SQL/JDBC")
-Rel(event_repo, database, "SQL/JDBC")
+' Vinculación Controlador -> Servicio
+Rel(prop_ctrl, prop_service, "Solicita registrar edificaciones/unidades o cambiar estados")
+Rel(cat_ctrl, cat_service, "Solicita gestionar características del condominio")
+Rel(event_ctrl, event_service, "Solicita procesar incidente y emitir recordatorios")
+
+' Interacciones internas de la capa de negocio e inter-módulos
+Rel(prop_service, report_service, "Envía datos para el registro de auditoría")
+Rel(event_service, grf_module, "Envía eventos para gestionar notificaciones y recordatorios [Java API]")
+
+' Vinculación Servicio -> Repositorio (DAO)
+Rel(prop_service, prop_repo, "Persiste cambios de inmuebles")
+Rel(cat_service, prop_repo, "Persiste características del catálogo")
+Rel(report_service, prop_repo, "Guarda bitácora de auditoría histórica")
+Rel(event_service, event_repo, "Persiste log de incidentes")
+
+' Capa de Persistencia -> Base de Datos
+Rel(prop_repo, database, "Lee y escribe datos de inmuebles y reportes [JDBC/SQL]")
+Rel(event_repo, database, "Lee y escribe registros de incidencias [JDBC/SQL]")
+
 @enduml

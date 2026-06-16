@@ -1,0 +1,208 @@
+@startuml ClassDiagram MVC
+
+skinparam style strictuml
+skinparam viewBox true
+skinparam packageStyle rect
+skinparam linetype ortho
+
+title Diseño Arquitectónico (MVC Capa 3) - Módulo GRC
+
+' ==========================================
+' CAPA 1: CONTROLADORES (JavaFX)
+' ==========================================
+package "Controladores (JavaFX)" {
+    class VistaGestionPropiedades {
+        + mostrarFormulario() : void
+    }
+    class VistaCatalogoCondominio {
+        + mostrarCatalogo() : void
+    }
+    class VistaCasosFortuitos {
+        + mostrarAlertaEmergencia() : void
+    }
+
+    class ControladorPropiedades {
+        - servicioInmuebles : ServicioGestionInmuebles
+        + registrarInmueble() : void
+        + cambiarEstado() : void
+    }
+    class ControladorCatalogo {
+        - servicioCatalogo : ServicioCatalogo
+        + actualizarCatalogo() : void
+    }
+    class ControladorCasosFortuitos {
+        - servicioIncidencias : ServicioIncidencias
+        + procesarIncidencia() : void
+    }
+
+    VistaGestionPropiedades ..> ControladorPropiedades
+    VistaCatalogoCondominio ..> ControladorCatalogo
+    VistaCasosFortuitos ..> ControladorCasosFortuitos
+}
+
+' ==========================================
+' CAPA 2: SERVICIOS (Lógica de Casos de Uso)
+' ==========================================
+package "Servicios (Lógica de Casos de Uso)" {
+    class ServicioGestionInmuebles {
+        - repositorioPropiedades : InmuebleDAO
+        - servicioReportes : ServicioReportes
+        + registrarInmueble(i : Inmueble) : boolean
+        + cambiarEstado(id : int, estado : String) : void
+    }
+    class ServicioCatalogo {
+        - repositorioPropiedades : InmuebleDAO
+        + parametrizarCatalogo(c : CatalogoCondominio) : void
+    }
+    class ServicioIncidencias {
+        - repositorioIncidencias : CasoFortuitoDAO
+        + procesarCasoFortuito(cf : CasoFortuito) : void
+    }
+    class ServicioReportes {
+        + generarBitacoraCambios(r : ReporteCambio) : void
+    }
+}
+
+' ==========================================
+' CAPA 3: REPOSITORIOS (DAO)
+' ==========================================
+package "Repositorios (DAO)" {
+    interface InmuebleDAO {
+        + CRUD_Inmuebles() : void
+        + leerEscribirDatos() : void
+    }
+    class InmuebleDAOImpl {
+        - dbConnection : Connection
+        + CRUD_Inmuebles() : void
+        + leerEscribirDatos() : void
+    }
+    InmuebleDAO <|.. InmuebleDAOImpl
+
+    interface CasoFortuitoDAO {
+        + persistirLogIncidentes() : void
+        + consultarHistorialFisico() : List
+    }
+    class CasoFortuitoDAOImpl {
+        - dbConnection : Connection
+        + persistirLogIncidentes() : void
+        + consultarHistorialFisico() : List
+    }
+    CasoFortuitoDAO <|.. CasoFortuitoDAOImpl
+}
+
+' ==========================================
+' CAPA 4: ENTIDADES (Dominio)
+' ==========================================
+package "Entidades (Dominio)" {
+    
+    abstract class Inmueble {
+        # idInmueble : int
+        # codigo : String
+        # estado : String
+        # disponibleAlquiler : boolean
+        # disponibleVenta : boolean
+    }
+    class Edificio {
+        - idEdificio : int
+        - nombre : String
+        - direccion : String
+        - numeroPisos : int
+    }
+    class Departamento {
+        - numeroDepartamento : int
+        - piso : int
+        - nroHabitaciones : int
+    }
+    class Suite {
+        - tieneBalcon : boolean
+    }
+    class EspacioComun {
+        - nombreEspacio : String
+        - reglamentoUso : String
+    }
+    class Parqueadero {
+        - idParqueadero : int
+        - numero : String
+        - disponible : boolean
+    }
+
+    abstract class Usuario {
+        # idUsuario : int
+        # nombre : String
+        # correo : String
+    }
+    class Residente
+    class Presidente
+    class Administrador
+
+    class Propiedad {
+        - idPropiedad : int
+        - enAlquiler : boolean
+        - fechaRegistro : Date
+    }
+
+    class CaracteristicaInmueble {
+        - idCaracteristica : int
+        - areaMetrosCuadrados : double
+        - numeroHabitaciones : int
+        - numeroBanos : int
+        - numeroParqueaderos : int
+        - descripcion : String
+    }
+    class CatalogoCondominio {
+        - idCatalogo : int
+        - fechaActualizacion : Date
+    }
+    class CasoFortuito {
+        - idCaso : int
+        - tipo : String
+        - descripcion : String
+        - fecha : Date
+        - estado : String
+    }
+    class ReporteCambio {
+        - idReporte : int
+        - fechaGeneracion : Date
+        - tipoCambio : String
+        - descripcionCambio : String
+    }
+    class Notificacion
+
+    ' Herencias internas de Entidades (Como en el ejemplo)
+    Inmueble <|-- Edificio
+    Inmueble <|-- Departamento
+    Inmueble <|-- Suite
+    Inmueble <|-- EspacioComun
+    Inmueble <|-- Parqueadero
+
+    Usuario <|-- Residente
+    Usuario <|-- Presidente
+    Usuario <|-- Administrador
+}
+
+' ==========================================
+' DISPOSICIÓN Y FLUJO VERTICAL DE LAS CAPAS
+' ==========================================
+"Controladores (JavaFX)" -down-> "Servicios (Lógica de Casos de Uso)"
+"Servicios (Lógica de Casos de Uso)" -down-> "Repositorios (DAO)"
+"Servicios (Lógica de Casos de Uso)" -down-> "Entidades (Dominio)"
+
+' Conexiones de Controladores a Servicios
+ControladorPropiedades -down-> ServicioGestionInmuebles
+ControladorCatalogo -down-> ServicioCatalogo
+ControladorCasosFortuitos -down-> ServicioIncidencias
+
+' Conexiones de Servicios a Repositorios
+ServicioGestionInmuebles -down-> InmuebleDAO
+ServicioGestionInmuebles -down-> ServicioReportes
+ServicioCatalogo -down-> InmuebleDAO
+ServicioIncidencias -down-> CasoFortuitoDAO
+
+' Dependencias de Servicios hacia Entidades
+ServicioGestionInmuebles ..> Inmueble
+ServicioGestionInmuebles ..> Propiedad
+ServicioCatalogo ..> CatalogoCondominio
+ServicioIncidencias ..> CasoFortuito
+ServicioReportes ..> ReporteCambio
+
+@enduml
