@@ -1,0 +1,169 @@
+@startuml C4_Class_Diagram_GRA_Diseno
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 70
+
+title Diseño Arquitectónico (MVC Capa 3) - Módulo GRA
+
+' ── Controladores ──
+package "Controladores (JavaFX)" #DDEEFF {
+    class ControladorDeudas {
+        - servicioDeudas: ServicioDeudas
+        + registrarDeudaUI(): void
+        + modificarFechaMaximaDePagoDeUnaDeudaUI(): void
+        + eliminarDeudaUI(): void
+        + consultarDeudaUI(): void
+        + solicitarPagoEnCuotasUI(): void
+    }
+    class ControladorPagosGastos {
+        - servicioPagos: ServicioPagos
+        - servicioGastos: ServicioGastos
+        + pagarDeudaUI(): void
+        + registrarPagoEfectivoTransferenciaResidenteUI(): void
+        + registrarPagosCondominioUI(): void
+        + consultarPagosEfectuadosUI(): void
+    }
+    class ControladorReportes {
+        - servicioReportes: ServicioReportes
+        + generarReporteDePagosRealizadosUI(): void
+        + generarReporteGastosUI(): void
+        + generarReporteRendicionCuentasUI(): void
+        + consultarReporteRendicionCuentasUI(): void
+        + generarCertificadoDeNoDeudorUI(): void
+    }
+    class ControladorParametros {
+        - servicioParametros: ServicioParametros
+        + definirValorMensualDeAlicuotasUI(): void
+        + registrarEntidadBancariaUI(): void
+    }
+}
+
+' ── Servicios ──
+package "Servicios (Lógica de Casos de Uso)" #DDFFDD {
+    class ServicioDeudas {
+        - repoDeudas: RepositorioDeudas
+        + registrarDeuda(cedula: String, motivo: String, fechaMax: Date, desc: String, valor: double): String
+        + modificarFechaMaximaDePagoDeUnaDeuda(idDeuda: String, nuevaFecha: Date): String
+        + eliminarDeuda(idDeuda: String): String
+        + consultarDeuda(cedula: String): List<Deuda>
+        + solicitarPagoEnCuotas(idDeuda: String, meses: int): String
+    }
+    class ServicioPagos {
+        - repoPagos: RepositorioPagos
+        - repoDeudas: RepositorioDeudas
+        + pagarDeuda(idDeuda: String, metodo: String, datosTarjeta: String): String
+        + registrarPagoEfectivoTransferenciaResidente(idDeuda: String): String
+        + consultarPagosEfectuados(fechaInicio: Date, fechaFin: Date): List<Pago>
+    }
+    class ServicioGastos {
+        - repoGastos: RepositorioGastos
+        + registrarPagosCondominio(fecha: Date, valor: double, motivo: String, desc: String): String
+    }
+    class ServicioReportes {
+        - repoReportes: RepositorioReportes
+        + generarReporteDePagosRealizados(fechaInicio: Date, fechaFin: Date): Reporte
+        + generarReporteGastos(fechaInicio: Date, fechaFin: Date): Reporte
+        + generarReporteRendicionCuentas(fechaInicio: Date, fechaFin: Date, obs: String): Reporte
+        + consultarReporteRendicionCuentas(fechaInicio: Date, fechaFin: Date): Reporte
+        + generarCertificadoDeNoDeudor(cedula: String): String
+    }
+    class ServicioParametros {
+        - repoParametros: RepositorioParametros
+        + definirValorMensualDeAlicuotas(valor: double): String
+        + registrarEntidadBancaria(nombre: String, numCuenta: String, cedula: String, tipo: String, correo: String): String
+    }
+    class SistemaAutomatizadoScheduler {
+        - servicioDeudas: ServicioDeudas
+        + registrarDeudaAlicuotaMensual(): void
+        + enviarRecordatorioDeDeudaPendiente(): void
+        + registrarMoraDeuda(): void
+        + notificarReporteRendicionCuentas(): void
+    }
+}
+
+' ── Repositorios ──
+package "Repositorios (DAO)" #FFEECC {
+    interface RepositorioDeudas {
+        + guardarDeuda(deuda: Deuda): void
+        + buscarDeudasPorCedula(cedula: String): List<Deuda>
+        + buscarPorId(idDeuda: String): Deuda
+    }
+    interface RepositorioPagos {
+        + guardarPago(pago: Pago): void
+        + buscarPagosPorRango(inicio: Date, fin: Date): List<Pago>
+    }
+    interface RepositorioGastos {
+        + guardarGasto(gasto: Gasto): void
+        + buscarGastosPorRango(inicio: Date, fin: Date): List<Gasto>
+    }
+    interface RepositorioReportes {
+        + guardarReporte(reporte: Reporte): void
+        + buscarReportePorFechas(inicio: Date, fin: Date): Reporte
+    }
+    interface RepositorioParametros {
+        + actualizarAlicuotaBase(valor: double): void
+        + obtenerAlicuotaBase(): double
+        + guardarEntidadBancaria(entidad: EntidadBancaria): void
+    }
+}
+
+' ── Entidades ──
+package "Entidades (Dominio)" #FFE0E0 {
+    class Residente {
+        - cedula: String
+        - nombre: String
+        - dimensionesDepartamento: double
+    }
+    class Deuda {
+        - idDeuda: String
+        - valor: double
+        - fechaMaximaPago: Date
+        - descripcion: String
+    }
+    class Pago {
+        - idPago: String
+        - fechaPago: Date
+        - comprobanteTransferencia: String
+    }
+    class Gasto {
+        - idGasto: String
+        - fechaGasto: Date
+        - valor: double
+        - descripcion: String
+    }
+    class Reporte {
+        - idReporte: String
+        - fechaInicio: Date
+        - fechaFin: Date
+        - observaciones: String
+    }
+    class EntidadBancaria {
+        - nombreEntidad: String
+        - numeroCuenta: String
+        - correoTitular: String
+    }
+}
+
+' ── Relaciones Arquitectónicas ──
+ControladorDeudas --> ServicioDeudas
+ControladorPagosGastos --> ServicioPagos
+ControladorPagosGastos --> ServicioGastos
+ControladorReportes --> ServicioReportes
+ControladorParametros --> ServicioParametros
+
+ServicioDeudas --> RepositorioDeudas
+ServicioPagos --> RepositorioPagos
+ServicioPagos --> RepositorioDeudas
+ServicioGastos --> RepositorioGastos
+ServicioReportes --> RepositorioReportes
+ServicioParametros --> RepositorioParametros
+SistemaAutomatizadoScheduler --> ServicioDeudas
+
+ServicioDeudas ..> Deuda
+ServicioPagos ..> Pago
+ServicioGastos ..> Gasto
+ServicioReportes ..> Reporte
+ServicioParametros ..> EntidadBancaria
+
+@enduml

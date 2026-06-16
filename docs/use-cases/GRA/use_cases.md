@@ -21,11 +21,9 @@
 
 ### Casos de uso Residente
 - [pagarDeuda](#requisito-pagardeuda)
-- [registrarPagoMensualRecurrenteAlicuotas](#requisito-definirpagodealicuotasdeformamensual)
 - [solicitarPagoEnCuotas](#requisito-solicitarpagoencuotas)
-- [eliminarFormaDePagoRecurrente](#requisito-eliminarformadepagorecurrente)
 - [generarCertificadoDeNoDeudor](#requisito-generarcertificadodenodeudor)
-- [guardarDatosBancarios](#requisito-guardardatosbancarios)
+
 
 
 ### Casos de uso compartidos
@@ -53,7 +51,7 @@ El sistema permitirá registrar una deuda para un Residente
 
 ## Datos del Caso de Uso
 
-- **Entradas:** número de cédula de identidad del residente que cumple el algoritmo de validacion de cedula Ecuatoriana, motivo de la deuda (ALICUOTA, MULTA, RESERVA), fecha maxima de pago mayor a la fecha actual, descripcion, caracteres del alfabeto y " ", ".", ",", "ñ", valor de la deuda, flotante de 2 decimales.
+- **Entradas:** número de cédula de identidad del residente que cumple el algoritmo de validacion de cedula Ecuatoriana, motivo de la deuda (ALICUOTA, MULTA, RESERVA), fecha maxima de pago mayor a la fecha actual, descripcion, caracteres del alfabeto y " ", ".", ",", "ñ", valo,r de la deuda, flotante de 2 decimales.
 - **Salidas:** mensaje
 
 ## Escenario Básico
@@ -542,45 +540,6 @@ El sistema permitirá registrar el pago de una deuda.
 
 ---
 
-
-# Requisito: definirPagoDeAlicuotasDeFormaMensual
-El sistema permitirá definir el pago de  alícuotas de forma mensual (como pago recurrente).
-
-## Datos del Caso de Uso
-
-- **Entradas:** valor a definir como pago recurrente
-- **Salidas:** mensaje
-
-### Escenario Básico:**
-
-1. El caso de uso inicia con el Residente ingresando el valor de pago que desea pagar de forma recurrente.
-2. El Sistema consulta el valor de alicuotas mensual y calcula la alicuota respectiva para el residente
-3. El Sistema verifica si el valor ingresado por el usuario es igual al valor que le corresponde cancelar por concepto de alícuota.
-4. SI el valor ingresado es válido entonces el Sistema consulta los datos financieros del Residente
-5. Si el Residente cuenta con datos financieros, entonces el Sistema guarda el pago recurrente y debitará mes a mes de la tarjeta o de la cuenta registrada.
-6. El caso de uso finaliza con el Sistema emitiendo el mensaje "Pago recurrente guardado exitosamente"
-
-## Escenario(s) alternativo(s):**
-
-### Escenario alternativo 1:**
-
-1. El caso de uso inicia con el Residente ingresando el valor de pago que desea pagar de forma recurrente.
-2. El Sistema consulta el valor de alicuotas mensual y calcula la alicuota respectiva para el residente
-3. El Sistema verifica si el valor ingresado por el usuario es igual al valor que le corresponde cancelar por concepto de alícuota.
-4. SI el valor ingresado NO válido entonces el Sistema emite el mensaje "Su valor de alicuota no corresponde al valor que desea pagar mensualmente, el valor que le corresponde es: valor"
-5. El caso de uso finaliza sin que se guarde un pago recurrente.
-
-### Escenario alternativo 2:**
-
-1. El caso de uso inicia con el Residente ingresando el valor de pago que desea pagar de forma recurrente.
-2. El Sistema consulta el valor de alicuotas mensual y calcula la alicuota respectiva para el residente
-3. El Sistema verifica si el valor ingresado por el usuario es igual al valor que le corresponde cancelar por concepto de alícuota.
-4. SI el valor ingresado es válido entonces el Sistema consulta los datos financieros del Residente
-5. Si el Residente NO cuenta con datos financieros, entonces el Sistema emite el mensaje "Debe registrar una tarjeta de debito / credito para configurar el pago recurrente"
-6. El caso de uso finaliza sin que se guarde el pago recurrente.
-
----
-
 # Requisito: solicitarPagoEnCuotas
 El Sistema permitirá a un residente solicitar el pago en cuotas.
 
@@ -618,33 +577,6 @@ El Sistema permitirá a un residente solicitar el pago en cuotas.
 6. El caso de uso finaliza con el Sistema sin diferir la deuda
 
 ---
-# Requisito: eliminarFormaDePagoRecurrente
-El sistema permitira eliminar la forma de pago recurrente.
-
-## Datos del Caso de Uso
-
-- **Entradas:** id del pago recurrente a cancelar
-- **Salidas:** mensaje
-
-## Escenario Básico:**
-
-1. El caso de uso inicia con el Administrador/Residente ingresando el id del pago recurrente a cancelar
-2. El Sistema verifica que exista un pago recurrente con el id proporcionado asociado al Residente/Administrador ejecutando el caso de uso
-3. Si existe un pago recurrente, entonces el Sistema elimina el pago recurrente
-4. El caso de uso finaliza con el Sistema emitiendo el mensaje "Pago de alicuota eliminado exitosamente"
-
-
-## Escenario(s) alternativo(s):**
-
-### Escenario alternativo 1**
-
-1. El caso de uso inicia con el Administrador/Residente ingresando el id del pago recurrente a cancelar
-2. El Sistema verifica que exista un pago recurrente con el id proporcionado asociado al Residente/Administrador ejecutando el caso de uso
-3. Si NO existe un pago recurrente, entonces el Sistema emite el mensaje "No existe una forma de pago recurrente para el usuario asociado"
-4. El caso de uso finaliza sin que el Sistema elimine la forma de pago recurrente
-
-
----
 
 # Requisito: generarCertificadoDeNoDeudor
 El sistema permitirá generar un certificado de no deudor.
@@ -680,26 +612,6 @@ El sistema permitirá generar un certificado de no deudor.
 5. El caso de uso finaliza sin que el Sistema genere el certificado de no deudor.
 ---
 
-# Requisito: registrarDatosBancarios
-El sistema permitirá guardar los datos bancarios de un residente para los pagos recurrentes
-
-## Datos del Caso de Uso
-
-- **Entradas:** número de cédula de identidad del Residente
-- **Salidas:** mensaje y cerficado de no deudor
-
-## Escenario Básico:**
-
-
-## Escenario(s) alternativo(s):**
-
-### Escenario alternativo 1:**
-
-
-### Escenario alternativo 2:**
-
-
----
 
 # Requisito: consultarDeuda
 El sistema permitirá consultar las deudas de un residente mediante su número de cédula

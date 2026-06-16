@@ -1,0 +1,126 @@
+@startuml Diagrama_Dominio_GRA
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    ArrowColor #2F5EA8
+    FontColor #1F3F73
+}
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
+}
+
+package "Entidades del Dominio - Módulo GRA" {
+
+    enum EstadoDeuda {
+        PENDIENTE
+        EN_PROCESO
+        PAGADA
+        MORA
+        ELIMINADA
+    }
+
+    enum MotivoDeuda {
+        ALICUOTA
+        MULTA
+        RESERVA
+    }
+
+    enum MetodoPago {
+        EFECTIVO
+        TRANSFERENCIA
+        TARJETA
+    }
+
+    enum MotivoGasto {
+        SERVICIO_BASICO
+        SUELDOS
+        OTROS
+    }
+
+    enum TipoServicioBasico {
+        AGUA
+        LUZ
+        TELEFONO
+        INTERNET
+    }
+
+    enum TipoReporte {
+        RENDICION_CUENTAS
+    }
+
+    class Residente <<Partial GRB>> {
+        - cedula: String
+        - nombre: String
+        - dimensionesDepartamento: double
+        + getCedula(): String
+        + getDimensiones(): double
+    }
+
+    class Deuda {
+        - idDeuda: String
+        - motivo: MotivoDeuda
+        - valor: double
+        - fechaMaximaPago: Date
+        - descripcion: String
+        - estado: EstadoDeuda
+        + actualizarEstado(nuevoEstado: EstadoDeuda): void
+        + aplicarMora(porcentajeInteres: double): void
+        + modificarFecha(nuevaFecha: Date): void
+        + esVencida(fechaActual: Date): boolean
+    }
+
+    class Pago {
+        - idPago: String
+        - metodo: MetodoPago
+        - fechaPago: Date
+        - comprobanteTransferencia: String
+        + esValidadoPorPlataforma(): boolean
+    }
+
+    class Gasto {
+        - idGasto: String
+        - fechaGasto: Date
+        - valor: double
+        - motivo: MotivoGasto
+        - tipoServicio: TipoServicioBasico
+        - descripcion: String
+    }
+
+    class EntidadBancaria {
+        - nombreEntidad: String
+        - numeroCuenta: String
+        - cedulaTitular: String
+        - tipoCuenta: String
+        - correoTitular: String
+    }
+
+    class Reporte {
+        - idReporte: String
+        - fechaInicio: Date
+        - fechaFin: Date
+        - tipo: TipoReporte
+        - observaciones: String
+        - totalIngresos: double
+        - totalGastos: double
+        + calcularBalanceDiario(): double
+    }
+
+    ' Relaciones Centrales
+    Residente "1" --> "0..*" Deuda : "posee"
+    Deuda "1" -- "0..1" Pago : "se cancela totalmente con"
+    
+    ' Dependencias
+    Deuda .down.> EstadoDeuda : "<<use>>"
+    Deuda .down.> MotivoDeuda : "<<use>>"
+    Pago .down.> MetodoPago : "<<use>>"
+    Gasto .down.> MotivoGasto : "<<use>>"
+    Gasto .down.> TipoServicioBasico : "<<use>>"
+    Reporte .down.> TipoReporte : "<<use>>"
+}
+@enduml
