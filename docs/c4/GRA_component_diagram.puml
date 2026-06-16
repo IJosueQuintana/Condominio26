@@ -2,9 +2,11 @@
 
 !include ../libs/c4/C4_Component.puml
 
+LAYOUT_TOP_DOWN()
+
 skinparam defaultTextAlignment center
-skinparam nodesep 50
-skinparam ranksep 60
+skinparam nodesep 40
+skinparam ranksep 50
 
 title Diagrama de Componentes - Módulo GRA: Gestión Pagos y Finanzas
 
@@ -40,7 +42,7 @@ Container_Boundary(desktop_app, "Aplicación de Escritorio - Módulo GRA") {
     Component(ctrl_solicitudes, "Controlador de Solicitudes", "Java Controller", "Recibe las acciones de la interfaz y realiza o acepta solicitudes referentes a los pagos.")
     Component(ctrl_personal, "Controlador de Reportes Personales", "Java Controller", "Recibe las acciones de la interfaz y genera reportes de pagos.")
 
-    ' ── Modelo ────────────────────
+    ' ── Modelo: Servicios ────────────────────
     Component(model_pagos, "Servicio de Registro de Pagos", "Java Service", "Registra y modifica los pagos y deudas.")
     ' Component(model_gastos, "Servicio de Registro de Gastos", "Java Service", "Registra gastos y su detalle.")
     Component(model_reportes_gastos, "Servicio de Reportes de Gastos", "Java Service", "Genera reportes financieros.")
@@ -48,12 +50,46 @@ Container_Boundary(desktop_app, "Aplicación de Escritorio - Módulo GRA") {
     Component(model_parametros, "Servicio de Parámetros", "Java Service", "Difine valores de alicuota y entidades bancarias.")
     Component(model_solicitudes, "Servicio de Solicitudes", "Java Service", "Procesa solicitudes referentes a los pagos.")
 
+    ' ── NUEVO: Modelo: Repositorios (DAO) ────
+    Component(repo_pagos, "Repositorio de Pagos", "Java DAO", "Consultas SQL sobre tablas de pagos, deudas y multas.")
+    Component(repo_reportes, "Repositorio de Reportes", "Java DAO", "Consultas SQL para generación de reportes de pagos y gastos.")
+    Component(repo_parametros, "Repositorio de Parámetros", "Java DAO", "Consultas SQL sobre tablas de alícuotas y entidades bancarias.")
+    Component(repo_solicitudes, "Repositorio de Solicitudes", "Java DAO", "Consultas SQL sobre tablas de solicitudes de pago.")
+
 }
 
- ' Conexión vista-controladores
+' ── NUEVO: Layout horizontal por capa ───────────────────
+Lay_R(vista_deuda,       vista_pagos)
+Lay_R(vista_pagos,       vista_solicitudes)
+Lay_R(vista_solicitudes, vista_reportes)
+Lay_R(vista_reportes,    vista_personal)
+Lay_R(vista_personal,    vista_parametros)
+
+Lay_R(ctrl_deudas,      ctrl_pagos)
+Lay_R(ctrl_pagos,       ctrl_solicitudes)
+Lay_R(ctrl_solicitudes, ctrl_reportes)
+Lay_R(ctrl_reportes,    ctrl_personal)
+Lay_R(ctrl_personal,    ctrl_parametros)
+
+Lay_R(model_pagos,           model_solicitudes)
+Lay_R(model_solicitudes,     model_reportes_pagos)
+Lay_R(model_reportes_pagos,  model_reportes_gastos)
+Lay_R(model_reportes_gastos, model_parametros)
+
+Lay_R(repo_pagos,       repo_solicitudes)
+Lay_R(repo_solicitudes, repo_reportes)
+Lay_R(repo_reportes,    repo_parametros)
+
+' ── NUEVO: Layout vertical entre capas ──────────────────
+Lay_D(vista_pagos,  ctrl_pagos)
+Lay_D(ctrl_pagos,   model_pagos)
+Lay_D(model_pagos,  repo_pagos)
+Lay_D(repo_pagos,   database)
+
+' Conexión vista-controladores
 Rel(vista_pagos, ctrl_pagos, "Envia Solicitudes de Registro de Pagos")
 Rel(vista_deuda, ctrl_deudas, "Envia Solicitudes de Registro de Deudas")
-' Rel(vista_gastos, ctrl_gastos, "Envia Solicitudes de Registro de Gastos
+' Rel(vista_gastos, ctrl_gastos, "Envia Solicitudes de Registro de Gastos")
 Rel(vista_reportes, ctrl_reportes, "Envia soliicitud de generación de reportes generales")
 Rel(vista_parametros, ctrl_parametros, "Envia solicitudes de actualización de parámetros")
 Rel(vista_solicitudes, ctrl_solicitudes, "Envia solicitudes de gestión de solicitudes")
@@ -76,11 +112,17 @@ Rel(model_pagos, grc_module, "Calcular alicuota", "API REST")
 Rel(model_pagos, grf_module, "Notificar deudas y pagos", "API REST")
 Rel(model_solicitudes, model_pagos, "Generar pago en cuotas", "API REST")
 
+' ── NUEVO: Conexión Services → DAOs ─────────────────────
+Rel(model_pagos, repo_pagos, "Lee/Escribe pagos y deudas")
+Rel(model_reportes_pagos, repo_reportes, "Consulta datos de pagos")
+Rel(model_reportes_gastos, repo_reportes, "Consulta datos de gastos")
+Rel(model_parametros, repo_parametros, "Lee/Escribe parámetros")
+Rel(model_solicitudes, repo_solicitudes, "Lee/Escribe solicitudes")
 
-' Conexión con la base de datos
-Rel(model_pagos, database, "Lee/Escribe", "JDBC/SQL")
-Rel(model_reportes_pagos, database, "Lee/Escribe", "JDBC/SQL")
-Rel(model_parametros, database, "Lee/Escribe", "JDBC/SQL")
-Rel(model_reportes_gastos, database, "Lee/Escribe", "JDBC/SQL")
+' ── NUEVO: Conexión DAOs → Base de Datos ────────────────
+Rel(repo_pagos, database, "Lee/Escribe", "JDBC/SQL")
+Rel(repo_reportes, database, "Lee", "JDBC/SQL")
+Rel(repo_parametros, database, "Lee/Escribe", "JDBC/SQL")
+Rel(repo_solicitudes, database, "Lee/Escribe", "JDBC/SQL")
 
 @enduml
