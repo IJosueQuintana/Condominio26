@@ -1,0 +1,282 @@
+@startuml C4_Class_Diagram_GRE_CheckIn
+
+title Diseño Arquitectónico (MVC Capa 3) - Módulo GRE
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 70
+
+
+' ── Controladores ──
+package "Controladores (JavaFX)" #DDEEFF {
+
+  class VistaPresidente {
+    +consultarHistorial(): void
+    +enviarAlerta(): void
+    +mostrarResultado(): void
+  }
+
+  class ControladorHistorial {
+    -gestorHistorialEntrada: GestorHistorialEntrada
+    +consultarHistorialEntradas(): List<RegistroEntrada>
+    +consultarHistorialPorFecha(fechaInicio: Date, fechaFin: Date): List<RegistroEntrada>
+    +generarReporteHistorial(fecha: Date): ReporteHistorial
+  }
+
+  class ControladorAlertas {
+    -gestorAlerta: GestorAlerta
+    +enviarAlertaRapida(idPresidente: int, tipo: String, mensaje: String, prioridad: String): Alerta
+    +consultarAlertasEnviadas(): List<Alerta>
+  }
+
+  class VistaSeguridad {
+    +registrarEntrada(): void
+    +asignarParqueadero(): void
+    +mostrarConfirmacion(): void
+  }
+
+  class ControladorEntradas {
+    -gestorRegistroEntradas: GestorRegistroEntradas
+    +registrarEntradaVisitante(visitante: Visitante, idResidente: int, idPersonal: int, motivo: String): RegistroEntrada
+    +registrarEntradaResidente(idResidente: int, idPersonal: int): RegistroEntrada
+    +registrarEntradaExterna(visitante: Visitante, idPersonal: int, motivo: String): RegistroEntrada
+    +validarDatosEntrada(visitante: Visitante): boolean
+  }
+
+  class ControladorParqueaderos {
+    -gestorParqueaderos: GestorParqueaderos
+    +asignarParqueaderoVisita(idVisita: int, placaVehiculo: String): ParqueaderoVisita
+    +liberarParqueadero(idParqueadero: int): boolean
+    +consultarDisponibilidadParqueaderos(): List<ParqueaderoVisita>
+  }
+
+  class VistaResidente {
+    +programarVisita(): void
+    +consultarNotificaciones(): void
+    +mostrarConfirmacion(): void
+  }
+
+  class ControladorVisitas {
+    -gestorProgramacionVisitas: GestorProgramacionVisitas
+    +programarVisita(idResidente: int, visitante: Visitante, fechaHora: Date, motivo: String, requiereParqueadero: boolean): Visita
+    +consultarVisitasProgramadas(idResidente: int): List<Visita>
+    +cancelarVisita(idVisita: int): boolean
+    +validarDatosVisita(visitante: Visitante): boolean
+  }
+}
+
+' ── Servicios ──
+package "Servicios (Lógica de Casos de Uso)" #DDFFDD {
+
+  class GestorAlerta {
+    -alertaDAO: AlertaDAO
+    +crearAlerta(presidente: Presidente, tipo: String, mensaje: String, prioridad: String): Alerta
+    +enviarAlerta(alerta: Alerta): boolean
+    +consultarAlertasEnviadas(): List<Alerta>
+    +modificarEstadoAlerta(idAlerta: int, nuevoEstado: String): void
+  }
+
+  class GestorHistorialEntrada {
+    -registroEntradaDAO: RegistroEntradaDAO
+    +consultarHistorial(): List<RegistroEntrada>
+    +consultarPorVisitante(identificacion: String): List<RegistroEntrada>
+    +consultarPorFecha(fechaInicio: Date, fechaFin: Date): List<RegistroEntrada>
+    +consultarPorResidente(idResidente: int): List<RegistroEntrada>
+    +generarReporteDiario(fecha: Date): ReporteHistorial
+  }
+
+  class GestorRegistroEntradas {
+    -registroEntradaDAO: RegistroEntradaDAO
+    -visitaDAO: VisitaDAO
+    -gestorParqueaderos: GestorParqueaderos
+    +registrarEntradaVisitante(visitante: Visitante, residente: Residente, personal: PersonalSeguridad, motivo: String): RegistroEntrada
+    +registrarEntradaResidente(residente: Residente, personal: PersonalSeguridad): RegistroEntrada
+    +registrarEntradaPersonaExterna(visitante: Visitante, personal: PersonalSeguridad, motivo: String): RegistroEntrada
+    +validarAutorizacion(visitante: Visitante): boolean
+    +notificarIngreso(registro: RegistroEntrada): void
+  }
+
+  class GestorParqueaderos {
+    -parqueaderoVisitaDAO: ParqueaderoVisitaDAO
+    +consultarDisponibilidad(): List<ParqueaderoVisita>
+    +asignarParqueadero(visita: Visita, placaVehiculo: String): ParqueaderoVisita
+    +liberarParqueadero(idParqueadero: int): boolean
+    +registrarUsoParqueadero(parqueadero: ParqueaderoVisita): void
+  }
+
+  class GestorProgramacionVisitas {
+    -visitaDAO: VisitaDAO
+    -gestorParqueaderos: GestorParqueaderos
+    +programarVisita(residente: Residente, visitante: Visitante, fechaHora: Date, motivo: String, requiereParqueadero: boolean): Visita
+    +validarDatosVisitante(visitante: Visitante): boolean
+    +consultarVisitasProgramadas(idResidente: int): List<Visita>
+    +cancelarVisita(idVisita: int): boolean
+  }
+}
+
+' ── Repositorios ──
+package "Repositorios (DAO)" #FFEECC {
+
+  interface RegistroEntradaDAO {
+    +guardar(registro: RegistroEntrada): void
+    +actualizar(registro: RegistroEntrada): void
+    +buscarPorId(id: int): RegistroEntrada
+    +buscarPorFecha(fechaInicio: Date, fechaFin: Date): List<RegistroEntrada>
+    +buscarPorVisitante(identificacion: String): List<RegistroEntrada>
+    +buscarPorResidente(idResidente: int): List<RegistroEntrada>
+    +buscarTodos(): List<RegistroEntrada>
+  }
+
+  class RegistroEntradaDAOImpl {
+    -dbConnection: Connection
+    +guardar(registro: RegistroEntrada): void
+    +actualizar(registro: RegistroEntrada): void
+    +buscarPorId(id: int): RegistroEntrada
+    +buscarPorFecha(fechaInicio: Date, fechaFin: Date): List<RegistroEntrada>
+    +buscarPorVisitante(identificacion: String): List<RegistroEntrada>
+    +buscarPorResidente(idResidente: int): List<RegistroEntrada>
+    +buscarTodos(): List<RegistroEntrada>
+  }
+
+  interface VisitaDAO {
+    +guardar(visita: Visita): void
+    +actualizar(visita: Visita): void
+    +buscarPorId(id: int): Visita
+    +buscarPorResidente(idResidente: int): List<Visita>
+    +buscarProgramadas(): List<Visita>
+  }
+
+  class VisitaDAOImpl {
+    -dbConnection: Connection
+    +guardar(visita: Visita): void
+    +actualizar(visita: Visita): void
+    +buscarPorId(id: int): Visita
+    +buscarPorResidente(idResidente: int): List<Visita>
+    +buscarProgramadas(): List<Visita>
+  }
+}
+
+' ── Entidades ──
+package "Entidades (Dominio)" #FFE0E0 {
+
+  abstract class Usuario {
+    #id: int
+    #nombre: String
+    #identificacion: String
+    #telefono: String
+  }
+
+  class Residente {
+    -numeroDepartamento: String
+    +programarVisita(): void
+  }
+
+  class Presidente {
+    -periodoGestion: String
+    +consultarHistorial(): void
+    +enviarAlerta(): void
+  }
+
+  class PersonalSeguridad {
+    -turno: String
+    -puesto: String
+    +registrarEntrada(): void
+  }
+
+  class Visitante {
+    -idVisitante: int
+    -nombre: String
+    -identificacion: String
+    -telefono: String
+    -placaVehiculo: String
+    +actualizarDatos(nombre: String, telefono: String, placaVehiculo: String): void
+  }
+
+  class Visita {
+    -idVisita: int
+    -fechaHoraProgramada: Date
+    -motivo: String
+    -estado: String
+    -requiereParqueadero: boolean
+    +actualizarEstado(nuevoEstado: String): void
+    +asignarParqueadero(parqueadero: ParqueaderoVisita): void
+    +cancelar(): void
+  }
+
+  class RegistroEntrada {
+    -idEntrada: int
+    -fechaLlegada: Date
+    -horaLlegada: Time
+    -tipoEntrada: String
+    -motivo: String
+    -observaciones: String
+    +obtenerDetalleEntrada(): String
+    +setObservaciones(observaciones: String): void
+  }
+
+  class Alerta {
+    -idAlerta: int
+    -tipo: String
+    -mensaje: String
+    -prioridad: String
+    -estado: String
+    -fechaHora: Date
+    +cambiarEstado(nuevoEstado: String): void
+  }
+
+  class ReporteHistorial {
+    -descripcion: String
+    -fechaGeneracion: Date
+    -totalEntradas: int
+    -totalVisitantes: int
+    -totalParqueaderosUtilizados: int
+  }
+}
+
+' ── Relaciones Vista-Controlador ──
+VistaPresidente ..> ControladorHistorial
+VistaPresidente ..> ControladorAlertas
+VistaSeguridad ..> ControladorEntradas
+VistaSeguridad ..> ControladorParqueaderos
+VistaResidente ..> ControladorVisitas
+
+' ── Relaciones Controlador-Servicio ──
+ControladorHistorial --> GestorHistorialEntrada
+ControladorAlertas --> GestorAlerta
+ControladorEntradas --> GestorRegistroEntradas
+ControladorParqueaderos --> GestorParqueaderos
+ControladorVisitas --> GestorProgramacionVisitas
+
+' ── Relaciones Servicio-Entidad ──
+GestorAlerta --> Alerta
+GestorProgramacionVisitas --> Visita
+GestorRegistroEntradas --> RegistroEntrada
+GestorHistorialEntrada --> ReporteHistorial
+
+' ── Relaciones Servicio-DAO ──
+GestorProgramacionVisitas --> VisitaDAO 
+GestorRegistroEntradas --> RegistroEntradaDAO 
+GestorRegistroEntradas --> VisitaDAO 
+GestorHistorialEntrada --> RegistroEntradaDAO 
+
+' ── Implementaciones DAO ──
+RegistroEntradaDAO <|.. RegistroEntradaDAOImpl
+VisitaDAO <|.. VisitaDAOImpl
+
+' ── DAO hacia Entidades ──
+RegistroEntradaDAO ..> RegistroEntrada
+VisitaDAO ..> Visita
+
+' ── Herencia del Dominio ──
+Usuario <|-- Residente
+Usuario <|-- Presidente
+Usuario <|-- PersonalSeguridad
+
+' ── Relaciones Principales del Dominio ──
+Residente --> Visita
+Visita --> Visitante
+RegistroEntrada --> Visitante 
+RegistroEntrada --> Visita 
+RegistroEntrada --> PersonalSeguridad
+
+@enduml

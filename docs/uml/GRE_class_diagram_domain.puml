@@ -1,0 +1,154 @@
+@startuml Diagrama_Dominio_GRE
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 90
+skinparam ranksep 110
+
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    ArrowColor #2F5EA8
+    FontColor #1F3F73
+}
+
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
+}
+
+package "Entidades del Dominio - Módulo GRE" {
+
+    enum EstadoVisita {
+        PROGRAMADA
+        EN_CURSO
+        FINALIZADA
+        CANCELADA
+    }
+
+    enum TipoEntrada {
+        RESIDENTE
+        EXTERNA
+    }
+
+    enum TipoAlerta {
+        EMERGENCIA
+        SIMULACRO
+        AVISO_GENERAL
+    }
+
+    enum PrioridadAlerta {
+        BAJA
+        MEDIA
+        ALTA
+        CRITICA
+    }
+
+    enum EstadoAlerta {
+        ENVIADA
+        RECIBIDA
+        ATENDIDA
+        CANCELADA
+    }
+
+    abstract class Usuario {
+        # id: int
+        # nombre: String
+        # identificacion: String
+        # telefono: String
+    }
+
+    class Residente  {
+        - numeroDepartamento: String
+        + programarVisita(): void
+    }
+
+    class Presidente  {
+        - periodoGestion: String
+        + consultarHistorial(): void
+        + enviarAlerta(): void
+    }
+
+    class PersonalSeguridad {
+        - turno: String
+        - puesto: String
+        + registrarEntrada(): void
+    }
+
+    class Visitante {
+        - idVisitante: int
+        - nombre: String
+        - identificacion: String
+        - telefono: String
+        - placaVehiculo: String
+        + actualizarDatos(nombre: String, telefono: String, placaVehiculo: String): void
+    }
+
+    class Visita {
+        - idVisita: int
+        - fechaHoraProgramada: Date
+        - motivo: String
+        - estado: EstadoVisita
+        + actualizarEstado(nuevoEstado: EstadoVisita): void
+        + cancelar(): void
+    }
+
+    class RegistroEntrada {
+        - idEntrada: int
+        - fechaLlegada: Date
+        - horaLlegada: Time
+        - tipoEntrada: TipoEntrada
+        - motivo: String
+        - observaciones: String
+        + obtenerDetalleEntrada(): String
+        + setObservaciones(observaciones: String): void
+    }
+
+    class Alerta {
+        - idAlerta: int
+        - tipo: TipoAlerta
+        - mensaje: String
+        - prioridad: PrioridadAlerta
+        - estado: EstadoAlerta
+        - fechaHora: Date
+        + cambiarEstado(nuevoEstado: EstadoAlerta): void
+    }
+
+    class ReporteHistorial {
+        - descripcion: String
+        - fechaGeneracion: Date
+        - totalEntradas: int
+        - totalVisitantes: int
+    }
+
+    ' Herencia
+    Usuario <|-- Residente
+    Usuario <|-- Presidente
+    Usuario <|-- PersonalSeguridad
+
+    ' Relaciones Centrales
+    Residente "1" --> "0..*" Visita : "programa"
+    Visitante "1" --> "0..*" Visita : "participa en"
+    Visita "0..1" --> "0..1" RegistroEntrada : "genera"
+
+    PersonalSeguridad "1" --> "0..*" RegistroEntrada : "registra"
+    Usuario "0..1" --> "0..*" RegistroEntrada : "está relacionado con"
+
+    Presidente "1" --> "0..*" Alerta : "envía"
+
+    ReporteHistorial "1" ..> "0..*" RegistroEntrada : "resume"
+    ReporteHistorial "1" ..> "0..*" Visitante : "contabiliza"
+    ReporteHistorial "1" ..> "0..*" Alerta : "incluye"
+
+    ' Dependencias
+    Visita .down.> EstadoVisita : "<<use>>"
+    RegistroEntrada .down.> TipoEntrada : "<<use>>"
+    Alerta .down.> TipoAlerta : "<<use>>"
+    Alerta .down.> PrioridadAlerta : "<<use>>"
+    Alerta .down.> EstadoAlerta : "<<use>>"
+}
+
+@enduml
