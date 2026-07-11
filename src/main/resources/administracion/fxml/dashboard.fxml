@@ -1,13 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<BorderPane fx:id="rootPane" prefHeight="720.0" prefWidth="1200.0"
+            stylesheets="@../css/dashboardStyles.css"
+            xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="fis.dsw.sgc.administracion.dashboard.mainWindowController">
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fis.dsw.sgc.administracion.dashboard.mainWindowController">
-   <children>
-      <Label layoutX="157.0" layoutY="57.0" text="VENTANA PRINCIPAL DEL SISTEMA DE GESTION" />
-      <Button layoutX="47.0" layoutY="327.0" mnemonicParsing="false" onAction="#logOut" text="CERRAR SESION" />
-   </children>
-</AnchorPane>
+   <!-- ================= SIDEBAR IZQUIERDO ================= -->
+   <!-- Al ir directo en "left" del BorderPane raíz (que no tiene top/bottom
+        propios), ocupa TODA la altura de la ventana, de arriba a abajo. -->
+   <left>
+      <VBox fx:id="sidebar" prefWidth="230.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+         <children>
+
+            <!-- Perfil de usuario -->
+            <VBox alignment="CENTER" spacing="6.0" styleClass="profile-box">
+               <padding>
+                  <Insets bottom="20.0" top="30.0"/>
+               </padding>
+               <children>
+                  <StackPane styleClass="avatar-frame">
+                     <children>
+                        <ImageView fx:id="avatarImage" fitHeight="70.0" fitWidth="70.0"
+                                   pickOnBounds="true" preserveRatio="true" styleClass="avatar-image"/>
+                     </children>
+                  </StackPane>
+                  <Label fx:id="lblNombreUsuario" styleClass="user-name" text="Usuario"/>
+                  <Label fx:id="lblRolUsuario" styleClass="user-role" text="ROL"/>
+               </children>
+            </VBox>
+
+            <!-- Menú principal -->
+            <VBox styleClass="menu-box">
+               <children>
+                  <Button fx:id="btnAdministracion" mnemonicParsing="false" onAction="#irAAdministracion"
+                          styleClass="menu-item" text="ADMINISTRACIÓN">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-cogs" iconSize="16"/>
+                     </graphic>
+                  </Button>
+
+                  <VBox fx:id="finanzasBox">
+                     <children>
+                        <Button fx:id="btnFinanzas" mnemonicParsing="false" onAction="#toggleFinanzas"
+                                styleClass="menu-item" text="FINANZAS">
+                           <graphic>
+                              <FontIcon iconLiteral="fa-money" iconSize="16"/>
+                           </graphic>
+                        </Button>
+                        <VBox fx:id="submenuFinanzas" managed="false" styleClass="submenu" visible="false">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#irARegistrarPagoExterno"
+                                      styleClass="submenu-item" text="Registrar Pago Externo"/>
+                              <Button mnemonicParsing="false" onAction="#irAGenerarRendicionCuentas"
+                                      styleClass="submenu-item" text="Generar Rendición Cuentas"/>
+                              <Button mnemonicParsing="false" onAction="#irAValidarPago"
+                                      styleClass="submenu-item" text="Validar Pago"/>
+                              <Button mnemonicParsing="false" onAction="#irAConsultarDeudas"
+                                      styleClass="submenu-item" text="Consultar Deudas"/>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+
+                  <Button fx:id="btnInmuebles" mnemonicParsing="false" onAction="#irAInmuebles"
+                          styleClass="menu-item" text="INMUEBLES">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-building" iconSize="16"/>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnReservas" mnemonicParsing="false" onAction="#irAReservas"
+                          styleClass="menu-item" text="RESERVAS">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-calendar" iconSize="16"/>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnCheckIn" mnemonicParsing="false" onAction="#irACheckIn"
+                          styleClass="menu-item" text="CHECK-IN">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-sign-in" iconSize="16"/>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnComunicacion" mnemonicParsing="false" onAction="#irAComunicacion"
+                          styleClass="menu-item" text="COMUNICACIÓN">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-comments" iconSize="16"/>
+                     </graphic>
+                  </Button>
+               </children>
+            </VBox>
+
+            <!-- Espaciador: empuja el footer hacia abajo -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Footer: inicio / cerrar sesión -->
+            <HBox alignment="CENTER" spacing="40.0" styleClass="footer-box">
+               <padding>
+                  <Insets bottom="20.0" top="20.0"/>
+               </padding>
+               <children>
+                  <Button fx:id="btnInicio" mnemonicParsing="false" onAction="#irAInicio"
+                          styleClass="footer-icon-btn">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-home" iconSize="20"/>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnCerrarSesion" mnemonicParsing="false" onAction="#logOut"
+                          styleClass="footer-icon-btn">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-sign-out" iconSize="20"/>
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </left>
+
+   <!-- ================= ÁREA DE CONTENIDO ================= -->
+   <!-- BorderPane interno: SOLO aquí va la barra superior, para que no se
+        extienda por encima del sidebar. Al estar dentro de "center" del
+        BorderPane raíz, empieza igual de arriba (y=0) que el sidebar. -->
+   <center>
+      <BorderPane BorderPane.alignment="CENTER">
+         <top>
+            <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="10.0" styleClass="top-bar"
+                  BorderPane.alignment="CENTER">
+               <padding>
+                  <Insets left="25.0" right="25.0"/>
+               </padding>
+               <children>
+                  <Label styleClass="top-bar-title" text="SISTEMA DE GESTIÓN PARA CONDOMINIOS"/>
+                  <Region HBox.hgrow="ALWAYS"/>
+                  <FontIcon iconLiteral="fa-bell" iconSize="20" styleClass="bell-icon"/>
+               </children>
+            </HBox>
+         </top>
+         <center>
+            <StackPane fx:id="contentPane" styleClass="content-pane" BorderPane.alignment="CENTER"/>
+         </center>
+      </BorderPane>
+   </center>
+
+</BorderPane>

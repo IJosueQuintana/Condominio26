@@ -10,10 +10,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/dashboard.fxml"));
         Scene scene = new Scene(root);
         primaryStage.setTitle("Sistema de Gestión Para Condominio");
         primaryStage.setScene(scene);
+        // Permite abrir la interfaz en pantalla completa
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 

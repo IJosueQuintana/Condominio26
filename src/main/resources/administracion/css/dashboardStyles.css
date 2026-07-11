@@ -1,0 +1,137 @@
+/* ===================== Sidebar ===================== */
+.sidebar {
+    -fx-background-color: #262626;
+}
+
+.profile-box {
+    -fx-background-color: transparent;
+}
+
+.avatar-frame {
+    -fx-background-color: transparent;
+}
+
+.avatar-image {
+    -fx-background-color: #555555;
+}
+
+.user-name {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.user-role {
+    -fx-text-fill: #9c9c9c;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.menu-box {
+    -fx-padding: 15 0 0 0;
+}
+
+/* Estado normal de cualquier botón del menú */
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d7d7d7;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-graphic-text-gap: 12;
+    -fx-padding: 11 20 11 25;
+    -fx-pref-width: 230;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-color: transparent;
+}
+
+.menu-item .ikonli-font-icon {
+    -fx-icon-color: #d7d7d7;
+}
+
+/* Hover: resalta apenas mientras el mouse está encima (cualquier botón) */
+.menu-item:hover {
+    -fx-background-color: #303030;
+}
+
+/* Activo: SOLO se aplica cuando el controlador agrega la clase "active"
+   (por ejemplo, mientras el submenú de Finanzas está abierto, o mientras
+   esa sección es la que se está visualizando).
+   No depende del id del botón, así que no queda encendido por defecto. */
+.menu-item.active {
+    -fx-background-color: #3a1418;
+    -fx-text-fill: #ff5566;
+    -fx-border-color: #b5202e;
+}
+
+.menu-item.active .ikonli-font-icon {
+    -fx-icon-color: #ff5566;
+}
+
+.menu-item.active:hover {
+    -fx-background-color: #45181d;
+}
+
+.submenu {
+    -fx-padding: 0 0 8 0;
+}
+
+.submenu-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: #b7b7b7;
+    -fx-font-size: 11px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 8 20 8 55;
+    -fx-pref-width: 230;
+    -fx-cursor: hand;
+}
+
+.submenu-item:hover {
+    -fx-background-color: #303030;
+    -fx-text-fill: white;
+}
+
+.footer-box {
+    -fx-background-color: transparent;
+}
+
+.footer-icon-btn {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.footer-icon-btn .ikonli-font-icon {
+    -fx-icon-color: #d7d7d7;
+}
+
+.footer-icon-btn:hover .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+/* ===================== Barra superior ===================== */
+.top-bar {
+    -fx-background-color: white;
+    -fx-border-color: #e2e2e2;
+    -fx-border-width: 0 0 1 0;
+}
+
+.top-bar-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2b2b2b;
+}
+
+.bell-icon {
+    -fx-icon-color: #555555;
+}
+
+/* ===================== Contenido central ===================== */
+.content-pane {
+    -fx-background-color: #f4f5f7;
+}
+
+.placeholder-label {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-size: 13px;
+}
