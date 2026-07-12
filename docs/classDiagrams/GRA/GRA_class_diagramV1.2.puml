@@ -1,0 +1,215 @@
+@startuml
+title GRA-FINANZAS - Modelo de Diseño y Fachadas
+
+skinparam roundcorner 8
+skinparam padding 4
+skinparam nodesep 50
+skinparam ranksep 50
+
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    ArrowColor #2F5EA8
+    FontColor #1F3F73
+    HeaderBackgroundColor #D0E2FF
+}
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
+}
+skinparam interface {
+    BackgroundColor #F4F8FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+
+' --- Módulos Externos (Consumidores) ---
+package "Otros Módulos (Clientes)" #F9F9F9 {
+    class ModuloReservas <<Client>>
+    class ModuloResidentes <<Client>>
+}
+
+' --- Entidades Externas (Otros Módulos) ---
+package "Módulos Externos (Usuarios/Propiedades)" {
+    class Residente <<partial>> {
+        - numero_cedula: String
+        + getDepartamento(): Departamento
+    }
+
+    class Departamento <<partial>> {
+        - tamañoMetrosCuadrados: int
+    }
+
+    class Parametros <<partial>> {
+        - valorMensualAlicuota: double
+        - tamañoCondominioMetrosCuadrados: int
+    }
+}
+
+' --- FACHADAS (APIs del Módulo) ---
+package "APIs Externas (Patrón Facade)" #E8FFF5 {
+    interface IFinanzasConsultasAPI <<Facade>> {
+        + tieneDeudasPendientes(cedula: String): boolean
+        + consultarMontoTotalAdeudado(cedula: String): double
+    }
+
+    interface IFinanzasOperacionesAPI <<Facade>> {
+        + generarMultaExterna(cedula: String, monto: double, descripcion: String): boolean
+        + generarDeudaReserva(cedula: String, monto: double): boolean
+    }
+}
+
+' --- Módulo Finanzas: Núcleo de Deudas ---
+package "Núcleo de Deudas" {
+    class Deuda {
+        - idDeuda: int
+        - fecha_vencimiento: Date
+        - descripcion: String
+        - valorBase: double
+        + calcularValorTotal(): double
+        + procesarPago(): void
+        + aplicarMora(): void
+        + modificarFechaVencimiento(nuevaFecha: Date): void
+    }
+
+    interface ITipoDeuda <<Strategy>> {
+        + calcularValor(valorBase: double): double
+        + getMotivo(): String
+    }
+    class DeudaMulta implements ITipoDeuda
+    class DeudaReserva implements ITipoDeuda
+    class DeudaAlicuota implements ITipoDeuda
+
+    interface IEstadoDeuda <<State>> {
+        + procesarPago(deuda: Deuda): void
+        + aplicarMora(deuda: Deuda): void
+        + anular(deuda: Deuda): void
+    }
+    class EstadoPendiente implements IEstadoDeuda
+    class EstadoEnProceso implements IEstadoDeuda
+    class EstadoPagada implements IEstadoDeuda
+    class EstadoMora implements IEstadoDeuda
+    class EstadoEliminada implements IEstadoDeuda
+
+    class DeudaFactory <<Factory>> {
+        + crearDeuda(motivo: String, residente: Residente, valor: double, fecha: Date): Deuda
+    }
+}
+
+' --- Módulo Finanzas: Núcleo de Pagos ---
+package "Núcleo de Pagos" {
+    class Pago {
+        - idPago: int
+        - fecha_pago: Date
+        - valorPagado: double
+        + ejecutarCobro(): boolean
+    }
+
+    interface ITipoPago <<Strategy>> {
+        + procesarTransaccion(pago: Pago, deuda: Deuda): boolean
+    }
+    class PagoEfectivo implements ITipoPago
+    class PagoTransferencia implements ITipoPago {
+        - comprobante_transferencia: String
+    }
+    class PagoTarjeta implements ITipoPago {
+        - numero_tarjeta: String
+        - codigo_transaccion: String
+    }
+
+    class PagoFactory <<Factory>> {
+        + crearPago(metodo: String, deuda: Deuda, monto: double): Pago
+    }
+
+     class EntidadBancaria {
+        - nombre: String
+        - numeroCuenta: String
+        - cedulaTitular: String
+        - tipoCuenta: String
+    }
+}
+
+' --- Módulo Finanzas: Gastos y Bancos ---
+package "Gastos y Bancos" {
+    
+    abstract class Gasto {
+        # idGasto: int
+        # descripcion: String
+        # valor: double
+        # fecha_gasto: Date
+        + {abstract} validarDetalle(): boolean
+        + {abstract} getTipoGasto(): String
+    }
+
+    class GastoServicioBasico extends Gasto {
+        - tipo_servicio: String
+        + validarDetalle(): boolean
+        + getTipoGasto(): String
+    }
+
+    class GastoSueldos extends Gasto {
+        + validarDetalle(): boolean
+        + getTipoGasto(): String
+    }
+
+    class GastoOtros extends Gasto {
+        + validarDetalle(): boolean
+        + getTipoGasto(): String
+    }
+
+    class GastoFactory <<Factory>> {
+        + crearGasto(motivo: String, descripcion: String, valor: double, fecha: Date): Gasto
+    }
+}
+
+' --- Módulo Finanzas: Reportes ---
+package "Reportes (Template Method)" {
+    abstract class ReporteFinanciero <<Template>> {
+        # fechaInicio: Date
+        # fechaFin: Date
+        + generarReporte(): void <<Template Method>>
+        # {abstract} recopilarDatos(): void
+        # {abstract} calcularTotales(): void
+        # formatearSalida(): void
+    }
+
+    class ReportePagos extends ReporteFinanciero {
+        - totalIngresos: double
+    }
+    
+    class ReporteGastos extends ReporteFinanciero {
+        - totalGastosPorCategoria: Map<String, Double>
+    }
+    
+    class ReporteRendicion extends ReporteFinanciero {
+        - observaciones: String
+        - totalPagos: double
+        - totalIngresos: double
+        - balanceNeto: double
+    }
+}
+
+' --- Relaciones y Dependencias ---
+
+' Dependencias de las Fachadas
+ModuloResidentes ..> IFinanzasConsultasAPI : <<consume>>
+ModuloReservas ..> IFinanzasOperacionesAPI : <<consume>>
+IFinanzasOperacionesAPI ..> DeudaFactory : <<usa>>
+IFinanzasConsultasAPI ..> Deuda : <<consulta>>
+
+' Dependencias Internas
+Deuda "1" *-- "1" ITipoDeuda : clasificada por >
+Deuda "1" *-- "1" IEstadoDeuda : se encuentra en >
+Deuda "0..*" --> "1" Residente : asignada a >
+DeudaAlicuota ..> Parametros : <<use>>
+DeudaAlicuota ..> Departamento : <<use>>
+
+Pago "1" *-- "1" ITipoPago : modalidad >
+Pago "1" --> "1" Deuda : cancela >
+
+DeudaFactory ..> Deuda : instancia >
+PagoFactory ..> Pago : instancia >
+GastoFactory ..> Gasto : instancia >
+
+@enduml

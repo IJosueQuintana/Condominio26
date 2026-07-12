@@ -14,7 +14,8 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         primaryStage.setTitle("Sistema de Gestión Para Condominio");
         primaryStage.setScene(scene);
-
+        // Permite abrir la interfaz en pantalla completa
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 

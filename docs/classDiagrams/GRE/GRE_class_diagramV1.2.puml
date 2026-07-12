@@ -1,0 +1,244 @@
+@startuml Diagrama_Dominio_GRE
+
+title Diagrama de Entidades del Dominio - Módulo GRE Check-in
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 70
+skinparam ranksep 80
+
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    ArrowColor #2F5EA8
+    FontColor #1F3F73
+}
+
+skinparam abstractClass {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+
+skinparam interface {
+    BackgroundColor #F4F8FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
+}
+
+package "Entidades del Dominio - Módulo GRE" {
+
+    package "Visitas y Registros de Entrada" #FFF7E6 {
+
+        enum EstadoVisita {
+            PROGRAMADA
+            EN_CURSO
+            FINALIZADA
+            CANCELADA
+        }
+
+        class Visitante {
+            - idVisitante: int
+            - nombre: String
+            - identificacion: String
+            - telefono: String
+            - placaVehiculo: String
+            + actualizarDatos(nombre: String, telefono: String, placaVehiculo: String): void
+        }
+
+        class Visita {
+            - idVisita: int
+            - fechaHoraProgramada: Date
+            - motivo: String
+            - estado: EstadoVisita
+            - requiereParqueadero: boolean
+            + actualizarEstado(nuevoEstado: EstadoVisita): void
+            + cancelar(): void
+        }
+
+        abstract class RegistroEntrada {
+            # idEntrada: int
+            # fechaLlegada: Date
+            # horaLlegada: Time
+            # motivo: String
+            # observaciones: String
+            + obtenerDetalleEntrada(): String
+            + setObservaciones(observaciones: String): void
+        }
+
+        class RegistroEntradaVisitante {
+            - autorizadoPorResidente: boolean
+            + validarAutorizacion(): boolean
+        }
+
+        class RegistroEntradaResidente {
+            - numeroDepartamento: String
+            + validarResidencia(): boolean
+        }
+
+        class RegistroEntradaExterna {
+            - entidadProcedencia: String
+            + registrarMotivoExterno(motivo: String): void
+        }
+
+        class RegistroEntradaFactory {
+            + crearEntradaVisitante(visitante: Visitante, residente: Residente, personal: PersonalSeguridad, motivo: String): RegistroEntrada
+            + crearEntradaResidente(residente: Residente, personal: PersonalSeguridad): RegistroEntrada
+            + crearEntradaExterna(visitante: Visitante, personal: PersonalSeguridad, motivo: String): RegistroEntrada
+        }
+
+        RegistroEntrada <|-- RegistroEntradaVisitante
+        RegistroEntrada <|-- RegistroEntradaResidente
+        RegistroEntrada <|-- RegistroEntradaExterna
+
+        RegistroEntradaFactory ..> RegistroEntrada : crea
+
+        EstadoVisita -[hidden]down- Visita
+        Visita -[hidden]down- RegistroEntrada
+        RegistroEntrada -[hidden]down- RegistroEntradaFactory
+    }
+
+    package "Alertas y Notificaciones" #EEF9F1 {
+
+        enum PrioridadAlerta {
+            BAJA
+            MEDIA
+            ALTA
+            CRITICA
+        }
+
+        enum EstadoAlerta {
+            ENVIADA
+            RECIBIDA
+            ATENDIDA
+            CANCELADA
+        }
+
+        enum EstadoNotificacion {
+            PENDIENTE
+            LEIDA
+        }
+
+        interface TipoAlerta {
+            + obtenerNombre(): String
+            + obtenerPrioridadPorDefecto(): PrioridadAlerta
+            + validarMensaje(mensaje: String): boolean
+        }
+
+        class TipoAlertaEmergencia {
+            + obtenerNombre(): String
+            + obtenerPrioridadPorDefecto(): PrioridadAlerta
+            + validarMensaje(mensaje: String): boolean
+        }
+
+        class TipoAlertaSimulacro {
+            + obtenerNombre(): String
+            + obtenerPrioridadPorDefecto(): PrioridadAlerta
+            + validarMensaje(mensaje: String): boolean
+        }
+
+        class TipoAlertaAvisoGeneral {
+            + obtenerNombre(): String
+            + obtenerPrioridadPorDefecto(): PrioridadAlerta
+            + validarMensaje(mensaje: String): boolean
+        }
+
+        class Alerta {
+            - idAlerta: int
+            - tipo: TipoAlerta
+            - mensaje: String
+            - prioridad: PrioridadAlerta
+            - estado: EstadoAlerta
+            - fechaHora: Date
+            + cambiarEstado(nuevoEstado: EstadoAlerta): void
+        }
+
+        class Notificacion {
+            - idNotificacion: int
+            - mensaje: String
+            - fechaHora: Date
+            - estado: EstadoNotificacion
+            + marcarComoLeida(): void
+        }
+
+        TipoAlerta <|.. TipoAlertaEmergencia
+        TipoAlerta <|.. TipoAlertaSimulacro
+        TipoAlerta <|.. TipoAlertaAvisoGeneral
+
+        Alerta --> TipoAlerta : usa
+        Alerta --> Notificacion : genera
+
+        PrioridadAlerta -[hidden]down- EstadoAlerta
+        EstadoAlerta -[hidden]down- TipoAlerta
+        TipoAlerta -[hidden]down- Alerta
+        Alerta -[hidden]down- EstadoNotificacion
+        EstadoNotificacion -[hidden]down- Notificacion
+    }
+
+    package "Reporte Histórico e Iterator" #F5EEFF {
+
+        class ReporteHistorial {
+            - descripcion: String
+            - fechaGeneracion: Date
+            - totalEntradas: int
+            - totalVisitantes: int
+            - totalParqueaderosUtilizados: int
+            + generarResumen(iterador: IteradorRegistroEntrada): void
+        }
+
+        interface IteradorRegistroEntrada {
+            + tieneSiguiente(): boolean
+            + siguiente(): RegistroEntrada
+            + reiniciar(): void
+        }
+
+        class IteradorHistorialEntradas {
+            - registros: List<RegistroEntrada>
+            - posicionActual: int
+            + tieneSiguiente(): boolean
+            + siguiente(): RegistroEntrada
+            + reiniciar(): void
+        }
+
+        class ColeccionHistorialEntradas {
+            - registros: List<RegistroEntrada>
+            + agregarRegistro(registro: RegistroEntrada): void
+            + crearIterador(): IteradorRegistroEntrada
+        }
+
+        IteradorRegistroEntrada <|.. IteradorHistorialEntradas
+        ColeccionHistorialEntradas o-- RegistroEntrada : agrupa
+        ColeccionHistorialEntradas --> IteradorRegistroEntrada : crea
+        IteradorHistorialEntradas --> RegistroEntrada : recorre
+        ReporteHistorial ..> IteradorRegistroEntrada : usa
+
+        ReporteHistorial -[hidden]down- ColeccionHistorialEntradas
+    }
+    
+    Visita ..> EstadoVisita : <<use>>
+
+Alerta ..> TipoAlerta : tipo
+Alerta ..> PrioridadAlerta : <<use>>
+Alerta ..> EstadoAlerta : <<use>>
+
+Notificacion ..> EstadoNotificacion : <<use>>
+
+TipoAlerta ..> PrioridadAlerta : <<use>>
+
+    ' Relaciones principales entre paquetes
+    Visitante "1" --> "0..*" Visita : participa
+    Visita "0..1" --> "0..1" RegistroEntrada : genera
+
+    ReporteHistorial ..> ColeccionHistorialEntradas : consulta
+}
+@enduml

@@ -61,12 +61,12 @@ package "Entidades del Dominio - Módulo GRE" {
         # telefono: String
     }
 
-    class Residente  {
+    class Residente {
         - numeroDepartamento: String
         + programarVisita(): void
     }
 
-    class Presidente  {
+    class Presidente {
         - periodoGestion: String
         + consultarHistorial(): void
         + enviarAlerta(): void
@@ -76,6 +76,7 @@ package "Entidades del Dominio - Módulo GRE" {
         - turno: String
         - puesto: String
         + registrarEntrada(): void
+        + enviarAlerta(): void
     }
 
     class Visitante {
@@ -138,11 +139,12 @@ package "Entidades del Dominio - Módulo GRE" {
     Usuario "0..1" --> "0..*" RegistroEntrada : "está relacionado con"
 
     Presidente "1" --> "0..*" Alerta : "envía"
+    PersonalSeguridad "1" --> "0..*" Alerta : "envía"
 
     ReporteHistorial "1" ..> "0..*" RegistroEntrada : "resume"
     ReporteHistorial "1" ..> "0..*" Visitante : "contabiliza"
 
-    ' Dependencias
+    ' Dependencias con enums
     Visita .down.> EstadoVisita : "<<use>>"
     RegistroEntrada .down.> TipoEntrada : "<<use>>"
     Alerta .down.> TipoAlerta : "<<use>>"
