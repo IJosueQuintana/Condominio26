@@ -17,8 +17,6 @@
             fx:controller="fis.dsw.sgc.administracion.dashboard.mainWindowController">
 
    <!-- ================= SIDEBAR IZQUIERDO ================= -->
-   <!-- Al ir directo en "left" del BorderPane raíz (que no tiene top/bottom
-        propios), ocupa TODA la altura de la ventana, de arriba a abajo. -->
    <left>
       <VBox fx:id="sidebar" prefWidth="230.0" styleClass="sidebar" BorderPane.alignment="CENTER">
          <children>
@@ -43,13 +41,28 @@
             <!-- Menú principal -->
             <VBox styleClass="menu-box">
                <children>
-                  <Button fx:id="btnAdministracion" mnemonicParsing="false" onAction="#irAAdministracion"
-                          styleClass="menu-item" text="ADMINISTRACIÓN">
-                     <graphic>
-                        <FontIcon iconLiteral="fa-cogs" iconSize="16"/>
-                     </graphic>
-                  </Button>
 
+                  <!-- ADMINISTRACIÓN -->
+                  <VBox fx:id="administracionBox">
+                     <children>
+                        <Button fx:id="btnAdministracion" mnemonicParsing="false"
+                                onAction="#toggleAdministracion" styleClass="menu-item" text="ADMINISTRACIÓN">
+                           <graphic>
+                              <FontIcon iconLiteral="fa-cogs" iconSize="16"/>
+                           </graphic>
+                        </Button>
+                        <VBox fx:id="submenuAdministracion" managed="false" styleClass="submenu" visible="false">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#opcionPendiente"
+                                      styleClass="submenu-item" text="Opción 1"/>
+                              <Button mnemonicParsing="false" onAction="#opcionPendiente"
+                                      styleClass="submenu-item" text="Opción 2"/>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+
+                  <!-- FINANZAS -->
                   <VBox fx:id="finanzasBox">
                      <children>
                         <Button fx:id="btnFinanzas" mnemonicParsing="false" onAction="#toggleFinanzas"
@@ -73,30 +86,96 @@
                      </children>
                   </VBox>
 
-                  <Button fx:id="btnInmuebles" mnemonicParsing="false" onAction="#irAInmuebles"
-                          styleClass="menu-item" text="INMUEBLES">
-                     <graphic>
-                        <FontIcon iconLiteral="fa-building" iconSize="16"/>
-                     </graphic>
-                  </Button>
-                  <Button fx:id="btnReservas" mnemonicParsing="false" onAction="#irAReservas"
-                          styleClass="menu-item" text="RESERVAS">
-                     <graphic>
-                        <FontIcon iconLiteral="fa-calendar" iconSize="16"/>
-                     </graphic>
-                  </Button>
-                  <Button fx:id="btnCheckIn" mnemonicParsing="false" onAction="#irACheckIn"
-                          styleClass="menu-item" text="CHECK-IN">
-                     <graphic>
-                        <FontIcon iconLiteral="fa-sign-in" iconSize="16"/>
-                     </graphic>
-                  </Button>
-                  <Button fx:id="btnComunicacion" mnemonicParsing="false" onAction="#irAComunicacion"
-                          styleClass="menu-item" text="COMUNICACIÓN">
-                     <graphic>
-                        <FontIcon iconLiteral="fa-comments" iconSize="16"/>
-                     </graphic>
-                  </Button>
+                  <!-- INMUEBLES -->
+                  <VBox fx:id="inmueblesBox">
+                     <children>
+                        <Button fx:id="btnInmuebles" mnemonicParsing="false" onAction="#toggleInmuebles"
+                                styleClass="menu-item" text="INMUEBLES">
+                           <graphic>
+                              <FontIcon iconLiteral="fa-building" iconSize="16"/>
+                           </graphic>
+                        </Button>
+                        <VBox fx:id="submenuInmuebles" managed="false" styleClass="submenu" visible="false">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#opcionPendiente"
+                                      styleClass="submenu-item" text="Opción 1"/>
+                              <Button mnemonicParsing="false" onAction="#opcionPendiente"
+                                      styleClass="submenu-item" text="Opción 2"/>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+
+                  <!-- RESERVAS -->
+                  <VBox fx:id="reservasBox">
+                     <children>
+                        <Button fx:id="btnReservas" mnemonicParsing="false" onAction="#toggleReservas"
+                                styleClass="menu-item" text="RESERVAS">
+                           <graphic>
+                              <FontIcon iconLiteral="fa-calendar" iconSize="16"/>
+                           </graphic>
+                        </Button>
+                        <VBox fx:id="submenuReservas" managed="false" styleClass="submenu" visible="false">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#irAAnadirReserva"
+                                      styleClass="submenu-item" text="Añadir Reserva"/>
+                              <Button mnemonicParsing="false" onAction="#irAVerReserva"
+                                      styleClass="submenu-item" text="Ver Reserva"/>
+                              <Button mnemonicParsing="false" onAction="#irAAgregarObservacion"
+                                      styleClass="submenu-item" text="Agregar Observación"/>
+                              <Button mnemonicParsing="false" onAction="#irACancelarObservacion"
+                                      styleClass="submenu-item" text="Cancelar Observación"/>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+
+                  <!-- CHECK-IN -->
+                  <VBox fx:id="checkInBox">
+                     <children>
+                        <Button fx:id="btnCheckIn" mnemonicParsing="false" onAction="#toggleCheckIn"
+                                styleClass="menu-item" text="CHECK-IN">
+                           <graphic>
+                              <FontIcon iconLiteral="fa-sign-in" iconSize="16"/>
+                           </graphic>
+                        </Button>
+                        <VBox fx:id="submenuCheckIn" managed="false" styleClass="submenu" visible="false">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#irARegistrarEntradaResidente"
+                                      styleClass="submenu-item" text="Registrar entrada de residente"/>
+                              <Button mnemonicParsing="false" onAction="#irARegistrarEntradaExterna"
+                                      styleClass="submenu-item" text="Registrar entrada externa"/>
+                              <Button mnemonicParsing="false" onAction="#irAProgramarVisita"
+                                      styleClass="submenu-item" text="Programar visita"/>
+                              <Button mnemonicParsing="false" onAction="#irAGestionarHistorialIngresos"
+                                      styleClass="submenu-item" text="Gestionar historial de ingresos"/>
+                              <Button mnemonicParsing="false" onAction="#irAEnviarAlerta"
+                                      styleClass="submenu-item" text="Enviar alerta"/>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+
+                  <!-- COMUNICACIÓN -->
+                  <VBox fx:id="comunicacionBox">
+                     <children>
+                        <Button fx:id="btnComunicacion" mnemonicParsing="false" onAction="#toggleComunicacion"
+                                styleClass="menu-item" text="COMUNICACIÓN">
+                           <graphic>
+                              <FontIcon iconLiteral="fa-comments" iconSize="16"/>
+                           </graphic>
+                        </Button>
+                        <VBox fx:id="submenuComunicacion" managed="false" styleClass="submenu" visible="false">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#opcionPendiente"
+                                      styleClass="submenu-item" text="Opción 1"/>
+                              <Button mnemonicParsing="false" onAction="#opcionPendiente"
+                                      styleClass="submenu-item" text="Opción 2"/>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+
                </children>
             </VBox>
 
@@ -128,9 +207,6 @@
    </left>
 
    <!-- ================= ÁREA DE CONTENIDO ================= -->
-   <!-- BorderPane interno: SOLO aquí va la barra superior, para que no se
-        extienda por encima del sidebar. Al estar dentro de "center" del
-        BorderPane raíz, empieza igual de arriba (y=0) que el sidebar. -->
    <center>
       <BorderPane BorderPane.alignment="CENTER">
          <top>
@@ -142,7 +218,12 @@
                <children>
                   <Label styleClass="top-bar-title" text="SISTEMA DE GESTIÓN PARA CONDOMINIOS"/>
                   <Region HBox.hgrow="ALWAYS"/>
-                  <FontIcon iconLiteral="fa-bell" iconSize="20" styleClass="bell-icon"/>
+                  <Button fx:id="btnNotificaciones" mnemonicParsing="false" onAction="#irANotificaciones"
+                          styleClass="bell-btn">
+                     <graphic>
+                        <FontIcon iconLiteral="fa-bell" iconSize="20" styleClass="bell-icon"/>
+                     </graphic>
+                  </Button>
                </children>
             </HBox>
          </top>

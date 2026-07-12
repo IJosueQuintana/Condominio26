@@ -18,42 +18,31 @@ import java.io.InputStream;
 
 public class mainWindowController {
 
-    @FXML
-    private Label lblNombreUsuario;
+    @FXML private Label lblNombreUsuario;
+    @FXML private Label lblRolUsuario;
+    @FXML private ImageView avatarImage;
+    @FXML private StackPane contentPane;
 
-    @FXML
-    private Label lblRolUsuario;
+    @FXML private VBox submenuAdministracion;
+    @FXML private VBox submenuFinanzas;
+    @FXML private VBox submenuInmuebles;
+    @FXML private VBox submenuReservas;
+    @FXML private VBox submenuCheckIn;
+    @FXML private VBox submenuComunicacion;
 
-    @FXML
-    private ImageView avatarImage;
+    @FXML private Button btnAdministracion;
+    @FXML private Button btnFinanzas;
+    @FXML private Button btnInmuebles;
+    @FXML private Button btnReservas;
+    @FXML private Button btnCheckIn;
+    @FXML private Button btnComunicacion;
 
-    @FXML
-    private StackPane contentPane;
-
-    @FXML
-    private VBox submenuFinanzas;
-
-    @FXML
-    private Button btnAdministracion;
-    @FXML
-    private Button btnFinanzas;
-    @FXML
-    private Button btnInmuebles;
-    @FXML
-    private Button btnReservas;
-    @FXML
-    private Button btnCheckIn;
-    @FXML
-    private Button btnComunicacion;
-
-    // Rutas esperadas dentro de src/main/resources/administracion/img/
-    private static final String AVATAR_PATH = "/administracion/img/avatar.jpg";
+    private static final String AVATAR_PATH  = "/administracion/img/avatar.jpg";
     private static final String HOME_BG_PATH = "/administracion/img/home_bg.jpg";
-
     private static final String CLASE_ACTIVO = "active";
 
-    private boolean finanzasAbierto = false;
     private Button botonSeccionActiva = null;
+    private VBox   submenuActivo      = null;
 
     @FXML
     public void initialize() {
@@ -61,21 +50,16 @@ public class mainWindowController {
         irAInicio(null);
     }
 
-    /**
-     * Debe llamarse desde loginController justo después de un login exitoso,
-     * para mostrar el nombre y rol del usuario autenticado.
-     */
     public void setUsuario(String nombre, String rol) {
         lblNombreUsuario.setText(nombre);
         lblRolUsuario.setText(rol);
     }
 
+    // ==================== Avatar ====================
+
     private void cargarAvatar() {
         Image imagen = cargarImagen(AVATAR_PATH);
-        if (imagen != null) {
-            avatarImage.setImage(imagen);
-        }
-        // Recorte circular del avatar
+        if (imagen != null) avatarImage.setImage(imagen);
         avatarImage.setClip(new Circle(35, 35, 35));
     }
 
@@ -91,39 +75,53 @@ public class mainWindowController {
 
     // ==================== Selección visual del menú ====================
 
-    /**
-     * Marca `boton` como la sección activa (resaltada en rojo) y quita el
-     * resaltado de la que estaba activa antes. Así el color rojo solo
-     * aparece cuando el usuario realmente está en esa sección, nunca fijo.
-     */
     private void marcarSeccionActiva(Button boton) {
-        if (botonSeccionActiva != null) {
-            botonSeccionActiva.getStyleClass().remove(CLASE_ACTIVO);
-        }
-        if (boton != null) {
-            boton.getStyleClass().add(CLASE_ACTIVO);
-        }
+        if (botonSeccionActiva != null) botonSeccionActiva.getStyleClass().remove(CLASE_ACTIVO);
+        if (boton != null)             boton.getStyleClass().add(CLASE_ACTIVO);
         botonSeccionActiva = boton;
     }
 
-    // ==================== Menú lateral ====================
+    // ==================== Toggle genérico de submenús ====================
 
-    @FXML
-    void toggleFinanzas(ActionEvent event) {
-        finanzasAbierto = !finanzasAbierto;
-        submenuFinanzas.setVisible(finanzasAbierto);
-        submenuFinanzas.setManaged(finanzasAbierto);
+    private void toggleSubmenu(Button boton, VBox submenu) {
+        boolean estaAbierto = submenu.isVisible();
 
-        // El rojo aparece SOLO mientras el submenú está desplegado.
-        if (finanzasAbierto) {
-            marcarSeccionActiva(btnFinanzas);
-        } else if (botonSeccionActiva == btnFinanzas) {
+        // Si hay otro submenú abierto, cerrarlo primero
+        if (submenuActivo != null && submenuActivo != submenu) {
+            submenuActivo.setVisible(false);
+            submenuActivo.setManaged(false);
+        }
+
+        boolean nuevoEstado = !estaAbierto;
+        submenu.setVisible(nuevoEstado);
+        submenu.setManaged(nuevoEstado);
+        submenuActivo = nuevoEstado ? submenu : null;
+
+        if (nuevoEstado) {
+            marcarSeccionActiva(boton);
+        } else if (botonSeccionActiva == boton) {
             marcarSeccionActiva(null);
         }
     }
 
+    // ==================== Botones del menú lateral ====================
+
+    @FXML void toggleAdministracion(ActionEvent event) { toggleSubmenu(btnAdministracion, submenuAdministracion); }
+    @FXML void toggleFinanzas(ActionEvent event)        { toggleSubmenu(btnFinanzas,       submenuFinanzas);       }
+    @FXML void toggleInmuebles(ActionEvent event)       { toggleSubmenu(btnInmuebles,      submenuInmuebles);      }
+    @FXML void toggleReservas(ActionEvent event)        { toggleSubmenu(btnReservas,        submenuReservas);       }
+    @FXML void toggleCheckIn(ActionEvent event)         { toggleSubmenu(btnCheckIn,         submenuCheckIn);        }
+    @FXML void toggleComunicacion(ActionEvent event)    { toggleSubmenu(btnComunicacion,    submenuComunicacion);   }
+
+    // ==================== Inicio ====================
+
     @FXML
     void irAInicio(ActionEvent event) {
+        if (submenuActivo != null) {
+            submenuActivo.setVisible(false);
+            submenuActivo.setManaged(false);
+            submenuActivo = null;
+        }
         marcarSeccionActiva(null);
         contentPane.getChildren().clear();
         Image fondo = cargarImagen(HOME_BG_PATH);
@@ -139,61 +137,52 @@ public class mainWindowController {
         }
     }
 
-    @FXML
-    void irAAdministracion(ActionEvent event) {
-        marcarSeccionActiva(btnAdministracion);
-        cargarVista("/administracion/fxml/administracion_home.fxml");
-    }
+    // ==================== Submenú Finanzas ====================
+
+    @FXML void irARegistrarPagoExterno(ActionEvent event)    { cargarVista("/finanzas/fxml/registrarPagoExterno.fxml");    }
+    @FXML void irAGenerarRendicionCuentas(ActionEvent event) { cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml"); }
+    @FXML void irAValidarPago(ActionEvent event)             { cargarVista("/finanzas/fxml/validarPago.fxml");             }
+    @FXML void irAConsultarDeudas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarDeudas.fxml");         }
+
+    // ==================== Submenú Reservas ====================
+
+    @FXML void irAAnadirReserva(ActionEvent event)       { cargarVista("/reservas/fxml/anadirReserva.fxml");       }
+    @FXML void irAVerReserva(ActionEvent event)          { cargarVista("/reservas/fxml/verReserva.fxml");          }
+    @FXML void irAAgregarObservacion(ActionEvent event)  { cargarVista("/reservas/fxml/agregarObservacion.fxml");  }
+    @FXML void irACancelarObservacion(ActionEvent event) { cargarVista("/reservas/fxml/cancelarObservacion.fxml"); }
+
+    // ==================== Submenú Check-In ====================
+
+    @FXML void irARegistrarEntradaResidente(ActionEvent event)  { cargarVista("/check_in/fxml/registrarEntradaResidente.fxml"); }
+    @FXML void irARegistrarEntradaExterna(ActionEvent event)    { cargarVista("/check_in/fxml/registrarEntradaExterna.fxml");   }
+    @FXML void irAProgramarVisita(ActionEvent event)            { cargarVista("/check_in/fxml/programarVisita.fxml");           }
+    @FXML void irAGestionarHistorialIngresos(ActionEvent event) { cargarVista("/check_in/fxml/gestionarHistorialIngresos.fxml");}
+    @FXML void irAEnviarAlerta(ActionEvent event)               { cargarVista("/check_in/fxml/enviarAlerta.fxml");              }
+
+    // ==================== Notificaciones ====================
 
     @FXML
-    void irAInmuebles(ActionEvent event) {
-        marcarSeccionActiva(btnInmuebles);
-        cargarVista("/inmuebles/fxml/inmuebles_home.fxml");
+    void irANotificaciones(ActionEvent event) {
+        if (submenuActivo != null) {
+            submenuActivo.setVisible(false);
+            submenuActivo.setManaged(false);
+            submenuActivo = null;
+        }
+        marcarSeccionActiva(null);
+        contentPane.getChildren().clear();
+        contentPane.getChildren().add(crearPlaceholder("No hay notificaciones"));
     }
+
+    // ==================== Botones de ejemplo (pendientes de definir) ====================
 
     @FXML
-    void irAReservas(ActionEvent event) {
-        marcarSeccionActiva(btnReservas);
-        cargarVista("/reservas/fxml/reservas_home.fxml");
+    void opcionPendiente(ActionEvent event) {
+        contentPane.getChildren().clear();
+        contentPane.getChildren().add(crearPlaceholder("Funcionalidad en construcción"));
     }
 
-    @FXML
-    void irACheckIn(ActionEvent event) {
-        marcarSeccionActiva(btnCheckIn);
-        cargarVista("/check_in/fxml/checkin_home.fxml");
-    }
+    // ==================== Utilidades ====================
 
-    @FXML
-    void irAComunicacion(ActionEvent event) {
-        marcarSeccionActiva(btnComunicacion);
-        cargarVista("/comunicacion/fxml/comunicacion_home.fxml");
-    }
-
-    @FXML
-    void irARegistrarPagoExterno(ActionEvent event) {
-        cargarVista("/finanzas/fxml/registrarPagoExterno.fxml");
-    }
-
-    @FXML
-    void irAGenerarRendicionCuentas(ActionEvent event) {
-        cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml");
-    }
-
-    @FXML
-    void irAValidarPago(ActionEvent event) {
-        cargarVista("/finanzas/fxml/validarPago.fxml");
-    }
-
-    @FXML
-    void irAConsultarDeudas(ActionEvent event) {
-        cargarVista("/finanzas/fxml/consultarDeudas.fxml");
-    }
-
-    /**
-     * Carga el FXML de un módulo dentro del área central del dashboard.
-     * Si la vista todavía no existe (módulo en construcción), muestra un
-     * aviso en vez de romper la aplicación.
-     */
     private void cargarVista(String rutaFxml) {
         try {
             Parent vista = FXMLLoader.load(getClass().getResource(rutaFxml));
@@ -217,5 +206,4 @@ public class mainWindowController {
         Parent root = FXMLLoader.load(getClass().getResource(vista));
         NavigationUtil.changeScene(event, root);
     }
-
 }
