@@ -24,78 +24,39 @@ package "Entidades del Dominio - Módulo GRD" {
         FINALIZADA
     }
 
-    abstract class Usuario {
-        # id: String
-        # nombre: String
-        # identificacion: String
-    }
-
-    class Residente {
-        - numeroDepartamento: String
-    }
-
-    class Administrador {
-        - cargo: String
-    }
-
     class Reserva {
         - id: String
+        - idResidente: String
+        - idEspacio: String
         - fechaCreacion: Date
         - fechaReserva: Date
         - horaInicio: Time
         - horaFin: Time
+        - costoAplicado: Double
         - estado: EstadoReserva
         + cambiarEstado(nuevoEstado: EstadoReserva): void
         + agregarObservacion(obs: Observacion): void
+        + seSuperponeCon(otra: Reserva): boolean
     }
 
     class Observacion {
         - id: String
         - texto: String
         - fechaHora: Date
-        - autor: Usuario
+        - idAutor: String
     }
 
-    abstract class EspacioComun {
-        # id: String
-        # nombre: String
-        # aforoMaximo: int
-        + estaDisponible(fecha: Date, inicio: Time, fin: Time): boolean
-    }
-
-    class SalonDeEventos {
-        - costoReserva: Double
-        - requiereGarantia: boolean
-    }
-
-    class AreaRecreacional {
-        - tipoCancha: String
-        - requiereEquipamiento: boolean
-    }
-
-    class Multa {
-        - id: String
-        - monto: Double
-        - motivo: String
-        - fechaEmision: Date
-        - estadoPago: String
-    }
-
-    ' Relaciones de Herencia (Generalización)
-    Usuario <|-- Residente
-    Usuario <|-- Administrador
-    EspacioComun <|-- SalonDeEventos
-    EspacioComun <|-- AreaRecreacional
-
-    ' Relaciones Centrales del Dominio
-    Reserva "*" --> "1" Residente : "realizada por"
-    Reserva "*" --> "1" EspacioComun : "asociada a"
     Reserva "1" *-- "*" Observacion : "contiene"
-    Multa "*" --> "1" Residente : "aplicada a"
-    Multa "1" --> "1" Reserva : "originada en"
-    Observacion "*" --> "1" Usuario : "escrita por"
-
-    ' Dependencias
     Reserva .down.> EstadoReserva : "<<use>>"
+
+    note right of Reserva
+      idResidente e idEspacio son
+      referencias a entidades de
+      otros módulos (GRB e Inmuebles).
+      costoAplicado es una copia
+      de la tarifa al momento de crear 
+      la reserva (El valor corre a cuenta
+      del modulo de Inmuebles).
+    end note
 }
 @enduml

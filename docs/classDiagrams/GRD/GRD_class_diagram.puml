@@ -1,13 +1,16 @@
 @startuml C4_Class_Diagram_GRD_Diseno
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
-skinparam nodesep 60
-skinparam ranksep 70
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam wrapWidth 220
+skinparam maxMessageSize 220
 
 title Diseño Arquitectónico (MVC Capa 3) - Módulo GRD
 
 ' ── Controladores ──
 package "Controladores (JavaFX)" #DDEEFF {
+
     class VistaSeleccionReserva {
         + mostrarHorariosDisponibles(): void
         + solicitarReserva(): void
@@ -15,8 +18,8 @@ package "Controladores (JavaFX)" #DDEEFF {
 
     class ControladorSeleccionReserva {
         - gestionReservasService: GestionReservasService
-        + consultarDisponibilidad(fecha: Date, espacio: EspacioComun): List<Horario>
-        + generarSolicitudReserva(espacio: EspacioComun, fecha: Date, hora: Time): void
+        + consultarDisponibilidad(fecha: Date, idEspacio: String): List<CeldaHorario>
+        + generarSolicitudReserva(idEspacio: String, fecha: Date, horaInicio: Time, horaFin: Time): void
     }
 
     class VistaReservaUsuario {
@@ -43,101 +46,120 @@ package "Controladores (JavaFX)" #DDEEFF {
         - multasService: MultasService
         + obtenerTodasReservas(): List<Reserva>
         + filtrarReservas(criterio: String): List<Reserva>
-        + adjudicarMulta(reservaId: String, residenteId: String, motivo: String): void
+        + adjudicarMulta(reservaId: String, residenteId: String, estrategia: IEstrategiaCalculoMulta): void
         + registrarObservacion(reservaId: String, texto: String): void
+    }
+
+    class CeldaHorario {
+        - fecha: Date
+        - horaInicio: Time
+        - horaFin: Time
+        - estado: EstadoCelda
+        - idReservaAsociada: String
+    }
+
+    enum EstadoCelda {
+        DISPONIBLE
+        OCUPADA
+        SELECCIONADA
     }
 }
 
 ' ── Servicios ──
 package "Servicios (Lógica de Casos de Uso)" #DDFFDD {
+
     class GestionReservasService {
         - reservaDAO: ReservaDAO
         + crearReserva(reserva: Reserva): boolean
         + cancelarReserva(reservaId: String): boolean
-        + consultarDisponibilidad(espacioId: String, fecha: Date): boolean
+        + consultarDisponibilidad(idEspacio: String, fecha: Date): boolean
+        + obtenerReservasPorEspacioYRango(idEspacio: String, desde: Date, hasta: Date): List<Reserva>
         + agregarObservacion(reservaId: String, observacion: Observacion): boolean
     }
 
-    class MultasService {
-        - moduloGRA_API: APIClient
-        + adjudicarMultaPorConflicto(residente: Residente, reserva: Reserva, motivo: String, monto: Double): Multa
-        - enviarSolicitudPagoGRA(multa: Multa): void
+    class AdjudicacionMultaService {
+        - moduloGRA_API: TomaraDeInterfazAlgo
+        + adjudicarMultaPorConflicto(residenteId: String, reserva: Reserva, estrategia: IEstrategiaCalculoMulta): void
+        - enviarSolicitudPagoGRA(reservaId: String, monto: Double, motivo: String): void
     }
+
+    interface IEstrategiaCalculoMulta {
+        + calcularMonto(reserva: Reserva, idEspacio: String): Double
+    }
+
+
+    class EstrategiaNoShow {
+        - montoFijo: Double
+        + calcularMonto(reserva: Reserva, idEspacio: String): Double
+    }
+
+    class EstrategiaDanioEspacio {
+        - montoIngresadoPorAdmin: Double
+        + calcularMonto(reserva: Reserva, idEspacio: String): Double
+    }
+    IEstrategiaCalculoMulta <|.. EstrategiaNoShow
+    IEstrategiaCalculoMulta <|.. EstrategiaDanioEspacio
 }
 
 ' ── Repositorios ──
 package "Repositorios (DAO)" #FFEECC {
+
     interface ReservaDAO {
         + guardar(reserva: Reserva): void
         + actualizar(reserva: Reserva): void
         + buscarPorId(id: String): Reserva
         + buscarPorResidente(residenteId: String): List<Reserva>
+        + buscarPorEspacioYRango(idEspacio: String, desde: Date, hasta: Date): List<Reserva>
         + buscarTodas(): List<Reserva>
     }
-    
+
     class ReservaDAOImpl {
         - dbConnection: Connection
         + guardar(reserva: Reserva): void
         + actualizar(reserva: Reserva): void
         + buscarPorId(id: String): Reserva
         + buscarPorResidente(residenteId: String): List<Reserva>
+        + buscarPorEspacioYRango(idEspacio: String, desde: Date, hasta: Date): List<Reserva>
         + buscarTodas(): List<Reserva>
     }
+
+    ReservaDAO <|.. ReservaDAOImpl
 }
 
 ' ── Entidades ──
 package "Entidades (Dominio)" #FFE0E0 {
-    abstract class Usuario {
-        # id: String
-        # nombre: String
-        # identificacion: String
-    }
 
-    class Residente {
-        - numeroDepartamento: String
-    }
-
-    class Administrador {
-        - cargo: String
+    enum EstadoReserva {
+        PENDIENTE
+        CONFIRMADA
+        CANCELADA
+        FINALIZADA
     }
 
     class Reserva {
         - id: String
+        - idResidente: String
+        - idEspacio: String
         - fechaCreacion: Date
         - fechaReserva: Date
         - horaInicio: Time
         - horaFin: Time
+        - costoAplicado: Double
+        - estado: EstadoReserva
+        + cambiarEstado(nuevoEstado: EstadoReserva): void
+        + agregarObservacion(obs: Observacion): void
+        + seSuperponeCon(otra: Reserva): boolean
     }
 
     class Observacion {
         - id: String
         - texto: String
         - fechaHora: Date
+        - idAutor: String
     }
 
-    abstract class EspacioComun {
-        # id: String
-        # nombre: String
-        # aforoMaximo: int
-    }
-
-    class SalonDeEventos {
-        - costoReserva: Double
-        - requiereGarantia: boolean
-    }
-
-    class AreaRecreacional {
-        - tipoCancha: String
-        - requiereEquipamiento: boolean
-    }
-
-    class Multa {
-        - id: String
-        - monto: Double
-        - motivo: String
-        - fechaEmision: Date
-        - estadoPago: String
-    }
+    Reserva "1" *-- "*" Observacion : "contiene"
+    Reserva .down.> EstadoReserva : "<<use>>"
 }
 
 ' ── Relaciones Arquitectónicas ──
@@ -146,24 +168,19 @@ VistaReservaUsuario ..> ControladorReservaUsuario
 VistaVisualizacionReservas ..> ControladorVisualizacionReservas
 
 ControladorSeleccionReserva --> GestionReservasService
+ControladorSeleccionReserva ..> CeldaHorario
 ControladorReservaUsuario --> GestionReservasService
 ControladorVisualizacionReservas --> GestionReservasService
-ControladorVisualizacionReservas --> MultasService
-
+ControladorVisualizacionReservas --> AdjudicacionMultaService
 GestionReservasService --> ReservaDAO
-ReservaDAO <|.. ReservaDAOImpl
+
+AdjudicacionMultaService ..> IEstrategiaCalculoMulta : "usa"
 
 ' ── Dependencias hacia el Dominio ──
 GestionReservasService ..> Reserva
 GestionReservasService ..> Observacion
-MultasService ..> Multa
-MultasService ..> Residente
-MultasService ..> Reserva
+AdjudicacionMultaService ..> Reserva
 
-' ── Herencias del Dominio (Estructura interna simplificada) ──
-Usuario <|-- Residente
-Usuario <|-- Administrador
-EspacioComun <|-- SalonDeEventos
-EspacioComun <|-- AreaRecreacional
+CeldaHorario --> EstadoCelda
 
 @enduml
