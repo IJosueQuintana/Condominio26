@@ -184,6 +184,8 @@ package "Reportes (Template Method)" {
     
     class ReporteRendicion extends ReporteFinanciero {
         - observaciones: String
+        - totalPagos: double
+        - totalIngresos: double
         - balanceNeto: double
     }
 }
