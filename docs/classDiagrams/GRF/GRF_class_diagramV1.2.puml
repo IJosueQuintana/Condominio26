@@ -1,0 +1,272 @@
+
+@startuml Diagrama_Dominio_GRF
+
+title Diagrama de Entidades del Dominio - Módulo GRF Comunicación
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 70
+skinparam ranksep 80
+
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    ArrowColor #2F5EA8
+    FontColor #1F3F73
+}
+
+skinparam abstractClass {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+
+skinparam interface {
+    BackgroundColor #F4F8FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
+}
+
+package "Entidades del Dominio - Módulo GRF" {
+
+    ' ====================================================
+    ' COMUNICACIONES
+    ' ====================================================
+
+    package "Comunicaciones" #FFF7E6 {
+
+        enum TipoComunicacion {
+            MENSAJE_RESIDENTES
+            COMUNICADO_TRABAJADORES
+            MENSAJE_GLOBAL
+            ANUNCIO_GENERAL
+            MENSAJE_URGENTE
+            ALERTA_EMERGENCIA
+            BOLETIN_INFORMATIVO
+        }
+
+        enum EstadoComunicacion {
+            CREADA
+            ENVIADA
+            FALLIDA
+            ELIMINADA
+        }
+
+        class Destinatario <<Partial GRB>> {
+            - idUsuario: String
+            - nombre: String
+            - rol: String
+            + obtenerIdentificador(): String
+            + obtenerRol(): String
+        }
+
+        abstract class Comunicacion <<AbstractSubject>> {
+            # idComunicacion: String
+            # asunto: String
+            # contenido: String
+            # fechaCreacion: Date
+            # fechaEnvio: Date
+            # tipo: TipoComunicacion
+            # estado: EstadoComunicacion
+            # mediator: IComunicacionMediator
+            + setMediator(mediator: IComunicacionMediator): void
+            + validarContenido(): boolean
+            + marcarComoEnviada(): void
+            + marcarComoFallida(): void
+            # notificarMediator(evento: EventoComunicacion): void
+        }
+
+        class MensajeResidentes {
+            - residentesDestino: List<Destinatario>
+            + seleccionarResidentes(destinatarios: List<Destinatario>): void
+            + validarContenido(): boolean
+        }
+
+        class ComunicadoTrabajadores {
+            - trabajadoresDestino: List<Destinatario>
+            + seleccionarTrabajadores(destinatarios: List<Destinatario>): void
+            + validarContenido(): boolean
+        }
+
+        class MensajeGlobal {
+            - destinatarios: List<Destinatario>
+            + seleccionarTodosLosUsuarios(destinatarios: List<Destinatario>): void
+            + validarContenido(): boolean
+        }
+
+        class AnuncioGeneral {
+            - fechaModificacion: Date
+            - activo: boolean
+            + publicar(): void
+            + modificar(asunto: String, contenido: String): void
+            + eliminar(): void
+            + validarContenido(): boolean
+        }
+
+        class MensajeUrgente <<NuevoTipo>> {
+            - prioridad: int
+            - requiereAcuse: boolean
+            + validarContenido(): boolean
+            + exigirAcuseDeRecibo(): void
+        }
+
+        class AlertaEmergencia <<NuevoTipo>> {
+            - nivelAlerta: String
+            - zonaAfectada: String
+            + validarContenido(): boolean
+            + activarProtocolo(): void
+        }
+
+        class BoletinInformativo <<NuevoTipo>> {
+            - periodicidad: String
+            - seccionesBoletin: List<String>
+            + validarContenido(): boolean
+            + programarEnvio(fechaEnvio: Date): void
+        }
+
+        Comunicacion <|-- MensajeResidentes
+        Comunicacion <|-- ComunicadoTrabajadores
+        Comunicacion <|-- MensajeGlobal
+        Comunicacion <|-- AnuncioGeneral
+        Comunicacion <|-- MensajeUrgente
+        Comunicacion <|-- AlertaEmergencia
+        Comunicacion <|-- BoletinInformativo
+
+        MensajeResidentes "1" --> "1..*" Destinatario : dirigido a
+        ComunicadoTrabajadores "1" --> "1..*" Destinatario : dirigido a
+        MensajeGlobal "1" --> "1..*" Destinatario : dirigido a
+        MensajeUrgente "1" --> "1..*" Destinatario : dirigido a
+        AlertaEmergencia "1" --> "1..*" Destinatario : dirigido a
+        BoletinInformativo "1" --> "1..*" Destinatario : dirigido a
+
+        Comunicacion ..> TipoComunicacion : <<use>>
+        Comunicacion ..> EstadoComunicacion : <<use>>
+
+        TipoComunicacion -[hidden]down- EstadoComunicacion
+        EstadoComunicacion -[hidden]down- Comunicacion
+        Comunicacion -[hidden]down- MensajeResidentes
+    }
+
+    ' ====================================================
+    ' EVENTOS Y MEDIACIÓN
+    ' ====================================================
+
+    package "Eventos y Mediator" #EEF9F1 {
+
+        enum AccionHistorial {
+            CREACION
+            ENVIO
+            MODIFICACION
+            ELIMINACION
+            NOTIFICACION
+        }
+
+        class EventoComunicacion <<ValueObject>> {
+            - tipoEvento: AccionHistorial
+            - idEmisor: String
+            - claseEmisor: String
+            - timestamp: Date
+            - datos: Map<String, Object>
+            + getTipoEvento(): AccionHistorial
+            + getIdEmisor(): String
+            + getClaseEmisor(): String
+            + getTimestamp(): Date
+            + getDatos(): Map<String, Object>
+        }
+
+        interface IComunicacionMediator <<Mediator>> {
+            + notificar(evento: EventoComunicacion): void
+            + registrarObservador(observador: IComunicacionObserver): void
+            + eliminarObservador(observador: IComunicacionObserver): void
+        }
+
+        class ComunicacionMediatorImpl <<ConcreteMediator>> {
+            - observadores: List<IComunicacionObserver>
+            + notificar(evento: EventoComunicacion): void
+            + registrarObservador(observador: IComunicacionObserver): void
+            + eliminarObservador(observador: IComunicacionObserver): void
+            - despacharEvento(evento: EventoComunicacion): void
+        }
+
+        ComunicacionMediatorImpl ..|> IComunicacionMediator
+        ComunicacionMediatorImpl "1" o-- "0..*" IComunicacionObserver : administra
+
+        IComunicacionMediator ..> EventoComunicacion : recibe
+        EventoComunicacion ..> AccionHistorial : <<use>>
+
+        AccionHistorial -[hidden]down- EventoComunicacion
+        EventoComunicacion -[hidden]down- IComunicacionMediator
+        IComunicacionMediator -[hidden]down- ComunicacionMediatorImpl
+    }
+
+    ' ====================================================
+    ' OBSERVADORES
+    ' ====================================================
+
+    package "Notificaciones, Historial y Reportes" #F5EEFF {
+
+        interface IComunicacionObserver <<Observer>> {
+            + actualizar(evento: EventoComunicacion): void
+        }
+
+        class Notificacion <<ConcreteObserver>> {
+            - idNotificacion: String
+            - fechaEnvio: Date
+            - destinatario: Destinatario
+            + generar(evento: EventoComunicacion): void
+            + actualizar(evento: EventoComunicacion): void
+        }
+
+        class HistorialComunicacion <<ConcreteObserver>> {
+            - idHistorial: String
+            - fechaRegistro: Date
+            - accion: AccionHistorial
+            - detalle: String
+            + registrarAccion(evento: EventoComunicacion): void
+            + actualizar(evento: EventoComunicacion): void
+        }
+
+        class ReporteComunicacion <<ConcreteObserver>> {
+            - idReporte: String
+            - fechaGeneracion: Date
+            - filtros: Map<String, Object>
+            + generar(historial: List<HistorialComunicacion>): void
+            + actualizar(evento: EventoComunicacion): void
+        }
+
+        Notificacion ..|> IComunicacionObserver
+        HistorialComunicacion ..|> IComunicacionObserver
+        ReporteComunicacion ..|> IComunicacionObserver
+
+        Notificacion "1" --> "1" Destinatario : enviada a
+        HistorialComunicacion ..> AccionHistorial : <<use>>
+        ReporteComunicacion ..> HistorialComunicacion : consulta
+
+        IComunicacionObserver -[hidden]down- Notificacion
+        Notificacion -[hidden]down- HistorialComunicacion
+        HistorialComunicacion -[hidden]down- ReporteComunicacion
+    }
+
+    ' ====================================================
+    ' RELACIONES PRINCIPALES ENTRE PAQUETES
+    ' ====================================================
+
+    Comunicacion --> IComunicacionMediator : delega eventos
+    Comunicacion ..> EventoComunicacion : genera
+
+    Notificacion ..> EventoComunicacion : procesa
+    HistorialComunicacion ..> EventoComunicacion : procesa
+    ReporteComunicacion ..> EventoComunicacion : procesa
+}
+
+@enduml
