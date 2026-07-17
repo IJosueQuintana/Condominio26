@@ -22,7 +22,7 @@
       <Label styleClass="module-title" text="Reserva de Espacio del Condominio" />
       <Label styleClass="module-subtitle" text="Seleccione el tipo de espacio para visualizar los horarios disponibles y realizar su reserva." />
       
-      <VBox maxHeight="Infinity" maxWidth="960.0" spacing="16.0" VBox.vgrow="ALWAYS">
+      <VBox fx:id="panelPrincipal" maxHeight="Infinity" maxWidth="960.0" spacing="16.0" VBox.vgrow="ALWAYS">
          <children>
             <VBox maxWidth="Infinity" spacing="12.0" styleClass="module-card">
                <padding>
@@ -103,6 +103,27 @@
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
                   </TableView>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      
+      <!-- PANEL SECUNDARIO (ERROR DE HORARIO) -->
+      <VBox fx:id="panelError" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="960.0" spacing="16.0" VBox.vgrow="ALWAYS" managed="false" visible="false">
+         <children>
+            <VBox maxWidth="500.0" spacing="16.0" styleClass="module-card">
+               <padding>
+                  <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+               </padding>
+               <children>
+                  <Label styleClass="module-section-title" style="-fx-font-size: 18px; -fx-text-fill: #c62828;" text="Horario no disponible" />
+                  <Label text="No puedes reservar en esta hora porque estás chocando con un horario donde ya se está ocupando el espacio." wrapText="true" style="-fx-font-size: 14px;" />
+                  
+                  <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#cerrarPanelError" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-padding: 9 18; -fx-cursor: hand;" text="Entendido" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
          </children>

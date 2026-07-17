@@ -13,6 +13,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.geometry.Insets;
+import javafx.scene.layout.VBox;
 
 public class AnadirReservaController {
 
@@ -54,6 +55,12 @@ public class AnadirReservaController {
 
     @FXML
     private TableColumn<HorarioFila, String> colDomingo;
+
+    @FXML
+    private VBox panelError;
+
+    @FXML
+    private VBox panelPrincipal;
 
     private ObservableList<HorarioFila> datosHorario = FXCollections.observableArrayList();
     
@@ -169,6 +176,27 @@ public class AnadirReservaController {
                     int minRow = Math.min(indiceInicio, indiceFin);
                     int maxRow = Math.max(indiceInicio, indiceFin);
                     
+                    boolean ocupado = false;
+                    for (int i = minRow; i <= maxRow; i++) {
+                        String estadoCelda = columnaBloqueada.getCellData(i);
+                        if ("Reservado".equals(estadoCelda) || "Mantenimiento".equals(estadoCelda)) {
+                            ocupado = true;
+                            break;
+                        }
+                    }
+
+                    if (ocupado) {
+                        if (panelPrincipal != null) {
+                            panelPrincipal.setVisible(false);
+                            panelPrincipal.setManaged(false);
+                        }
+                        panelError.setVisible(true);
+                        panelError.setManaged(true);
+                        
+                        limpiarSeleccion();
+                        return;
+                    }
+                    
                     String horaInicio = tablaHorarios.getItems().get(minRow).getHora().split(" - ")[0];
                     String horaFin = tablaHorarios.getItems().get(maxRow).getHora().split(" - ")[1];
                     
@@ -280,6 +308,18 @@ public class AnadirReservaController {
         if (txtHoraInicio != null) txtHoraInicio.clear();
         if (txtHoraFin != null) txtHoraFin.clear();
         if (tablaHorarios != null) tablaHorarios.refresh();
+    }
+
+    @FXML
+    void cerrarPanelError(javafx.event.ActionEvent event) {
+        if (panelError != null) {
+            panelError.setVisible(false);
+            panelError.setManaged(false);
+        }
+        if (panelPrincipal != null) {
+            panelPrincipal.setVisible(true);
+            panelPrincipal.setManaged(true);
+        }
     }
 
     private void cargarDatosFicticios(String espacio) {
