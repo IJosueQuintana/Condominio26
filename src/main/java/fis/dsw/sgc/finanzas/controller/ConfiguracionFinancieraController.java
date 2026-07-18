@@ -1,5 +1,6 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.finanzas.dto.EntidadBancariaDTO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -37,25 +38,25 @@ public class ConfiguracionFinancieraController {
     @FXML private Button btnLimpiarEntidad;
     @FXML private Label lblMensajeEntidad;
 
-    @FXML private TableView<EntidadBancariaFila> tablaEntidades;
-    @FXML private TableColumn<EntidadBancariaFila, String> colNombreEntidad;
-    @FXML private TableColumn<EntidadBancariaFila, String> colNumeroCuenta;
-    @FXML private TableColumn<EntidadBancariaFila, String> colTipoCuenta;
-    @FXML private TableColumn<EntidadBancariaFila, String> colCedulaTitular;
-    @FXML private TableColumn<EntidadBancariaFila, String> colCorreoTitular;
+    @FXML private TableView<EntidadBancariaDTO> tablaEntidades;
+    @FXML private TableColumn<EntidadBancariaDTO, String> colNombreEntidad;
+    @FXML private TableColumn<EntidadBancariaDTO, String> colNumeroCuenta;
+    @FXML private TableColumn<EntidadBancariaDTO, String> colTipoCuenta;
+    @FXML private TableColumn<EntidadBancariaDTO, String> colCedulaTitular;
+    @FXML private TableColumn<EntidadBancariaDTO, String> colCorreoTitular;
 
-    private final ObservableList<EntidadBancariaFila> entidades = FXCollections.observableArrayList();
+    private final ObservableList<EntidadBancariaDTO> entidades = FXCollections.observableArrayList();
     private double valorActualAlicuota = 45.00;
 
     @FXML
     public void initialize() {
         cbTipoCuenta.setItems(FXCollections.observableArrayList("AHORROS", "CORRIENTE"));
 
-        colNombreEntidad.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNombreEntidad()));
+        colNombreEntidad.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNombre()));
         colNumeroCuenta.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNumeroCuenta()));
-        colTipoCuenta.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTipoCuenta()));
+        colTipoCuenta.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTipo()));
         colCedulaTitular.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCedulaTitular()));
-        colCorreoTitular.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCorreoTitular()));
+        colCorreoTitular.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getEmailTitular()));
         tablaEntidades.setItems(entidades);
         tablaEntidades.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
@@ -113,13 +114,14 @@ public class ConfiguracionFinancieraController {
         }
 
         boolean yaExiste = entidades.stream()
-                .anyMatch(fila -> fila.getNumeroCuenta().equalsIgnoreCase(numeroCuenta));
+                .anyMatch(dto -> dto.getNumeroCuenta().equalsIgnoreCase(numeroCuenta));
         if (yaExiste) {
             setMensaje(lblMensajeEntidad, "Ya existe una entidad bancaria registrada con el número de cuenta ingresado", "message-error");
             return;
         }
 
-        entidades.add(new EntidadBancariaFila(nombreEntidad, numeroCuenta, tipoCuenta, cedulaTitular, correoTitular));
+        // TODO: reemplazar por servicioFinanzas.registrarEntidadBancaria(dto) cuando exista el Service/DAO
+        entidades.add(new EntidadBancariaDTO(nombreEntidad, numeroCuenta, cedulaTitular, tipoCuenta, correoTitular));
         setMensaje(lblMensajeEntidad, "Entidad bancaria registrada correctamente", "message-success");
         limpiarFormularioEntidad(null);
     }
@@ -144,43 +146,5 @@ public class ConfiguracionFinancieraController {
         }
         label.getStyleClass().add(estilo);
         label.setText(texto);
-    }
-
-    // Fila de la tabla de entidades bancarias (temporal, solo para la vista)
-    public static class EntidadBancariaFila {
-        private final String nombreEntidad;
-        private final String numeroCuenta;
-        private final String tipoCuenta;
-        private final String cedulaTitular;
-        private final String correoTitular;
-
-        public EntidadBancariaFila(String nombreEntidad, String numeroCuenta, String tipoCuenta,
-                                    String cedulaTitular, String correoTitular) {
-            this.nombreEntidad = nombreEntidad;
-            this.numeroCuenta = numeroCuenta;
-            this.tipoCuenta = tipoCuenta;
-            this.cedulaTitular = cedulaTitular;
-            this.correoTitular = correoTitular;
-        }
-
-        public String getNombreEntidad() {
-            return nombreEntidad;
-        }
-
-        public String getNumeroCuenta() {
-            return numeroCuenta;
-        }
-
-        public String getTipoCuenta() {
-            return tipoCuenta;
-        }
-
-        public String getCedulaTitular() {
-            return cedulaTitular;
-        }
-
-        public String getCorreoTitular() {
-            return correoTitular;
-        }
     }
 }
