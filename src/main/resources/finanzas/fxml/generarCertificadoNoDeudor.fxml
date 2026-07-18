@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:controller="fis.dsw.sgc.finanzas.controller.GenerarCertificadoNoDeudorController"
+      alignment="TOP_CENTER"
+      maxHeight="1.7976931348623157E308"
+      maxWidth="1.7976931348623157E308"
+      prefHeight="600.0"
+      prefWidth="900.0"
+      spacing="16.0"
+      styleClass="module-content"
+      stylesheets="@../css/finanzasStyles.css"
+      xmlns="http://javafx.com/javafx/26"
+      xmlns:fx="http://javafx.com/fxml/1">
+
+    <padding>
+        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0"/>
+    </padding>
+
+    <children>
+        <Label styleClass="module-title" text="Generar Certificado de No Deudor"/>
+        <Label styleClass="module-subtitle"
+               text="Seleccione el periodo, agregue observaciones y genere el Certificado de No Deudor."/>
+
+        <VBox maxWidth="720.0" spacing="14.0" styleClass="module-card">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+            </padding>
+            <children>
+                <GridPane hgap="12.0" vgap="14.0"
+                          maxWidth="1.7976931348623157E308">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130.0" prefWidth="140.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="400.0"/>
+                    </columnConstraints>
+                    <children>
+                        <Label styleClass="form-label" text="Fecha inicio"
+                               GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <DatePicker fx:id="dpInicio" maxWidth="1.7976931348623157E308"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <Label styleClass="form-label" text="Fecha fin"
+                               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <DatePicker fx:id="dpFin" maxWidth="1.7976931348623157E308"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                        <Label styleClass="form-label" text="Observaciones"
+                               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextArea fx:id="txtObservaciones"
+                                  prefRowCount="3"
+                                  wrapText="true"
+                                  promptText="Observaciones del reporte (opcional)"
+                                  maxWidth="1.7976931348623157E308"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    </children>
+                </GridPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#generar"
+                                styleClass="primary-button" text="Generar reporte"/>
+                        <Button mnemonicParsing="false" onAction="#limpiar"
+                                styleClass="secondary-button" text="Limpiar"/>
+                    </children>
+                </HBox>
+
+                <Label fx:id="lblMensaje" styleClass="message-label, message-info" text=""/>
+            </children>
+        </VBox>
+
+        <VBox maxHeight="1.7976931348623157E308"
+              maxWidth="1.7976931348623157E308"
+              spacing="8.0"
+              styleClass="table-card"
+              VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+            </padding>
+            <children>
+                <Label styleClass="module-section-title" text="Resumen del certificado"/>
+                <Label fx:id="lblResumen" styleClass="module-subtitle"
+                       text="Genere un Certificado de no Deudor para conocer el estado financiero del residente."
+                       wrapText="true"
+                       VBox.vgrow="ALWAYS"/>
+            </children>
+        </VBox>
+    </children>
+</VBox>
