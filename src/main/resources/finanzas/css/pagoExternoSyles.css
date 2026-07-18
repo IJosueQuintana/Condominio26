@@ -1,0 +1,24 @@
+.text-field{
+    -fx-background-color: #f3efee;
+    -fx-font-size: 16;
+}
+
+.text-field:focused {
+    -fx-border-color: #4c0416; /* Borde rojo al escribir */
+    -fx-background-color: #FDFEFE;
+}
+
+.titleIcon{
+    -fx-icon-size: 32;
+    -fx-icon-color: black;
+}
+
+.formIcon{
+    -fx-icon-size: 25;
+    -fx-icon-color: #af1111;
+}
+
+.playableIcon{
+    -fx-icon-size: 45;
+    -fx-icon-color: #6e620c;
+}
