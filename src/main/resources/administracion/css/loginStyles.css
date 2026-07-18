@@ -1,0 +1,62 @@
+/* ===================== Fondo y Tarjeta ===================== */
+.login-bg {
+    -fx-background-color: #f4f5f7;
+}
+
+.login-card {
+    -fx-background-color: white;
+    -fx-padding: 40;
+    -fx-background-radius: 8;
+    -fx-border-color: #e2e2e2;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 15, 0, 0, 5);
+}
+
+/* ===================== Textos ===================== */
+.login-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2b2b2b;
+}
+
+.login-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #8a8a8a;
+}
+
+.login-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2b2b2b;
+}
+
+/* ===================== Campos de Texto ===================== */
+.login-field {
+    -fx-background-color: #f4f5f7;
+    -fx-border-color: #e2e2e2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-pref-height: 40px;
+    -fx-padding: 0 10 0 10;
+}
+
+.login-field:focused {
+    -fx-border-color: #b5202e;
+    -fx-background-color: white;
+}
+
+/* ===================== Botón ===================== */
+.login-btn {
+    -fx-background-color: #b5202e;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+    -fx-pref-height: 45px;
+}
+
+.login-btn:hover {
+    -fx-background-color: #8c1823;
+}
