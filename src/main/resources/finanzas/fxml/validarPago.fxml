@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:controller="fis.dsw.sgc.finanzas.controller.ValidarPagoController"
+      alignment="TOP_CENTER"
+      maxHeight="1.7976931348623157E308"
+      maxWidth="1.7976931348623157E308"
+      prefHeight="600.0"
+      prefWidth="900.0"
+      spacing="16.0"
+      styleClass="module-content"
+      stylesheets="@../css/finanzasStyles.css"
+      xmlns="http://javafx.com/javafx/26"
+      xmlns:fx="http://javafx.com/fxml/1">
+
+    <padding>
+        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0"/>
+    </padding>
+
+    <children>
+        <Label styleClass="module-title" text="Validar pago"/>
+        <Label styleClass="module-subtitle"
+               text="Confirme o rechace un pago en proceso (por ejemplo, una transferencia pendiente)."/>
+
+        <VBox maxWidth="720.0" spacing="14.0" styleClass="module-card">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+            </padding>
+            <children>
+                <GridPane hgap="12.0" vgap="14.0"
+                          maxWidth="1.7976931348623157E308">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130.0" prefWidth="140.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="400.0"/>
+                    </columnConstraints>
+                    <children>
+                        <Label styleClass="form-label" text="ID deuda"
+                               GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtIdDeuda" promptText="Ej. DEU-001"
+                                   maxWidth="1.7976931348623157E308"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <Label styleClass="form-label" text="ID pago"
+                               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtIdPago" promptText="Ej. PAG-010"
+                                   maxWidth="1.7976931348623157E308"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                        <Label styleClass="form-label" text="Cédula"
+                               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtCedula" promptText="Cédula del residente"
+                                   maxWidth="1.7976931348623157E308"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    </children>
+                </GridPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#validar"
+                                styleClass="primary-button" text="Validar pago"/>
+                        <Button mnemonicParsing="false" onAction="#rechazar"
+                                styleClass="danger-button" text="Rechazar"/>
+                        <Button mnemonicParsing="false" onAction="#limpiar"
+                                styleClass="secondary-button" text="Limpiar"/>
+                    </children>
+                </HBox>
+
+                <Label fx:id="lblMensaje" styleClass="message-label, message-info" text=""/>
+            </children>
+        </VBox>
+
+        <Region VBox.vgrow="ALWAYS"/>
+    </children>
+</VBox>

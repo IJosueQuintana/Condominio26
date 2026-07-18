@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER"
+      maxHeight="1.7976931348623157E308"
+      maxWidth="1.7976931348623157E308"
+      prefHeight="600.0"
+      prefWidth="900.0"
+      spacing="16.0"
+      styleClass="module-content"
+      stylesheets="@../css/checkInStyles.css"
+      xmlns="http://javafx.com/javafx/26"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="fis.dsw.sgc.check_in.controller.EnviarAlertaController">
+
+    <padding>
+        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0"/>
+    </padding>
+
+    <children>
+        <VBox alignment="CENTER" maxWidth="960.0" spacing="4.0">
+            <children>
+                <Label styleClass="module-title" text="Enviar Alerta"/>
+                <Label styleClass="module-subtitle"
+                       text="Comunique una situación de emergencia o un aviso a los residentes del condominio."/>
+            </children>
+        </VBox>
+
+        <!-- PANEL PRINCIPAL: FORMULARIO -->
+        <VBox fx:id="panelPrincipal" maxWidth="720.0" spacing="14.0" styleClass="module-card">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+            </padding>
+            <children>
+                <GridPane hgap="12.0" vgap="14.0" maxWidth="1.7976931348623157E308">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130.0" prefWidth="140.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="400.0"/>
+                    </columnConstraints>
+                    <children>
+                        <Label styleClass="form-label" text="Tipo de alerta"
+                               GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <HBox spacing="12.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <children>
+                                <ChoiceBox fx:id="cbTipoAlerta" prefWidth="200.0"/>
+                                <Label fx:id="lblPrioridad" styleClass="badge-estado"/>
+                            </children>
+                        </HBox>
+
+                        <Label styleClass="form-label" text="Destinatarios"
+                               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <ChoiceBox fx:id="cbDestinatarios" maxWidth="1.7976931348623157E308"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                        <Label styleClass="form-label" text="Torre / unidad (si aplica)"
+                               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtDestinatarioEspecifico" promptText="Ej. Torre B, Depto. 302"
+                                   maxWidth="1.7976931348623157E308"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    </children>
+                </GridPane>
+
+                <Label styleClass="form-label" text="Mensaje"/>
+                <TextArea fx:id="txtMensaje" prefHeight="120.0" wrapText="true"
+                          promptText="Describa la situación y las instrucciones para los residentes."/>
+
+                <Label fx:id="lblMensajeEstado" styleClass="message-label"/>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                    <children>
+                        <Button fx:id="btnLimpiar" mnemonicParsing="false" onAction="#limpiarFormulario"
+                                styleClass="secondary-button" text="Limpiar"/>
+                        <Button fx:id="btnRevisar" mnemonicParsing="false" onAction="#revisarAlerta"
+                                styleClass="danger-button" text="Enviar Alerta"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- PANEL SECUNDARIO: CONFIRMACIÓN OBLIGATORIA -->
+        <VBox fx:id="panelConfirmacion" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="640.0"
+              spacing="16.0" VBox.vgrow="ALWAYS" managed="false" visible="false">
+            <children>
+                <VBox maxWidth="560.0" spacing="16.0" styleClass="module-card">
+                    <padding>
+                        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0"/>
+                    </padding>
+                    <children>
+                        <Label styleClass="module-section-title" style="-fx-font-size: 18px; -fx-text-fill: #a4203a;"
+                               text="Confirmar envío de alerta"/>
+                        <Label fx:id="lblResumen" wrapText="true" styleClass="message-label"/>
+                        <Label text="Esta acción notificará de inmediato a los destinatarios seleccionados. Verifique la información antes de continuar."
+                               wrapText="true" styleClass="form-hint"/>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#cancelarConfirmacion"
+                                        styleClass="secondary-button" text="Volver a editar"/>
+                                <Button mnemonicParsing="false" onAction="#confirmarEnvio"
+                                        styleClass="danger-button" text="Confirmar Envío"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</VBox>

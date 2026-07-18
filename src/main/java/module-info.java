@@ -14,13 +14,13 @@ module fis.dsw.sgc {
 
     // Abre los paquetes con controladores para FXML
     opens fis.dsw.sgc.administracion.controller to javafx.fxml;
-    opens fis.dsw.sgc.administracion.dashboard;
-//    opens fis.dsw.sgc.check_in.controller to javafx.fxml;
-//    opens fis.dsw.sgc.finanzas.controller to javafx.fxml;
+    opens fis.dsw.sgc.administracion.dashboard to javafx.fxml;
+    opens fis.dsw.sgc.check_in.controller to javafx.fxml, javafx.base;
+    opens fis.dsw.sgc.finanzas.controller to javafx.fxml;
 //    opens fis.dsw.sgc.comunicacion.controller to javafx.fxml;
     opens fis.dsw.sgc.inmuebles.controller to javafx.fxml;
-//    opens fis.dsw.sgc.reservas.controller to javafx.fxml;
-    //opens fis.dsw.sgc.administracion.dashboard to javafx.fxml;
+    opens fis.dsw.sgc.reservas.controller to javafx.fxml, javafx.base;
+    opens fis.dsw.sgc.reservas.model to javafx.base;
 //    opens fis.dsw.sgc.app to javafx.fxml;
 //    opens fis.dsw.sgc.administracion.dto to javafx.base;
 //    opens fis.dsw.sgc.check_in.dto to javafx.base;

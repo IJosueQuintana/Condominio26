@@ -1,0 +1,597 @@
+@startuml
+title Sistema de Gestión de Condominios - Modelo de Dominio Unificado y Patrones
+
+skinparam roundcorner 8
+skinparam padding 4
+skinparam nodesep 60
+skinparam ranksep 70
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+' --- Estilos ---
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+skinparam interface {
+    BackgroundColor #F4F8FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
+}
+skinparam package {
+    BackgroundColor #FDFDFD
+    BorderColor #A9C2E3
+}
+
+' ==========================================
+' MÓDULO GRB: USUARIOS Y CUENTAS
+' ==========================================
+package "GRB - Usuarios y Cuentas" {
+    enum EstadoCuenta {
+        ACTIVA
+        DESACTIVADA
+    }
+    enum NombreRol {
+        ADMINISTRADOR
+        RESIDENTE
+        PROPIETARIO
+        PERSONAL_SEGURIDAD
+        PRESIDENTE
+    }
+    
+    class Usuario {
+        - idUsuario: UUID
+        - nombre: String
+        - apellido: String
+        - correo: String
+    }
+
+    
+    class Cuenta {
+        - idCuenta: UUID
+        - contrasena: String
+        - estado: EstadoCuenta
+        - fechaCreacion: Date
+        - fechaModificacion: Date
+        + activar(): void
+        + desactivar(): void
+    }
+    
+    class Perfil {
+        - idPerfil: UUID
+        - telefono: String
+        - direccion: String
+        - fotoPerfil: String
+        - fechaActualizacion: Date
+    }
+    
+    class Rol {
+        - idRol: UUID
+        - nombre: NombreRol
+        - descripcion: String
+        + obtenerPermisos(): List<Permiso>
+    }
+    
+    class Permiso {
+        - idPermiso: UUID
+        - nombre: String
+        - recurso: String
+    }
+    
+    class TokenRestablecimiento {
+        - idToken: UUID
+        - codigo: String
+        - fechaExpiracion: Date
+        - intentos: Integer
+        + esValido(): boolean
+        + estaExpirado(): boolean
+    }
+    
+    class SesionUsuario <<Singleton>> {
+        - {static} instancia: SesionUsuario
+        - usuarioActual: Usuario
+        + {static} obtenerInstancia(): SesionUsuario
+        + cerrarSesion(): void
+    }
+
+    Usuario "1" *-- "1" Cuenta : posee
+    Usuario "1" -- "1" Perfil : tiene
+    Rol "1" *-- "1..*" Permiso : define
+    Cuenta "*" -- "*" Rol : asignado a
+    Cuenta "1" -- "0..*" TokenRestablecimiento : genera
+    SesionUsuario "1" --> "1" Usuario : <<mantiene sesión de>>
+}
+
+' ==========================================
+' MÓDULO GRC: INMUEBLES
+' ==========================================
+package "GRC - Inmuebles y Espacios" {
+    enum EstadoInmueble {
+        DISPONIBLE
+        OCUPADO
+        EN_MANTENIMIENTO
+        EN_REMODELACION
+    }
+
+    abstract class Inmueble {
+        # idInmueble : int
+        # codigo : String
+        # estado : String
+        # disponibleAlquiler : boolean
+        # disponibleVenta : boolean
+        # areaMetrosCuadrados: double
+        # descripcion: String
+    }
+
+    class Departamento extends Inmueble {
+        - numeroDepartamento : int
+        - piso : int
+        - nroHabitaciones : int
+        - numeroBanos: int
+        - disponibleAlquiler: boolean
+        - disponibleVenta: boolean
+    }
+
+    class Suite extends Inmueble {
+        - tieneBalcon : boolean
+        - numeroHabitaciones: int
+        - numeroBanos: int
+        - disponibleAlquiler: boolean
+        - disponibleVenta: boolean
+    }
+
+    abstract class EspacioComun extends Inmueble {
+        - nombreEspacio : String
+        - reglamentoUso : String
+        - aforoMaximo : int
+    }
+
+    class SalonDeEventos extends EspacioComun {
+       - costoReserva: Double
+       - requiereGarantia: boolean
+    }
+
+    class AreaRecreacional extends EspacioComun {
+       - tipoCancha: String
+       - requiereEquipamiento: boolean
+    }
+
+    class Parqueadero extends Inmueble {
+        - idParqueadero : int
+        - numero : String
+    }
+
+    abstract class Plaza {
+        # idPlaza : int
+        # estado : String
+        # dispobible : boolean
+    }
+    class PlazaPropietario extends Plaza {
+        + verificarPermiso(): boolean
+        + obtenerTiempoMaximo(): int
+    }
+    class PlazaVisita extends Plaza {
+         - tiempoMaximo: int
+    }
+
+    class CatalogoCondominio {
+        - idCatalogo : int
+        - fechaActualizacion : Date
+        - listaInmuebles: List<Inmueble>
+    }
+
+    class Propiedad {
+        - idPropiedad : int
+        - enAlquiler : boolean
+        - fechaRegistro : Date
+    }
+
+    class CasoFortuito {
+        - idCaso : int
+        - descripcion : String
+        - fecha : Date
+        - estado : String
+    }
+    
+    class ReporteCambio {
+        - idReporte : int
+        - fechaGeneracion : Date
+        - descripcionCambio : String
+    }
+
+    interface InmuebleFactory <<Factory>> {
+        + crearDepartamento(): Departamento
+        + crearSuite(): Suite
+        + crearParqueadero(): Parqueadero
+        + crearSalonEventos(): SalonDeEventos
+        + crearAreaRecreacional(): AreaRecreacional
+    }
+    class InmuebleFactoryImpl implements InmuebleFactory
+
+    interface IteratorInmueble <<Iterator>> {
+        + hasNext(): boolean
+        + next(): Inmueble
+    }
+    class CatalogoIterator implements IteratorInmueble
+
+    class GestorPlazas <<Singleton>> {
+        - instance: GestorPlazas
+        + getInstance(): GestorPlazas
+        + asignarPlaza()
+        + liberarPlaza()
+    }
+
+    Parqueadero "1" *-- "0..*" Plaza : contiene
+    CatalogoCondominio "1" o-- "*" Inmueble
+    Inmueble "1" --> "*" ReporteCambio
+    Inmueble "1" --> "*" CasoFortuito : registra
+    Propiedad "*" --> "1" Inmueble : asociada a
+    PlazaPropietario "*" --> "1" Propiedad : asignada a
+    CatalogoCondominio ..> IteratorInmueble : crea
+    InmuebleFactoryImpl ..> Inmueble : <<instancia>>
+    GestorPlazas ..> Parqueadero : <<gestiona>>
+GestorPlazas ..> Plaza : <<asigna/libera>>
+}
+
+' ==========================================
+' MÓDULOS GRD: RESERVAS
+' ==========================================
+package "GRD - Reservas de Espacios" {
+    enum EstadoReserva {
+        PENDIENTE
+        CONFIRMADA
+        CANCELADA
+        FINALIZADA
+    }
+
+    class Reserva {
+        - id: String
+        - fechaCreacion: Date
+        - fechaReserva: Date
+        - horaInicio: Time
+        - horaFin: Time
+        - costoAplicado: Double
+        - estado: EstadoReserva
+        + cambiarEstado(nuevoEstado: EstadoReserva): void
+        + agregarObservacion(obs: Observacion): void
+        + seSuperponeCon(otra: Reserva): boolean
+    }
+
+    class Observacion {
+        - id: String
+        - texto: String
+        - fechaHora: Date
+    }
+
+    Reserva "1" *-- "*" Observacion : contiene
+}
+
+' ==========================================
+' MÓDULO GRA: FINANZAS Y PAGOS
+' ==========================================
+package "GRA - Finanzas y Pagos" {
+    class Deuda {
+        - idDeuda: int
+        - fecha_vencimiento: Date
+        - descripcion: String
+        - valorBase: double
+        + calcularValorTotal(): double
+        + procesarPago(): void
+        + aplicarMora(): void
+        + modificarFechaVencimiento(nuevaFecha: Date): void
+    }
+
+    interface ITipoDeuda <<Strategy>> {
+        + calcularValor(valorBase: double): double
+        + getMotivo(): String
+    }
+    class DeudaMulta implements ITipoDeuda
+    class DeudaReserva implements ITipoDeuda
+    class DeudaAlicuota implements ITipoDeuda
+
+    interface IEstadoDeuda <<State>> {
+        + procesarPago(deuda: Deuda): void
+        + aplicarMora(deuda: Deuda): void
+        + anular(deuda: Deuda): void
+    }
+    class EstadoPendiente implements IEstadoDeuda
+    class EstadoEnProceso implements IEstadoDeuda
+    class EstadoPagada implements IEstadoDeuda
+    class EstadoMora implements IEstadoDeuda
+    class EstadoEliminada implements IEstadoDeuda
+
+    class DeudaFactory <<Factory>> {
+        + crearDeuda(motivo: String, residente: Residente, valor: double, fecha: Date): Deuda
+    }
+
+    class Pago {
+        - idPago: int
+        - fecha_pago: Date
+        - valorPagado: double
+        + ejecutarCobro(): boolean
+    }
+
+    interface ITipoPago <<Strategy>> {
+        + procesarTransaccion(pago: Pago, deuda: Deuda): boolean
+    }
+    class PagoEfectivo implements ITipoPago
+    class PagoTransferencia implements ITipoPago {
+        - comprobante_transferencia: String
+    }
+    class PagoTarjeta implements ITipoPago {
+        - numero_tarjeta: String
+        - codigo_transaccion: String
+    }
+
+    class PagoFactory <<Factory>> {
+        + crearPago(metodo: String, deuda: Deuda, monto: double): Pago
+    }
+
+    abstract class Gasto {
+        # idGasto: int
+        # descripcion: String
+        # valor: double
+        # fecha_gasto: Date
+        + {abstract} validarDetalle(): boolean
+        + {abstract} getTipoGasto(): String
+    }
+    class GastoServicioBasico extends Gasto {
+        - tipo_servicio: String
+    }
+    class GastoSueldos extends Gasto
+    class GastoOtros extends Gasto
+
+    class GastoFactory <<Factory>> {
+        + crearGasto(motivo: String, desc: String, valor: double, fecha: Date): Gasto
+    }
+
+    abstract class ReporteFinanciero <<Template>> {
+        # fechaInicio: Date
+        # fechaFin: Date
+        + generarReporte(): void
+        # {abstract} recopilarDatos(): void
+        # {abstract} calcularTotales(): void
+        # formatearSalida(): void
+    }
+    class ReportePagos extends ReporteFinanciero {
+        - totalIngresos: double
+    }
+    class ReporteGastos extends ReporteFinanciero {
+        - totalGastosPorCategoria: Map<String, Double>
+    }
+    class ReporteRendicion extends ReporteFinanciero {
+        - observaciones: String
+        - totalPagos: double
+        - totalIngresos: double
+        - balanceNeto: double
+    }
+
+    class EntidadBancaria {
+        - nombre: String
+        - numeroCuenta: String
+        - cedulaTitular: String
+        - tipoCuenta: String
+    }
+
+    Deuda "1" *-- "1" ITipoDeuda : clasificada por
+    Deuda "1" *-- "1" IEstadoDeuda : se encuentra en
+    Pago "1" *-- "1" ITipoPago : modalidad
+    Pago "1" --> "1" Deuda : cancela
+
+    DeudaFactory ..> Deuda : <<instancia>>
+    PagoFactory ..> Pago : <<instancia>>
+    GastoFactory ..> Gasto : <<instancia>>
+}
+
+' ==========================================
+' MÓDULO GRE: CHECK-IN Y SEGURIDAD
+' ==========================================
+package "GRE - Check-in y Seguridad" {
+    enum EstadoVisita {
+        PROGRAMADA
+        EN_CURSO
+        FINALIZADA
+        CANCELADA
+    }
+
+    class Visitante {
+        - idVisitante: int
+        - nombre: String
+        - identificacion: String
+        - telefono: String
+        - placaVehiculo: String
+        + actualizarDatos(): void
+    }
+
+    class Visita {
+        - idVisita: int
+        - fechaHoraProgramada: Date
+        - motivo: String
+        - estado: EstadoVisita
+        - requiereParqueadero: boolean
+        + actualizarEstado(): void
+        + cancelar(): void
+    }
+
+    abstract class RegistroEntrada {
+        # idEntrada: int
+        # fechaLlegada: Date
+        # horaLlegada: Time
+        # motivo: String
+        # observaciones: String
+        + obtenerDetalleEntrada(): String
+        + setObservaciones(obs: String): void
+    }
+    class RegistroEntradaVisitante extends RegistroEntrada {
+        - autorizadoPorResidente: boolean
+        + validarAutorizacion(): boolean
+    }
+    class RegistroEntradaResidente extends RegistroEntrada {
+        - numeroDepartamento: String
+        + validarResidencia(): boolean
+    }
+    class RegistroEntradaExterna extends RegistroEntrada {
+        - entidadProcedencia: String
+        + registrarMotivoExterno(motivo: String): void
+    }
+
+    class RegistroEntradaFactory <<Factory>> {
+        + crearEntradaVisitante(): RegistroEntrada
+        + crearEntradaResidente(): RegistroEntrada
+        + crearEntradaExterna(): RegistroEntrada
+    }
+
+
+   
+    class ReporteHistorial {
+        - descripcion: String
+        - fechaGeneracion: Date
+        - totalEntradas: int
+        - totalVisitantes: int
+        - totalParqueaderosUtilizados: int
+        + generarResumen(iterador: IteradorRegistroEntrada): void
+    }
+
+    interface IteradorRegistroEntrada <<Iterator>> {
+        + tieneSiguiente(): boolean
+        + siguiente(): RegistroEntrada
+        + reiniciar(): void
+    }
+    class IteradorHistorialEntradas implements IteradorRegistroEntrada {
+        - posicionActual: int
+    }
+    class ColeccionHistorialEntradas {
+        - registros: List<RegistroEntrada>
+        + agregarRegistro(registro: RegistroEntrada): void
+        + crearIterador(): IteradorRegistroEntrada
+    }
+
+    Visitante "1" --> "0..*" Visita : participa
+    Visita "0..1" --> "0..1" RegistroEntrada : genera
+    ColeccionHistorialEntradas o-- RegistroEntrada : agrupa
+    RegistroEntradaFactory ..> RegistroEntrada : <<instancia>>
+}
+
+' ==========================================
+' MÓDULO GRF: COMUNICACIONES (Transversal)
+' ==========================================
+package "GRF - Comunicaciones" {
+    enum TipoComunicacion {
+        MENSAJE_RESIDENTES
+        COMUNICADO_TRABAJADORES
+        MENSAJE_GLOBAL
+        ANUNCIO_GENERAL
+        MENSAJE_URGENTE
+        ALERTA_EMERGENCIA
+        BOLETIN_INFORMATIVO
+    }
+
+    class Destinatario {
+        - idUsuario: String
+        - nombre: String
+        - rol: String
+    }
+
+    abstract class Comunicacion {
+        # idComunicacion: String
+        # asunto: String
+        # contenido: String
+        # fechaCreacion: Date
+        # fechaEnvio: Date
+        + validarContenido(): boolean
+        + marcarComoEnviada(): void
+        # notificarMediator(evento: EventoComunicacion): void
+    }
+
+    class MensajeResidentes extends Comunicacion
+    class ComunicadoTrabajadores extends Comunicacion
+    class MensajeGlobal extends Comunicacion
+    class AnuncioGeneral extends Comunicacion
+    class MensajeUrgente extends Comunicacion
+    class AlertaEmergencia extends Comunicacion
+    class BoletinInformativo extends Comunicacion
+
+    class EventoComunicacion <<ValueObject>> {
+        - tipoEvento: AccionHistorial
+        - idEmisor: String
+        - timestamp: Date
+    }
+
+    interface IComunicacionMediator <<Mediator>> {
+        + notificar(evento: EventoComunicacion): void
+        + registrarObservador(obs: IComunicacionObserver): void
+    }
+    class ComunicacionMediatorImpl implements IComunicacionMediator
+
+    interface IComunicacionObserver <<Observer>> {
+        + actualizar(evento: EventoComunicacion): void
+    }
+
+    class Notificacion implements IComunicacionObserver {
+        - idNotificacion: String
+        - fechaEnvio: Date
+        + generar(evento: EventoComunicacion): void
+    }
+
+    class HistorialComunicacion implements IComunicacionObserver {
+        - accion: AccionHistorial
+        - detalle: String
+    }
+
+    class ReporteComunicacion implements IComunicacionObserver {
+        - fechaGeneracion: Date
+    }
+
+    Comunicacion "1" --> "1..*" Destinatario : dirigido a
+    Comunicacion --> IComunicacionMediator : delega eventos
+    ComunicacionMediatorImpl "1" o-- "0..*" IComunicacionObserver : administra
+    Notificacion "1" --> "1" Destinatario : enviada a
+}
+' ==========================================
+' INTEGRACIONES CRUZADAS (LLAVES FORÁNEAS / RELACIONES MACRO)
+' ==========================================
+
+' GRC -> GRB (Las propiedades y plazas tienen dueños/residentes)
+Propiedad "*" --> "1" Usuario : pertenece a (Propietario)
+
+' GRA -> GRB
+Deuda "0..*" --> "1" Usuario : <<asignada a (Residente)>>
+
+' GRA -> GRC (Las alícuotas se calculan según el tamaño del departamento)
+DeudaAlicuota ..> Departamento : <<usa para cálculo>>
+
+' GRD -> GRB y GRC (Las reservas conectan a un Residente con un Espacio Común)
+Reserva "*" --> "1" Usuario : <<realizada por (Residente)>>
+Reserva "*" --> "1" EspacioComun : ocupa
+Observacion "*" --> "1" Usuario : <<escrita por>>
+
+' GRE -> GRB (Check-in conecta visitantes con residentes y guardias)
+RegistroEntradaVisitante "*" --> "1" Usuario : <<autorizado por (Residente)>>
+RegistroEntrada "*" --> "1" Usuario : <<registrado por (Personal Seguridad)>>
+
+' GRF -> GRB (El destinatario es un puente hacia el Usuario real)
+Destinatario "*" --> "1" Usuario : representa
+
+' GRA -> GRB (Auditoría de quién registró el gasto)
+Gasto "*" --> "1" Usuario : <<registrado por (Presidente)>>
+
+' ==========================================
+' TRANSVERSALIDAD DE COMUNICACIONES (Event-Driven)
+' ==========================================
+' Los módulos operativos disparan Eventos que el Mediador de GRF procesa
+
+RegistroEntrada ..> EventoComunicacion : <<genera>>
+Visita ..> EventoComunicacion : <<genera>>
+Deuda ..> EventoComunicacion : <<genera>>
+Pago ..> EventoComunicacion : <<genera>>
+Reserva ..> EventoComunicacion : <<genera>>
+
+EventoComunicacion ..> IComunicacionMediator : <<es procesado por>>
+
+@enduml

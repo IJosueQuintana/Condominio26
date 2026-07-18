@@ -1,0 +1,216 @@
+@startuml
+title GRA-INMUEBLES - Modelo de Diseño y Fachadas
+
+skinparam roundcorner 8
+skinparam padding 4
+skinparam nodesep 50
+skinparam ranksep 50
+
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    ArrowColor #2F5EA8
+    FontColor #1F3F73
+    HeaderBackgroundColor #D0E2FF
+}
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
+}
+skinparam interface {
+    BackgroundColor #F4F8FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
+}
+
+' ==========================================
+' FACHADA (APIs Externas)
+' ==========================================
+package "APIs Externas (Patrón Facade)" #E8FFF5 {
+    interface IGestionInmueblesAPI <<Facade>> {
+        +consultarPropiedades()
+        +consultarCatalogo()
+        +consultarReporteCambios()
+        +registrarCasoFortuito()
+    }
+}
+
+' ==========================================
+' PATRONES DE DISEÑO
+' ==========================================
+package "Patrones de Diseño" {
+    interface InmuebleFactory <<Factory>> {
+        +crearDepartamento(): Departamento
+        +crearSuite(): Suite
+        +crearParqueadero(): Parqueadero
+        +crearSalonEventos(): SalonDeEventos
+        +crearAreaRecreacional(): AreaRecreacional
+    }
+    class InmuebleFactoryImpl implements InmuebleFactory
+
+    interface IteratorInmueble <<Iterator>> {
+        +hasNext(): boolean
+        +next(): Inmueble
+    }
+    class CatalogoIterator implements IteratorInmueble
+
+    class GestorPlazas <<Singleton>> {
+        -instance: GestorPlazas
+        +getInstance(): GestorPlazas
+        +asignarPlaza()
+        +liberarPlaza()
+    }
+}
+
+' ==========================================
+' DOMINIO
+' ==========================================
+package "Dominio" {
+    abstract class Inmueble {
+        # idInmueble : int
+        # codigo : String
+        # estado : String
+        # disponibleAlquiler : boolean
+        # disponibleVenta : boolean
+        # areaMetrosCuadrados: double
+        # descripcion: String
+
+    }
+    enum EstadoInmueble {
+        DISPONIBLE
+        OCUPADO
+        EN_MANTENIMIENTO
+        EN_REMODELACION
+    }
+    
+    class Departamento extends Inmueble {
+        - numeroDepartamento : int
+        - piso : int
+        - nroHabitaciones : int
+        - numeroBanos: int
+        - disponibleAlquiler: boolean
+        - disponibleVenta: boolean
+    }
+    
+    class Suite extends Inmueble {
+        - tieneBalcon : boolean
+        - numeroHabitaciones: int
+        - numeroBanos: int
+        - disponibleAlquiler: boolean
+        - disponibleVenta: boolean
+    }
+    
+    abstract class EspacioComun extends Inmueble {
+        - nombreEspacio : String
+        - reglamentoUso : String
+        - aforoMaximo : int
+
+    }
+    
+    class SalonDeEventos extends EspacioComun {
+       - costoReserva: Double
+       - requiereGarantia: boolean
+    }
+    
+    class AreaRecreacional extends EspacioComun {
+       - tipoCancha: String
+       - requiereEquipamiento: boolean
+
+    }
+    
+    class Parqueadero extends Inmueble {
+        - idParqueadero : int
+        - numero : String
+    }
+
+    abstract class Plaza {
+        # idPlaza : int
+        # estado : String
+        # dispobible : boolean
+
+    }
+    class PlazaPropietario extends Plaza {
+        + verificarPermiso(): boolean
+        + obtenerTiempoMaximo(): int
+}
+    class PlazaVisita extends Plaza{
+         - tiempoMaximo: int
+}
+
+    class CatalogoCondominio {
+        - idCatalogo : int
+        - fechaActualizacion : Date
+        - listaInmuebles: List<Inmueble>
+
+    }
+    
+    class ReporteCambio {
+        - idReporte : int
+        - fechaGeneracion : Date
+        - descripcionCambio : String
+    }
+    
+    class Propiedad {
+        - idPropiedad : int
+        - enAlquiler : boolean
+        - fechaRegistro : Date
+    }
+    
+    class CasoFortuito {
+        - idCaso : int
+        - descripcion : String
+        - fecha : Date
+        - estado : String
+    }
+    
+    enum EstadoCaso {
+        REPORTADO
+        EN_REVISION
+        SOLUCIONADO
+    }
+
+    Parqueadero "1" *-- "0..*" Plaza : "contiene"
+    
+    Inmueble .down.> EstadoInmueble : <<use>>
+    CasoFortuito .down.> EstadoCaso : <<use>>
+
+    CatalogoCondominio "1" o-right- "*" Inmueble
+    Inmueble "1" --> "*" ReporteCambio
+    Inmueble "1" --> "*" CasoFortuito : "registra"
+
+    Propiedad "*" --> "1" Inmueble : "asociada a"
+    PlazaPropietario "*" --> "1" Propiedad : "asignada a"
+}
+
+' ==========================================
+' MÓDULOS EXTERNOS
+' ==========================================
+package "Módulo Externo GRB" {
+    class Usuario <<Partial>> {
+        -idUsuario:int
+        -nombre:String
+        -correo:String
+    }
+}
+
+Propiedad "*" --> "1" Usuario : "pertenece a (Propietario)"
+
+' ==========================================
+' RELACIONES ARQUITECTÓNICAS
+' ==========================================
+IGestionInmueblesAPI ..> CatalogoCondominio : <<consulta>>
+IGestionInmueblesAPI ..> CasoFortuito : <<registra>>
+IGestionInmueblesAPI ..> Propiedad : <<consulta>>
+
+CatalogoCondominio ..> IteratorInmueble : <<crea>>
+
+InmuebleFactoryImpl ..> Departamento : <<instancia>>
+InmuebleFactoryImpl ..> Suite : <<instancia>>
+InmuebleFactoryImpl ..> Parqueadero : <<instancia>>
+InmuebleFactoryImpl ..> SalonDeEventos : <<instancia>>
+InmuebleFactoryImpl ..> AreaRecreacional : <<instancia>>
+
+GestorPlazas ..> Parqueadero
+GestorPlazas ..> Plaza
+@enduml

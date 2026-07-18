@@ -1,0 +1,33 @@
+.titleIcon{
+    -fx-icon-size: 32;
+    -fx-icon-color: black;
+}
+
+.optionsIcon{
+    -fx-icon-size: 25;
+    -fx-icon-color: black;
+}
+
+.optionsIcon--white{
+    -fx-icon-color: white;
+}
+
+.totalsIcon{
+    -fx-icon-size: 25;
+    -fx-icon-color: #af1111;
+}
+
+.text-field{
+    -fx-background-color: #f3efee;
+    -fx-font-size: 12;
+}
+
+.text-field:focused {
+    -fx-border-color: #4c0416; /* Borde rojo al escribir */
+    -fx-background-color: #FDFEFE;
+}
+
+/* Applies to all separators */
+.separator {
+    -fx-background-color: #7c0826; /* Remove default background */ /* Space around the separator */
+}

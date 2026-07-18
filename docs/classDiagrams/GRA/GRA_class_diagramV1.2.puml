@@ -27,7 +27,6 @@ skinparam interface {
 ' --- Módulos Externos (Consumidores) ---
 package "Otros Módulos (Clientes)" #F9F9F9 {
     class ModuloReservas <<Client>>
-    class ModuloResidentes <<Client>>
 }
 
 ' --- Entidades Externas (Otros Módulos) ---
@@ -193,7 +192,6 @@ package "Reportes (Template Method)" {
 ' --- Relaciones y Dependencias ---
 
 ' Dependencias de las Fachadas
-ModuloResidentes ..> IFinanzasConsultasAPI : <<consume>>
 ModuloReservas ..> IFinanzasOperacionesAPI : <<consume>>
 IFinanzasOperacionesAPI ..> DeudaFactory : <<usa>>
 IFinanzasConsultasAPI ..> Deuda : <<consulta>>

@@ -16,6 +16,7 @@
 - [registrarPagosCondominio](#requisito-registrarpagoscondominio)
 - [generarReporteGastos](#requisito-generarReportedeGastos)
 - [generarReporteRendicionCuentas](#requisito-generarReporteRendicionCuentas)
+- [consultarTodosLosPagosEfectuados](#requisito-consultartodoslospagosefectuados)
 
 
 
@@ -23,13 +24,13 @@
 - [pagarDeuda](#requisito-pagardeuda)
 - [solicitarPagoEnCuotas](#requisito-solicitarpagoencuotas)
 - [generarCertificadoDeNoDeudor](#requisito-generarcertificadodenodeudor)
+- [consultarPagosEfectuados](#requisito-consultarpagosefectuados)
 
 
 
 ### Casos de uso compartidos
 
 - [consultarDeuda](#requisito-consultardeuda)
-- [consultarPagosEfectuados](#requisito-consultarpagosefectuados)
 - [consultarReporteRendicionCuentas](#requisito-consultarpagosefectuados)
 
 
@@ -129,8 +130,8 @@ El sistema permitirá registrar una deuda para un Residente
 2. El Sistema verifica el idDeuda.
 3. SI existe una Deuda con el idDeuda ENTONCES el Sistema verifica el estado de la Deuda.
 4. SI el estado de la Deuda es ‘EN PROCESO’ ENTONCES el Presidente/Administrador cambia el estado de la Deuda a ‘PAGADA’.
-5. El Sistema muestra el mensaje “Pago egistrado exitosamente”.
-6. El caso de uso finaliza con el cambio de estado de la Deuda a 'PAGADA'.
+5. El Sistema muestra el mensaje “Pago registrado exitosamente”.
+6. El caso de uso finaliza con el cambio de estado de la Deuda a 'PAGADA' y registrando el Pago del Residente.
 
 ## Escenarios Alternos
 
@@ -494,6 +495,52 @@ El sistema permitirá generar un reporte de rendición de cuentas disponible par
 
 ---
 
+# Requisito: consultarTodosLosPagosEfectuados
+
+El sistema permitirá consultar los pagos efectuados durante una fecha de inicio y una fecha de fin de todos los residentes
+
+## Datos del Caso de Uso
+
+- **Entradas:** fecha de inicio y fecha de fin
+- **Salidas:** pagos efectuados y mensaje
+
+## Escenario Básico
+
+1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
+2. El Sistema valida que las fechas ingresadas tengan un formato válido.
+3. SI las fechas ingresadas tienen un formato válido ENTONCES el Sistema verifica que la fecha de fin sea mayor o igual a la fecha de inicio.
+4. SI el rango de fechas es válido ENTONCES el Sistema verifica que existan pagos efectuados dentro del rango indicado.
+5. SI existen pagos efectuados dentro del rango indicado ENTONCES el Sistema muestra los pagos efectuados durante ese rango de fechas en formato de tabla donde se vea la cédula del Usuario que efectuó el pagó, el motivo del pago, la fecha de pago y el valor correspondiente.
+6. El caso de uso termina con el Sistema emitiendo el mensaje "Pagos efectuados consultados correctamente".
+
+## Escenarios Alternos
+
+### Escenario Alterno 1
+
+1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
+2. El Sistema valida que las fechas ingresadas tengan un formato válido.
+3. SI alguna de las fechas ingresadas NO tiene un formato válido ENTONCES el Sistema emite el mensaje "Las fechas ingresadas no son válidas".
+4. El caso de uso termina sin mostrar pagos efectuados.
+
+### Escenario Alterno 2
+
+1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
+2. El Sistema valida que las fechas ingresadas tengan un formato válido.
+3. SI las fechas ingresadas tienen un formato válido ENTONCES el Sistema verifica que la fecha de fin sea mayor o igual a la fecha de inicio.
+4. SI la fecha de fin es menor que la fecha de inicio ENTONCES el Sistema emite el mensaje "El rango de fechas ingresado no es válido".
+6. El caso de uso termina sin mostrar pagos efectuados.
+
+### Escenario Alterno 3
+
+1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
+2. El Sistema valida que las fechas ingresadas tengan un formato válido.
+3. SI las fechas ingresadas tienen un formato válido ENTONCES el Sistema verifica que la fecha de fin sea mayor o igual a la fecha de inicio.
+4. SI el rango de fechas es válido ENTONCES el Sistema verifica que existan pagos efectuados dentro del rango indicado.
+5. SI NO existen pagos efectuados dentro del rango indicado ENTONCES el Sistema emite el mensaje "No existen pagos efectuados dentro del rango de fechas indicado".
+6. El caso de uso termina sin mostrar pagos efectuados.
+
+---
+
 # Requisito: pagarDeuda
 El sistema permitirá registrar el pago de una deuda.
 
@@ -535,7 +582,7 @@ El sistema permitirá registrar el pago de una deuda.
 6. El Residente ingresa los datos de su tarjeta
 7. La Plataforma externa procesa el pago y devuelve la aceptación o no
 8. Si el pago fue aceptado, entonces el Sistema cambia el estado de la deuda a "PAGADO"
-9. El caso de uso finaliza con el Sistema emitiendo el mensaje "Deuda cancelada exitosamente"
+9. El caso de uso finaliza con el Sistema emitiendo el mensaje "Deuda cancelada exitosamente" y registrando el Pago del Residente
 
 ---
 
@@ -650,47 +697,63 @@ El sistema permitirá consultar las deudas de un residente mediante su número d
 
 # Requisito: consultarPagosEfectuados
 
-El sistema permitirá consultar los pagos efectuados durante una fecha de inicio y una fecha de fin.
+El sistema permitirá consultar los pagos efectuados durante una fecha de inicio y una fecha de fin de un residente en particular mediante su número de cédula de identidad
 
 ## Datos del Caso de Uso
 
-- **Entradas:** fecha de inicio y fecha de fin
+- **Entradas:** fecha de inicio, fecha de fin y número de cédula de identidad
 - **Salidas:** pagos efectuados y mensaje
 
 ## Escenario Básico
 
-1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
-2. El Sistema valida que las fechas ingresadas tengan un formato válido.
-3. SI las fechas ingresadas tienen un formato válido ENTONCES el Sistema verifica que la fecha de fin sea mayor o igual a la fecha de inicio.
-4. SI el rango de fechas es válido ENTONCES el Sistema verifica que existan pagos efectuados dentro del rango indicado.
-5. SI existen pagos efectuados dentro del rango indicado ENTONCES el Sistema muestra los pagos efectuados correspondientes al actor que inició el caso de uso.
-6. El caso de uso termina con el Sistema emitiendo el mensaje "Pagos efectuados consultados correctamente".
+1. El caso de uso inicia con el Residente ingresando su número de cédula
+2. El Sistema verifica el número de cédula
+3. Si existe un Residente con el número de cédula proporcionado entonces el Residente ingresa la fecha de inicio y la fecha de fin
+4. El Sistema valida que las fechas ingresadas tengan un formato válido.
+5. SI las fechas ingresadas tienen un formato válido ENTONCES el Sistema verifica que la fecha de fin sea mayor o igual a la fecha de inicio.
+6. SI el rango de fechas es válido ENTONCES el Sistema verifica que existan pagos efectuados asociados al Residente dentro del rango indicado.
+7. SI existen pagos efectuados asociados al Residente dentro del rango indicado ENTONCES el Sistema muestra los pagos efectuados en formato de tabla donde se vea la cédula del Residente que efectuó el pagó, el motivo del pago, la fecha de pago y el valor correspondiente.
+8. El caso de uso termina con el Sistema emitiendo el mensaje "Pagos efectuados consultados correctamente".
 
 ## Escenarios Alternos
 
 ### Escenario Alterno 1
 
-1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
-2. El Sistema valida que las fechas ingresadas tengan un formato válido.
-3. SI alguna de las fechas ingresadas NO tiene un formato válido ENTONCES el Sistema emite el mensaje "Las fechas ingresadas no son válidas".
-4. El caso de uso termina sin mostrar pagos efectuados.
+1. El caso de uso inicia con el Residente ingresando su número de cédula
+2. El Sistema verifica el número de cédula
+3. Si existe un Residente con el número de cédula proporcionado entonces el Residente ingresa la fecha de inicio y la fecha de fin
+4. El Sistema valida que las fechas ingresadas tengan un formato válido.
+5. SI alguna de las fechas ingresadas NO tiene un formato válido ENTONCES el Sistema emite el mensaje "Las fechas ingresadas no son válidas".
+6. El caso de uso termina sin mostrar pagos efectuados.
 
 ### Escenario Alterno 2
 
-1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
-2. El Sistema valida que las fechas ingresadas tengan un formato válido.
+1. El caso de uso inicia con el Residente ingresando su número de cédula
+2. El Sistema verifica el número de cédula
+3. Si existe un Residente con el número de cédula proporcionado entonces el Residente ingresa la fecha de inicio y la fecha de fin
+4. El Sistema valida que las fechas ingresadas tengan un formato válido
 3. SI las fechas ingresadas tienen un formato válido ENTONCES el Sistema verifica que la fecha de fin sea mayor o igual a la fecha de inicio.
 4. SI la fecha de fin es menor que la fecha de inicio ENTONCES el Sistema emite el mensaje "El rango de fechas ingresado no es válido".
 6. El caso de uso termina sin mostrar pagos efectuados.
 
 ### Escenario Alterno 3
 
-1. El caso de uso inicia con el Administrador o el Residente ingresando la fecha de inicio y la fecha de fin.
-2. El Sistema valida que las fechas ingresadas tengan un formato válido.
+1. El caso de uso inicia con el Residente ingresando su número de cédula
+2. El Sistema verifica el número de cédula
+3. Si existe un Residente con el número de cédula proporcionado entonces el Residente ingresa la fecha de inicio y la fecha de fin
+4. El Sistema valida que las fechas ingresadas tengan un formato válido
 3. SI las fechas ingresadas tienen un formato válido ENTONCES el Sistema verifica que la fecha de fin sea mayor o igual a la fecha de inicio.
-4. SI el rango de fechas es válido ENTONCES el Sistema verifica que existan pagos efectuados dentro del rango indicado.
-5. SI NO existen pagos efectuados dentro del rango indicado ENTONCES el Sistema emite el mensaje "No existen pagos efectuados dentro del rango de fechas indicado".
+4. SI el rango de fechas es válido ENTONCES el Sistema verifica que existan pagos efectuados asociados al Residente dentro del rango indicado.
+5. SI NO existen pagos efectuados asociados al Residente dentro del rango indicado ENTONCES el Sistema emite el mensaje "No existen pagos efectuados dentro del rango de fechas indicado".
 6. El caso de uso termina sin mostrar pagos efectuados.
+
+
+### Escenario Alterno 4
+
+1. El caso de uso inicia con el Residente ingresando su número de cédula
+2. El Sistema verifica el número de cédula
+3. Si NO existe un Residente con el número de cédula proporcionado entonces el Sistema emite el mensaje "No existe un Residente con la cédula proporcionada"
+4. El caso de uso finaliza con el Sistema sin consultar los pagos efectuados
 
 --- 
 
