@@ -4,7 +4,7 @@ import fis.dsw.sgc.finanzas.model.Deuda;
 
 import java.util.Date;
 
-public class DeudaFactory {
+public class DeudaFactory implements IDeudaFactory {
 
     public Deuda crearDeuda(String motivo, int idResidente, double valor, Date fecha) {
         Deuda nuevaDeuda = new Deuda();
