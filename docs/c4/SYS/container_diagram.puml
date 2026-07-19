@@ -11,14 +11,14 @@ Person(administrador, "Administrador", "Gestiona usuarios, inmuebles y comunicac
 Person(presidente, "Presidente", "Supervisa la administración del condominio.")
 Person(residente, "Residente", "Realiza pagos, reservas y recibe notificaciones.")
 Person(propietario, "Propietario", "Administra la información de sus inmuebles.")
-Person(personal_seguridad, "Personal de Seguridad", "Gestiona visitas y controla accesos.")
+Person(personal_seguridad, "Empleado", "Realizan sus funciones de Seguridad, Limpieza u otros.")
 
 ' === SISTEMA EN FOCO (CONTENEDORES) ===
 System_Boundary(sistema_condominio, "Sistema de Gestión de Condominio") {
     
     Container(desktop_app, "Aplicación de Escritorio", "JavaFX", "Contiene los 6 módulos: Finanzas, usuarios, inmuebles, reservas, checkin y comunicación. Se instala en la PC del usuario.")
     
-    ContainerDb(database, "Base de Datos", "MySQL", "Almacenamiento de los registros de deudas, residentes, inmuebles, etc.")
+    ContainerDb(database, "Base de Datos", "SqLite", "Almacenamiento de los registros de deudas, residentes, inmuebles, etc.")
 }
 
 ' === SISTEMAS EXTERNOS ===

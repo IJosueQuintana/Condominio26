@@ -42,8 +42,8 @@ rectangle "Módulo de Pagos y Finanzas" {
 
     ' CASOS DE USO COMPARTIDOS
     usecase "consultarDeuda" as ConsultarDeuda
-    usecase "consultarPagosEfectuados" as ConsultarPagosEfectuados
     usecase "consultarReporteRendicionCuentas" as ConsultarReporteRendicionCuentas
+    usecase "consultarPagosEfectuados" as ConsultarPagosEfectuados
 
     ' CASOS DE USO DEL SISTEMA
     usecase "registrarDeudaAlicuotaMensual" as RegistrarDeudaMensual
@@ -57,11 +57,10 @@ rectangle "Módulo de Pagos y Finanzas" {
 ' ------------------------
 Residente --> pagarDeuda
 Residente --> ConsultarDeuda
-Residente --> ConsultarPagosEfectuados
 Residente --> SolicitarPagoCuotas
 Residente --> GenerarCertificadoNoDeudor
 Residente --> ConsultarReporteRendicionCuentas
-
+Residente --> ConsultarPagosEfectuados
 ' ------------------------
 ' Relaciones del Presidente
 ' ------------------------
@@ -72,12 +71,12 @@ Presidente --> ModificarFechaMaximaPago
 Presidente --> DefinirValorMensualAlicuotas
 Presidente --> GenerarReportePagos
 Presidente --> RegistrarEntidadBancaria
-Presidente --> ConsultarPagosEfectuados
 Presidente --> EliminarDeuda
 Presidente --> GenerarReporteRendicionCuentas
 Presidente --> RegistrarPagoExterno
 Presidente --> GenerarReporteGastos
 Presidente --> ConsultarReporteRendicionCuentas
+Presidente --> ConsultarPagosEfectuados
 
 ' ------------------------
 ' Relaciones del Sistema

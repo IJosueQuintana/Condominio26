@@ -13,7 +13,7 @@ Person(admin, "Administrador", "Gestiona usuarios,\ninmuebles y comunicaciones."
 Person(president, "Presidente", "Supervisa la administración\ndel condominio.")
 Person(resident, "Residente", "Realiza pagos, reservas\ny recibe notificaciones.")
 Person(owner, "Propietario", "Administra la información\nde sus inmuebles.")
-Person(security, "Personal de Seguridad", "Gestiona visitas\ny controla accesos.")
+Person(security, "Empleado", "Cualquier empleado de la organización con funciones en particular.")
 
 System(condominio_sys, "Sistema de Gestión de Condominio", "Gestiona usuarios, pagos,\ninmuebles, reservas, visitas y comunicaciones.")
 System_Ext(payment_sys, "Sistema de Gestión de Pagos", "Procesa pagos con tarjeta y transferencias.")
@@ -23,7 +23,7 @@ Rel(admin, condominio_sys, "Administra el sistema")
 Rel(president, condominio_sys, "Consulta información\ny recibe reportes")
 Rel(resident, condominio_sys, "Gestiona pagos,\nreservas y perfil")
 Rel(owner, condominio_sys, "Gestiona propiedades")
-Rel(security, condominio_sys, "Registra visitas\ny accesos")
+Rel(security, condominio_sys, "Registra visitas\ny accesos\nRecibe notificaciones")
 
 Rel(condominio_sys, payment_sys, "Procesa y confirma pagos")
 Rel(condominio_sys, gmail_sys, "Envía código de recuperación\nde contraseña", "SMTP")
