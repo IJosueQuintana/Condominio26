@@ -38,9 +38,7 @@ public class GenerarRendicionCuentasController {
 
     @FXML
     public void initialize() {
-        LocalDate hoy = LocalDate.now();
-        dpInicio.setValue(hoy.withDayOfMonth(1));
-        dpFin.setValue(hoy);
+        ponerFechasPorDefecto();
 
         colGastoCat.setCellValueFactory(new PropertyValueFactory<>("categoria"));
         colGastoMonto.setCellValueFactory(new PropertyValueFactory<>("monto"));
@@ -59,14 +57,23 @@ public class GenerarRendicionCuentasController {
         LocalDate ini = dpInicio.getValue();
         LocalDate fin = dpFin.getValue();
         String obs = txtObservaciones.getText() == null ? "" : txtObservaciones.getText().trim();
+        LocalDate hoy = LocalDate.now();
 
         if (ini == null || fin == null) {
             setMensaje("La fecha de inicio y la fecha de fin son obligatorias.", "message-error");
             return;
         }
-        if (fin.isBefore(ini)) {
-            setMensaje("La fecha de fin debe ser mayor o igual a la fecha de inicio para la consulta.",
-                    "message-error");
+        // CU actualizado: inicio < hoy, fin <= hoy, fin > inicio
+        if (!ini.isBefore(hoy)) {
+            setMensaje("La fecha de inicio tiene que ser menor que la fecha actual.", "message-error");
+            return;
+        }
+        if (!fin.isAfter(ini)) {
+            setMensaje("La fecha de fin tiene que ser mayor que la fecha de inicio.", "message-error");
+            return;
+        }
+        if (fin.isAfter(hoy)) {
+            setMensaje("La fecha de fin tiene que ser menor o igual a la fecha actual.", "message-error");
             return;
         }
 
@@ -130,14 +137,22 @@ public class GenerarRendicionCuentasController {
 
     @FXML
     void limpiar(ActionEvent event) {
-        LocalDate hoy = LocalDate.now();
-        dpInicio.setValue(hoy.withDayOfMonth(1));
-        dpFin.setValue(hoy);
+        ponerFechasPorDefecto();
         txtObservaciones.clear();
         gastos.clear();
         ingresos.clear();
         lblTotales.setText("Genere un reporte para ver totales y balance.");
         setMensaje("Formulario listo. Seleccione un nuevo periodo.", "message-info");
+    }
+
+    private void ponerFechasPorDefecto() {
+        LocalDate hoy = LocalDate.now();
+        LocalDate inicio = hoy.withDayOfMonth(1);
+        if (!inicio.isBefore(hoy)) {
+            inicio = hoy.minusMonths(1).withDayOfMonth(1);
+        }
+        dpInicio.setValue(inicio);
+        dpFin.setValue(hoy);
     }
 
     private void setMensaje(String texto, String estilo) {

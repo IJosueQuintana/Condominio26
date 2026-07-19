@@ -32,6 +32,11 @@ public class GenerarCertificadoNoDeudorController {
     }
 
     @FXML
+    void descargarReporte(ActionEvent event) {
+
+    }
+
+    @FXML
     void generar(ActionEvent event) {
         LocalDate ini = dpInicio.getValue();
         LocalDate fin = dpFin.getValue();
@@ -91,7 +96,7 @@ public class GenerarCertificadoNoDeudorController {
         dpInicio.setValue(hoy.withDayOfMonth(1));
         dpFin.setValue(hoy);
         txtObservaciones.clear();
-        lblResumen.setText("Genere un Certificado de no Deudor para conocer el estado financiero del residente.");
+        lblResumen.setText("el sistema de gestión del condominio [Nombre del Condominio] certifica que el residente [Nombre y apellido] con cédula [0123456789] no presenta deudas pendientes entre las fechas [inicio] [fin]. ");
         setMensaje("Certificado listo. Seleccione un nuevo periodo.", "message-info");
     }
 

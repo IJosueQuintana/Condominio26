@@ -85,19 +85,32 @@ public class DetalleDeudaController {
             return;
         }
         if (!nueva.isAfter(LocalDate.now())) {
-            setMensaje("La fecha máxima debe ser posterior a hoy.", "message-error");
+            setMensaje("La nueva fecha máxima de pago debe ser mayor a la fecha actual.", "message-error");
             return;
+        }
+        if (deuda != null && deuda.getFechaMaximaPago() != null) {
+            try {
+                LocalDate actual = LocalDate.parse(deuda.getFechaMaximaPago());
+                if (!nueva.isAfter(actual)) {
+                    setMensaje(
+                            "La nueva fecha máxima de pago debe ser mayor a la fecha de pago actual de la deuda.",
+                            "message-error");
+                    return;
+                }
+            } catch (Exception ignored) {
+                // Si el formato demo no parsea, solo se valida contra hoy
+            }
         }
         fechaActualizada = nueva.format(DateTimeFormatter.ISO_LOCAL_DATE);
         resultadoAccion = "FECHA";
-        setMensaje("Fecha máxima de pago actualizada a " + fechaActualizada + ".", "message-success");
+        setMensaje("Fecha máxima de pago modificada con éxito.", "message-success");
         notificarYCerrar(event);
     }
 
     @FXML
     void eliminar(ActionEvent event) {
         resultadoAccion = "ELIMINADA";
-        setMensaje("Deuda eliminada.", "message-success");
+        setMensaje("Deuda Eliminada Exitosamente", "message-success");
         notificarYCerrar(event);
     }
 
