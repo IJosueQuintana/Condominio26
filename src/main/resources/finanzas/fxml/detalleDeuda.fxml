@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox fx:controller="fis.dsw.sgc.finanzas.controller.DetalleDeudaController"
+      alignment="TOP_CENTER"
+      maxHeight="1.7976931348623157E308"
+      maxWidth="1.7976931348623157E308"
+      prefHeight="460.0"
+      prefWidth="700.0"
+      minWidth="680.0"
+      spacing="14.0"
+      styleClass="module-content"
+      stylesheets="@../css/finanzasStyles.css,@../css/finanzasBryan.css"
+      xmlns="http://javafx.com/javafx/26"
+      xmlns:fx="http://javafx.com/fxml/1">
+
+    <padding>
+        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+    </padding>
+
+    <children>
+        <HBox alignment="CENTER" spacing="10.0" maxWidth="1.7976931348623157E308">
+            <children>
+                <FontIcon iconLiteral="fa-eye" iconSize="20" styleClass="module-title-icon"/>
+                <Label styleClass="module-title" text="Detalle de deuda"/>
+            </children>
+        </HBox>
+        <Label styleClass="module-subtitle" textAlignment="CENTER"
+               maxWidth="1.7976931348623157E308"
+               text="Resumen y acciones del presidente."/>
+
+        <VBox spacing="10.0" styleClass="module-card" maxWidth="1.7976931348623157E308">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+            </padding>
+            <children>
+                <Label fx:id="lblId" styleClass="form-label" text="ID: "/>
+                <Label fx:id="lblMotivo" styleClass="module-subtitle" text="Motivo: "/>
+                <Label fx:id="lblValor" styleClass="module-subtitle" text="Valor: "/>
+                <Label fx:id="lblFecha" styleClass="module-subtitle" text="Fecha máx.: "/>
+                <Label fx:id="lblEstado" styleClass="module-subtitle" text="Estado: "/>
+                <Label fx:id="lblDescripcion" styleClass="module-subtitle" wrapText="true"
+                       text="Descripción: "/>
+
+                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                    <children>
+                        <FontIcon iconLiteral="fa-calendar" iconSize="14" styleClass="field-icon"/>
+                        <Label styleClass="form-label" text="Nueva fecha máx. de pago"/>
+                    </children>
+                </HBox>
+                <DatePicker fx:id="dpNuevaFecha" maxWidth="1.7976931348623157E308"/>
+
+                <HBox alignment="CENTER" spacing="10.0"
+                      maxWidth="1.7976931348623157E308">
+                    <children>
+                        <Button fx:id="btnValidar" onAction="#validarPago"
+                                minWidth="130.0" mnemonicParsing="false"
+                                styleClass="primary-button" text="Validar pago"/>
+                        <Button fx:id="btnModificar" onAction="#modificarFecha"
+                                minWidth="140.0" mnemonicParsing="false"
+                                styleClass="secondary-button" text="Modificar fecha"/>
+                        <Button fx:id="btnEliminar" onAction="#eliminar"
+                                minWidth="100.0" mnemonicParsing="false"
+                                styleClass="danger-button" text="Eliminar"/>
+                        <Button onAction="#cerrar" minWidth="90.0"
+                                mnemonicParsing="false"
+                                styleClass="secondary-button" text="Cerrar"/>
+                    </children>
+                </HBox>
+
+                <Label fx:id="lblMensaje" styleClass="message-label, message-info" text=""/>
+            </children>
+        </VBox>
+    </children>
+</VBox>

@@ -4,11 +4,14 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox fx:controller="fis.dsw.sgc.finanzas.controller.GenerarRendicionCuentasController"
       alignment="TOP_CENTER"
@@ -16,81 +19,124 @@
       maxWidth="1.7976931348623157E308"
       prefHeight="600.0"
       prefWidth="900.0"
-      spacing="16.0"
+      spacing="0"
       styleClass="module-content"
-      stylesheets="@../css/finanzasStyles.css"
+      stylesheets="@../css/finanzasStyles.css,@../css/finanzasBryan.css"
       xmlns="http://javafx.com/javafx/26"
       xmlns:fx="http://javafx.com/fxml/1">
 
     <padding>
-        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0"/>
+        <Insets bottom="24.0" left="28.0" right="28.0" top="24.0"/>
     </padding>
 
     <children>
-        <Label styleClass="module-title" text="Generar rendición de cuentas"/>
-        <Label styleClass="module-subtitle"
-               text="Seleccione el periodo, agregue observaciones y genere el reporte de ingresos y gastos."/>
-
-        <VBox maxWidth="720.0" spacing="14.0" styleClass="module-card">
-            <padding>
-                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
-            </padding>
+        <VBox maxWidth="1080.0"
+              maxHeight="1.7976931348623157E308"
+              spacing="12.0"
+              alignment="TOP_CENTER"
+              VBox.vgrow="ALWAYS">
             <children>
-                <GridPane hgap="12.0" vgap="14.0"
-                          maxWidth="1.7976931348623157E308">
-                    <columnConstraints>
-                        <ColumnConstraints minWidth="130.0" prefWidth="140.0"/>
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="400.0"/>
-                    </columnConstraints>
+                <HBox alignment="CENTER" spacing="10.0"
+                      maxWidth="1.7976931348623157E308">
                     <children>
-                        <Label styleClass="form-label" text="Fecha inicio"
-                               GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                        <DatePicker fx:id="dpInicio" maxWidth="1.7976931348623157E308"
-                                    GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-
-                        <Label styleClass="form-label" text="Fecha fin"
-                               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                        <DatePicker fx:id="dpFin" maxWidth="1.7976931348623157E308"
-                                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-
-                        <Label styleClass="form-label" text="Observaciones"
-                               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                        <TextArea fx:id="txtObservaciones"
-                                  prefRowCount="3"
-                                  wrapText="true"
-                                  promptText="Observaciones del reporte (opcional)"
-                                  maxWidth="1.7976931348623157E308"
-                                  GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                    </children>
-                </GridPane>
-
-                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#generar"
-                                styleClass="primary-button" text="Generar reporte"/>
-                        <Button mnemonicParsing="false" onAction="#limpiar"
-                                styleClass="secondary-button" text="Limpiar"/>
+                        <FontIcon iconLiteral="fa-bar-chart" iconSize="22" styleClass="module-title-icon"/>
+                        <Label styleClass="module-title" text="Generar rendición de cuentas"/>
                     </children>
                 </HBox>
-
-                <Label fx:id="lblMensaje" styleClass="message-label, message-info" text=""/>
-            </children>
-        </VBox>
-
-        <VBox maxHeight="1.7976931348623157E308"
-              maxWidth="1.7976931348623157E308"
-              spacing="8.0"
-              styleClass="table-card"
-              VBox.vgrow="ALWAYS">
-            <padding>
-                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
-            </padding>
-            <children>
-                <Label styleClass="module-section-title" text="Resumen del reporte"/>
-                <Label fx:id="lblResumen" styleClass="module-subtitle"
-                       text="Genere un reporte para ver el desglose de ingresos y gastos."
+                <Label styleClass="module-subtitle"
                        wrapText="true"
-                       VBox.vgrow="ALWAYS"/>
+                       textAlignment="CENTER"
+                       maxWidth="1.7976931348623157E308"
+                       text="Periodo, observaciones y desglose de gastos e ingresos por categoría."/>
+
+                <VBox spacing="12.0" styleClass="module-card"
+                      maxWidth="1.7976931348623157E308"
+                      maxHeight="1.7976931348623157E308"
+                      VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="20.0" left="24.0" right="24.0" top="20.0"/>
+                    </padding>
+                    <children>
+                        <GridPane hgap="12.0" vgap="12.0">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="150.0" prefWidth="160.0"/>
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="220.0"/>
+                            </columnConstraints>
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="8.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <children>
+                                        <FontIcon iconLiteral="fa-calendar" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Fecha inicio"/>
+                                    </children>
+                                </HBox>
+                                <DatePicker fx:id="dpInicio" maxWidth="1.7976931348623157E308"
+                                            GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                <HBox alignment="CENTER_LEFT" spacing="8.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <children>
+                                        <FontIcon iconLiteral="fa-calendar-check-o" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Fecha fin"/>
+                                    </children>
+                                </HBox>
+                                <DatePicker fx:id="dpFin" maxWidth="1.7976931348623157E308"
+                                            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                <HBox alignment="CENTER_LEFT" spacing="8.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <children>
+                                        <FontIcon iconLiteral="fa-comment" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Observaciones"/>
+                                    </children>
+                                </HBox>
+                                <TextArea fx:id="txtObservaciones" prefRowCount="2" wrapText="true"
+                                          promptText="Letras, espacios y puntuación básica"
+                                          maxWidth="1.7976931348623157E308"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                            </children>
+                        </GridPane>
+
+                        <HBox alignment="CENTER" spacing="12.0">
+                            <children>
+                                <Button onAction="#generar" styleClass="primary-button" text="Generar reporte"/>
+                                <Button onAction="#limpiar" styleClass="secondary-button" text="Limpiar"/>
+                            </children>
+                        </HBox>
+
+                        <Label fx:id="lblMensaje" styleClass="message-label, message-info"
+                               wrapText="true" textAlignment="CENTER"
+                               maxWidth="1.7976931348623157E308" text=""/>
+
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <FontIcon iconLiteral="fa-arrow-down" iconSize="14" styleClass="section-icon"/>
+                                <Label styleClass="module-section-title" text="Gastos por categoría"/>
+                            </children>
+                        </HBox>
+                        <TableView fx:id="tablaGastos" prefHeight="140.0" maxWidth="1.7976931348623157E308">
+                            <columns>
+                                <TableColumn fx:id="colGastoCat" prefWidth="220.0" text="Categoría"/>
+                                <TableColumn fx:id="colGastoMonto" prefWidth="140.0" text="Monto"/>
+                            </columns>
+                        </TableView>
+
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <FontIcon iconLiteral="fa-arrow-up" iconSize="14" styleClass="section-icon"/>
+                                <Label styleClass="module-section-title" text="Ingresos por categoría"/>
+                            </children>
+                        </HBox>
+                        <TableView fx:id="tablaIngresos" prefHeight="120.0" maxWidth="1.7976931348623157E308">
+                            <columns>
+                                <TableColumn fx:id="colIngCat" prefWidth="220.0" text="Categoría"/>
+                                <TableColumn fx:id="colIngMonto" prefWidth="140.0" text="Monto"/>
+                            </columns>
+                        </TableView>
+
+                        <Label fx:id="lblTotales" styleClass="module-subtitle" wrapText="true"
+                               textAlignment="CENTER" maxWidth="1.7976931348623157E308"
+                               text="Genere un reporte para ver totales y balance."/>
+                    </children>
+                </VBox>
             </children>
         </VBox>
     </children>

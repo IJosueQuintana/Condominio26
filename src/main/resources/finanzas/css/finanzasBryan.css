@@ -1,0 +1,17 @@
+.module-title-icon {
+    -fx-icon-color: #a4203a;
+}
+
+.section-icon {
+    -fx-icon-color: #a4203a;
+}
+
+.field-icon {
+    -fx-icon-color: #a4203a;
+}
+
+.form-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2b2b2b;
+}

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox fx:controller="fis.dsw.sgc.finanzas.controller.SimularPagoTarjetaController"
+      alignment="TOP_CENTER"
+      maxHeight="1.7976931348623157E308"
+      maxWidth="1.7976931348623157E308"
+      prefHeight="420.0"
+      prefWidth="520.0"
+      spacing="14.0"
+      styleClass="module-content"
+      stylesheets="@../css/finanzasStyles.css,@../css/finanzasBryan.css"
+      xmlns="http://javafx.com/javafx/26"
+      xmlns:fx="http://javafx.com/fxml/1">
+
+    <padding>
+        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+    </padding>
+
+    <children>
+        <HBox alignment="CENTER" spacing="10.0" maxWidth="1.7976931348623157E308">
+            <children>
+                <FontIcon iconLiteral="fa-credit-card" iconSize="20" styleClass="module-title-icon"/>
+                <Label styleClass="module-title" text="Pago con tarjeta"/>
+            </children>
+        </HBox>
+        <Label styleClass="module-subtitle"
+               textAlignment="CENTER"
+               maxWidth="1.7976931348623157E308"
+               text="Simulación del sistema externo. Complete los datos de la tarjeta."/>
+
+        <VBox spacing="12.0" styleClass="module-card" maxWidth="1.7976931348623157E308">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+            </padding>
+            <children>
+                <Label fx:id="lblDeuda" styleClass="form-label" text="Deuda: "/>
+                <GridPane hgap="10.0" vgap="12.0">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="140.0" prefWidth="150.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="180.0"/>
+                    </columnConstraints>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <children>
+                                <FontIcon iconLiteral="fa-credit-card" iconSize="14" styleClass="field-icon"/>
+                                <Label styleClass="form-label" text="Número"/>
+                            </children>
+                        </HBox>
+                        <TextField fx:id="txtNumero" promptText="16 dígitos"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <HBox alignment="CENTER_LEFT" spacing="8.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <children>
+                                <FontIcon iconLiteral="fa-user" iconSize="14" styleClass="field-icon"/>
+                                <Label styleClass="form-label" text="Titular"/>
+                            </children>
+                        </HBox>
+                        <TextField fx:id="txtTitular" promptText="Nombre en la tarjeta"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                        <HBox alignment="CENTER_LEFT" spacing="8.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <children>
+                                <FontIcon iconLiteral="fa-calendar" iconSize="14" styleClass="field-icon"/>
+                                <Label styleClass="form-label" text="Vencimiento"/>
+                            </children>
+                        </HBox>
+                        <TextField fx:id="txtVence" promptText="MM/AA"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                        <HBox alignment="CENTER_LEFT" spacing="8.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="3">
+                            <children>
+                                <FontIcon iconLiteral="fa-lock" iconSize="14" styleClass="field-icon"/>
+                                <Label styleClass="form-label" text="CVV"/>
+                            </children>
+                        </HBox>
+                        <PasswordField fx:id="txtCvv" promptText="3 dígitos"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    </children>
+                </GridPane>
+
+                <HBox spacing="12.0">
+                    <children>
+                        <Button onAction="#aceptar" styleClass="primary-button" text="Procesar pago"/>
+                        <Button onAction="#rechazar" styleClass="danger-button" text="Simular rechazo"/>
+                        <Button onAction="#cancelar" styleClass="secondary-button" text="Cancelar"/>
+                    </children>
+                </HBox>
+
+                <Label fx:id="lblMensaje" styleClass="message-label, message-info" text=""/>
+            </children>
+        </VBox>
+    </children>
+</VBox>

@@ -3,7 +3,9 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -12,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox fx:controller="fis.dsw.sgc.finanzas.controller.pagarDeudaController"
+<VBox fx:controller="fis.dsw.sgc.finanzas.controller.RegistrarDeudaController"
       alignment="TOP_CENTER"
       maxHeight="1.7976931348623157E308"
       maxWidth="1.7976931348623157E308"
@@ -29,23 +31,20 @@
     </padding>
 
     <children>
-        <VBox maxWidth="900.0"
-              maxHeight="1.7976931348623157E308"
-              spacing="14.0"
-              alignment="TOP_CENTER">
+        <VBox maxWidth="900.0" spacing="14.0" alignment="TOP_CENTER">
             <children>
                 <HBox alignment="CENTER" spacing="10.0"
                       maxWidth="1.7976931348623157E308">
                     <children>
-                        <FontIcon iconLiteral="fa-credit-card" iconSize="22" styleClass="module-title-icon"/>
-                        <Label styleClass="module-title" text="Pagar deuda"/>
+                        <FontIcon iconLiteral="fa-plus-circle" iconSize="22" styleClass="module-title-icon"/>
+                        <Label styleClass="module-title" text="Registrar deuda"/>
                     </children>
                 </HBox>
                 <Label styleClass="module-subtitle"
                        wrapText="true"
                        textAlignment="CENTER"
                        maxWidth="1.7976931348623157E308"
-                       text="Ingrese el ID de la deuda, revise el valor y elija el método de pago."/>
+                       text="Registre una deuda de alícuota, multa o reserva para un residente."/>
 
                 <VBox spacing="14.0" styleClass="module-card"
                       maxWidth="1.7976931348623157E308">
@@ -53,8 +52,7 @@
                         <Insets bottom="24.0" left="28.0" right="28.0" top="24.0"/>
                     </padding>
                     <children>
-                        <GridPane hgap="12.0" vgap="14.0"
-                                  maxWidth="1.7976931348623157E308">
+                        <GridPane hgap="12.0" vgap="14.0" maxWidth="1.7976931348623157E308">
                             <columnConstraints>
                                 <ColumnConstraints minWidth="160.0" prefWidth="170.0"/>
                                 <ColumnConstraints hgrow="ALWAYS" minWidth="220.0" prefWidth="480.0"/>
@@ -63,81 +61,63 @@
                                 <HBox alignment="CENTER_LEFT" spacing="8.0"
                                       GridPane.columnIndex="0" GridPane.rowIndex="0">
                                     <children>
-                                        <FontIcon iconLiteral="fa-hashtag" iconSize="14" styleClass="field-icon"/>
-                                        <Label styleClass="form-label" text="ID deuda"/>
+                                        <FontIcon iconLiteral="fa-id-card" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Cédula residente"/>
                                     </children>
                                 </HBox>
-                                <TextField fx:id="txtIdDeuda" promptText="Ej. DEU-001"
+                                <TextField fx:id="txtCedula" promptText="Número de cédula"
                                            maxWidth="1.7976931348623157E308"
                                            GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
                                 <HBox alignment="CENTER_LEFT" spacing="8.0"
                                       GridPane.columnIndex="0" GridPane.rowIndex="1">
                                     <children>
-                                        <FontIcon iconLiteral="fa-money" iconSize="14" styleClass="field-icon"/>
-                                        <Label styleClass="form-label" text="Valor"/>
+                                        <FontIcon iconLiteral="fa-tags" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Motivo"/>
                                     </children>
                                 </HBox>
-                                <Label fx:id="lblValor" styleClass="form-value" text="(consulte la deuda)"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                <ComboBox fx:id="cmbMotivo" maxWidth="1.7976931348623157E308"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
                                 <HBox alignment="CENTER_LEFT" spacing="8.0"
                                       GridPane.columnIndex="0" GridPane.rowIndex="2">
                                     <children>
-                                        <FontIcon iconLiteral="fa-info-circle" iconSize="14" styleClass="field-icon"/>
-                                        <Label styleClass="form-label" text="Estado"/>
+                                        <FontIcon iconLiteral="fa-calendar" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Fecha máx. pago"/>
                                     </children>
                                 </HBox>
-                                <Label fx:id="lblEstado" styleClass="form-value" text="(consulte la deuda)"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                <DatePicker fx:id="dpFechaMax" maxWidth="1.7976931348623157E308"
+                                            GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
                                 <HBox alignment="CENTER_LEFT" spacing="8.0"
                                       GridPane.columnIndex="0" GridPane.rowIndex="3">
                                     <children>
-                                        <FontIcon iconLiteral="fa-exchange" iconSize="14" styleClass="field-icon"/>
-                                        <Label styleClass="form-label" text="Método de pago"/>
+                                        <FontIcon iconLiteral="fa-money" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Valor"/>
                                     </children>
                                 </HBox>
-                                <ComboBox fx:id="cmbMetodo" maxWidth="1.7976931348623157E308"
-                                          GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                <TextField fx:id="txtValor" promptText="0.00"
+                                           maxWidth="1.7976931348623157E308"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
                                 <HBox alignment="CENTER_LEFT" spacing="8.0"
                                       GridPane.columnIndex="0" GridPane.rowIndex="4">
                                     <children>
-                                        <FontIcon iconLiteral="fa-university" iconSize="14" styleClass="field-icon"/>
-                                        <Label styleClass="form-label" text="Datos bancarios"/>
+                                        <FontIcon iconLiteral="fa-align-left" iconSize="14" styleClass="field-icon"/>
+                                        <Label styleClass="form-label" text="Descripción"/>
                                     </children>
                                 </HBox>
-                                <Label fx:id="lblDatosBancarios" styleClass="module-subtitle"
-                                       text="Se muestran si elige transferencia."
-                                       wrapText="true"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-
-                                <HBox alignment="CENTER_LEFT" spacing="8.0"
-                                      GridPane.columnIndex="0" GridPane.rowIndex="5">
-                                    <children>
-                                        <FontIcon iconLiteral="fa-file-text-o" iconSize="14" styleClass="field-icon"/>
-                                        <Label styleClass="form-label" text="Comprobante"/>
-                                    </children>
-                                </HBox>
-                                <TextField fx:id="txtComprobante"
-                                           promptText="Solo para transferencia"
-                                           maxWidth="1.7976931348623157E308"
-                                           GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                                <TextArea fx:id="txtDescripcion" prefRowCount="3" wrapText="true"
+                                          promptText="Descripción de la deuda"
+                                          maxWidth="1.7976931348623157E308"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="4"/>
                             </children>
                         </GridPane>
 
                         <HBox alignment="CENTER" spacing="12.0">
                             <children>
-                                <Button fx:id="btnConsultar" mnemonicParsing="false"
-                                        onAction="#consultarDeuda" styleClass="secondary-button"
-                                        text="Consultar deuda"/>
-                                <Button fx:id="btnPagar" mnemonicParsing="false"
-                                        onAction="#pagar" styleClass="primary-button"
-                                        text="Pagar"/>
-                                <Button fx:id="btnLimpiar" mnemonicParsing="false"
-                                        onAction="#limpiar" styleClass="secondary-button"
-                                        text="Limpiar"/>
+                                <Button onAction="#registrar" styleClass="primary-button" text="Registrar deuda"/>
+                                <Button onAction="#limpiar" styleClass="secondary-button" text="Limpiar"/>
                             </children>
                         </HBox>
 
