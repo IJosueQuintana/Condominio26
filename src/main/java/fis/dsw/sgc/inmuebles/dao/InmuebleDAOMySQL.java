@@ -310,6 +310,23 @@ public class InmuebleDAOMySQL implements IInmuebleDAO {
         }
     }
 
+    @Override
+    public double obtenerAreaTotalCondominio() {
+        String sql = "SELECT SUM(area_m2) AS area_total FROM inmueble";
+        Connection conn = DBConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("area_total");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener el área total del condominio: " + e.getMessage());
+        }
+        return 0.0;
+    }
+
     private Inmueble mapearInmueble(ResultSet rs) throws SQLException {
         Inmueble inmueble = new Inmueble();
         inmueble.setIdInmueble(rs.getInt("id_inmueble"));

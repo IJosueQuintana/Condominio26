@@ -29,4 +29,7 @@ public interface IInmuebleDAO {
 
     /** Deja al inmueble sin propietario principal activo. */
     void quitarPropietario(int idInmueble);
+
+    /** Suma del área en m2 de todos los inmuebles del condominio. */
+    double obtenerAreaTotalCondominio();
 }
