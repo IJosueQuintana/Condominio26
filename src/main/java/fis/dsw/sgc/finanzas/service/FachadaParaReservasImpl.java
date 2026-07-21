@@ -11,7 +11,7 @@ public class FachadaParaReservasImpl implements IFachadaParaReservas {
     public FachadaParaReservasImpl(IDeudaService deudaService) {
         this.deudaService = deudaService;
     }
-    @Override
+
     public void registrarDeuda(NuevaDeudaDTO nuevaDeuda) {
         deudaService.registrarDeuda(nuevaDeuda);
     }
@@ -22,5 +22,10 @@ public class FachadaParaReservasImpl implements IFachadaParaReservas {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void registrarDeuda(String cedula, String reserva, LocalDate fechaMaximaPago, String descripcion, double v) {
+
     }
 }
