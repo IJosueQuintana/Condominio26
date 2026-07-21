@@ -10,8 +10,6 @@ public interface IDeudaService {
     void registrarDeuda(NuevaDeudaDTO nuevaDeudaDTO);
     void modificarFechaMaximaDePagoDeUnaDeuda(Integer idDeuda, LocalDate nuevaFechaMaximaPago);
     void eliminarDeuda(Integer idDeuda);
-    void pagarDeuda(Integer idDeuda, String metodoPago);
-    void pagarDeudaTarjeta(Integer idDeuda, String numeroTarjeta, LocalDate fechaVencimientoTarjeta, String nombreTitularTarjeta, Integer ccv);
     List<CuotaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir);
     List<DeudaConsultadaDTO> consultarDeuda(String numeroCedulaResidente);
 

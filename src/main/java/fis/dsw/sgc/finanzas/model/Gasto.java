@@ -1,17 +1,28 @@
 package fis.dsw.sgc.finanzas.model;
+
 import java.time.LocalDate;
-public class Gasto {
-    private int idGasto;
-    private LocalDate fechaPago; // Validado para ser menor o igual a fecha actual[cite: 3]
-    private double valorPagado;
-    private String descripcion;
 
-    private ITipoGasto tipoGasto; // Patrón Strategy para el tipo de gasto[cite: 1]
+public abstract class Gasto {
+    protected int idGasto;
+    protected String descripcion;
+    protected double valor;
+    protected LocalDate fechaGasto;
 
-    public Gasto() {}
+    public Gasto(String descripcion, double valor, LocalDate fechaGasto) {
+        this.descripcion = descripcion;
+        this.valor = valor;
+        this.fechaGasto = fechaGasto;
+    }
 
-    public ITipoGasto getTipoGasto() { return tipoGasto; }
-    public void setTipoGasto(ITipoGasto tipoGasto) { this.tipoGasto = tipoGasto; }
+    // Método abstracto para que cada hijo valide sus propias reglas
+    public abstract boolean validarDetalle();
 
-    // Aquí residirán reglas financieras y modificaciones de estado[cite: 1, 2]
+    // Identificador del tipo de gasto para guardarlo en BD o usarlo en reportes
+    public abstract String getTipoGasto();
+
+    // Getters
+    public int getIdGasto() { return idGasto; }
+    public String getDescripcion() { return descripcion; }
+    public double getValor() { return valor; }
+    public LocalDate getFechaGasto() { return fechaGasto; }
 }

@@ -1,9 +1,11 @@
 package fis.dsw.sgc.finanzas.service;
 
-import java.time.LocalDate;
+import fis.dsw.sgc.finanzas.dto.PagoTarjetaDTO;
 
 public interface IPagoService {
+    void registrarPagoEfectivoTransferenciaResidente(Integer idDeuda);
+    void pagarDeuda(Integer idDeuda, String metodoPago);
 
-    void registrarPagoEfectivoTransferenciaResidente(Integer idDeuda); // Caso de uso: registrarPagoEfectivoTransferenciaResidente[cite: 3]
-    void consultarPagosEfectuados(LocalDate fechaInicio, LocalDate fechaFin, String cedula); // Caso de uso: consultarPagosEfectuados[cite: 3]
+    // Ahora recibe un único objeto limpio
+    void pagarDeudaTarjeta(PagoTarjetaDTO pagoTarjetaDTO);
 }

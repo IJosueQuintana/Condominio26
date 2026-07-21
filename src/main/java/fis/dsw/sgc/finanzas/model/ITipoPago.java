@@ -1,5 +1,8 @@
 package fis.dsw.sgc.finanzas.model;
 
+
+
 public interface ITipoPago {
-    String getMetodo(); // Interfaz que define el comportamiento según el tipo de pago
+    // Retorna true si la transacción fue exitosa
+    boolean procesarTransaccion(Pago pago, Deuda deuda);
 }

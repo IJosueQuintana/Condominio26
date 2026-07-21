@@ -93,48 +93,7 @@ public class DeudaServiceImpl implements IDeudaService {
         System.out.println("Deuda Eliminada Exitosamente");
     }
 
-    @Override
-    public void pagarDeuda(Integer idDeuda, String metodoPago) {
-        // Caso de uso: Pago en Efectivo o Transferencia
-        Deuda deudaMock = mockBuscarDeuda(idDeuda);
-        if (deudaMock == null) {
-            throw new IllegalArgumentException("No existe la deuda.");
-        }
 
-        if (metodoPago.equalsIgnoreCase("EFECTIVO") || metodoPago.equalsIgnoreCase("TRANSFERENCIA")) {
-            // El estado de la deuda cambia a EN PROCESO esperando validación del contador
-            deudaMock.setEstado(new EstadoEnProceso());
-
-            // deudaDAO.actualizar(deudaMock);
-
-            if (metodoPago.equalsIgnoreCase("EFECTIVO")) {
-                System.out.println("Acerquese a oficinas de contabilidad para efectuar el pago");
-            } else {
-                System.out.println("Se revisara el deposito y se actualizara el estado de su deuda en las próximas horas");
-            }
-        }
-    }
-
-    @Override
-    public void pagarDeudaTarjeta(Integer idDeuda, String numeroTarjeta, LocalDate fechaVencimientoTarjeta, String nombreTitularTarjeta, Integer ccv) {
-        Deuda deudaMock = mockBuscarDeuda(idDeuda);
-        if (deudaMock == null) {
-            throw new IllegalArgumentException("No existe la deuda.");
-        }
-
-        // Simulamos que la plataforma externa aceptó el pago
-        boolean pagoAceptado = true; // Aquí iría la integración con pasarela de pagos
-
-        if (pagoAceptado) {
-            // Delegamos al modelo rico el procesamiento del pago total
-            deudaMock.procesarPago(deudaMock.getSaldo());
-            deudaMock.setEstado(new EstadoPagada());
-
-            // deudaDAO.actualizar(deudaMock);
-
-            System.out.println("Deuda cancelada exitosamente");
-        }
-    }
 
     @Override
     public List<CuotaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir) {

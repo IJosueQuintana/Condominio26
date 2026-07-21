@@ -1,17 +1,41 @@
 package fis.dsw.sgc.finanzas.model;
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
+
 public class Pago {
     private int idPago;
-    private int idDeuda;
+    private LocalDateTime fechaPago;
     private double valorPagado;
-    private LocalDate fechaPago;
 
-    private ITipoPago tipoPago; // Patrón Strategy para el tipo de pago[cite: 1]
+    // Relaciones
+    private Deuda deuda; // Relación 1:1 conceptual
+    private ITipoPago modalidad; // El Strategy
 
-    public Pago() {}
+    private String estado; // REGISTRADO, VALIDADO, RECHAZADO, ANULADO
 
-    public ITipoPago getTipoPago() { return tipoPago; }
-    public void setTipoPago(ITipoPago tipoPago) { this.tipoPago = tipoPago; }
+    public Pago() {
+        this.fechaPago = LocalDateTime.now();
+        this.estado = "REGISTRADO";
+    }
 
-    // Aquí residirán reglas financieras y transiciones[cite: 2]
+    // --- COMPORTAMIENTO ---
+    public boolean ejecutarCobro() {
+        if (modalidad == null) {
+            throw new IllegalStateException("No se ha definido una modalidad de pago.");
+        }
+        return modalidad.procesarTransaccion(this, this.deuda);
+    }
+
+    // --- GETTERS & SETTERS ---
+    public int getIdPago() { return idPago; }
+    public void setIdPago(int idPago) { this.idPago = idPago; }
+    public LocalDateTime getFechaPago() { return fechaPago; }
+    public double getValorPagado() { return valorPagado; }
+    public void setValorPagado(double valorPagado) { this.valorPagado = valorPagado; }
+    public Deuda getDeuda() { return deuda; }
+    public void setDeuda(Deuda deuda) { this.deuda = deuda; }
+    public ITipoPago getModalidad() { return modalidad; }
+    public void setModalidad(ITipoPago modalidad) { this.modalidad = modalidad; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 }
