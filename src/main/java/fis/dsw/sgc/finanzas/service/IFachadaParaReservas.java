@@ -1,8 +1,10 @@
 package fis.dsw.sgc.finanzas.service;
 
-import java.time.LocalDate;
+import fis.dsw.sgc.finanzas.dto.NuevaDeudaDTO;
+
+
 
 public interface IFachadaParaReservas {
-    void registrarDeuda(String cedulaResidente, String motivoDeuda, LocalDate fechaMaximaPago, String descripcion, Double valor);
+    void registrarDeuda(NuevaDeudaDTO nuevaDeuda);
     boolean tieneDeudasEnMora(String cedulaResidente);
 }
