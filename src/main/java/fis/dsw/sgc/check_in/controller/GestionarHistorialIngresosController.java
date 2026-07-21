@@ -1,5 +1,9 @@
 package fis.dsw.sgc.check_in.controller;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,14 +19,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 public class GestionarHistorialIngresosController {
 
     @FXML private VBox panelPrincipal;
-    @FXML private VBox panelDetalle;
+    @FXML private VBox panelDetalle; // Este será nuestro modal flotante
 
     @FXML private TextField txtBusquedaPersona;
     @FXML private ChoiceBox<String> cbTipoIngreso;
@@ -36,8 +36,6 @@ public class GestionarHistorialIngresosController {
     @FXML private TableColumn<RegistroEntradaFila, String> colHora;
     @FXML private TableColumn<RegistroEntradaFila, String> colTipo;
     @FXML private TableColumn<RegistroEntradaFila, String> colPersona;
-    @FXML private TableColumn<RegistroEntradaFila, String> colMotivo;
-    @FXML private TableColumn<RegistroEntradaFila, String> colPlaca;
     @FXML private TableColumn<RegistroEntradaFila, Void> colDetalle;
 
     @FXML private Label lblDetalleTipo;
@@ -45,6 +43,7 @@ public class GestionarHistorialIngresosController {
     @FXML private Label lblDetalleFechaHora;
     @FXML private Label lblDetalleMotivo;
     @FXML private Label lblDetallePlaca;
+    @FXML private Label lblDetalleInfoAdicional;
 
     private final ObservableList<RegistroEntradaFila> historialCompleto = FXCollections.observableArrayList();
     private final ObservableList<RegistroEntradaFila> historialFiltrado = FXCollections.observableArrayList();
@@ -59,8 +58,6 @@ public class GestionarHistorialIngresosController {
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
         colPersona.setCellValueFactory(new PropertyValueFactory<>("persona"));
-        colMotivo.setCellValueFactory(new PropertyValueFactory<>("motivo"));
-        colPlaca.setCellValueFactory(new PropertyValueFactory<>("placa"));
 
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colTipo.setCellFactory(col -> new TableCell<>() {
@@ -135,20 +132,23 @@ public class GestionarHistorialIngresosController {
         lblDetallePersona.setText("Persona: " + fila.getPersona());
         lblDetalleFechaHora.setText("Fecha y hora: " + fila.getFecha() + " " + fila.getHora());
         lblDetalleMotivo.setText("Motivo: " + fila.getMotivo());
-        lblDetallePlaca.setText("Placa: " + (fila.getPlaca().isEmpty() ? "N/A" : fila.getPlaca()));
+        lblDetallePlaca.setText("Placa: " + (fila.getPlaca().isEmpty() ? "No registrada" : fila.getPlaca()));
+        lblDetalleInfoAdicional.setText("Información Adicional: " + fila.getInfoAdicional());
 
-        panelPrincipal.setVisible(false);
-        panelPrincipal.setManaged(false);
+        // Mostrar el modal flotante
         panelDetalle.setVisible(true);
-        panelDetalle.setManaged(true);
     }
 
     @FXML
     void cerrarDetalle(ActionEvent event) {
+        // Ocultar el modal flotante
         panelDetalle.setVisible(false);
-        panelDetalle.setManaged(false);
-        panelPrincipal.setVisible(true);
-        panelPrincipal.setManaged(true);
+    }
+
+    @FXML
+    void generarReporte(ActionEvent event) {
+        // Acción para el nuevo botón
+        mostrarInfo("Generando reporte de los ingresos en pantalla");
     }
 
     private void mostrarInfo(String mensaje) {
@@ -161,11 +161,10 @@ public class GestionarHistorialIngresosController {
         lblMensaje.getStyleClass().setAll("message-label", "message-error");
     }
 
-    // Datos de ejemplo.
     private void cargarDatosDemo() {
-        historialCompleto.add(new RegistroEntradaFila("18/07/2026", "08:15", "Residente", "María Fernanda Cárdenas", "Ingreso regular", ""));
-        historialCompleto.add(new RegistroEntradaFila("18/07/2026", "09:40", "Externa", "Carlos Pérez (Proveedor)", "Entrega de paquetería", "PBX-2210"));
-        historialCompleto.add(new RegistroEntradaFila("17/07/2026", "19:05", "Externa", "Ana Gómez (Visita)", "Visita social", ""));
+        historialCompleto.add(new RegistroEntradaFila("18/07/2026", "08:15", "Residente", "María Fernanda Cárdenas", "Ingreso regular", "", "Sin observaciones"));
+        historialCompleto.add(new RegistroEntradaFila("18/07/2026", "09:40", "Externa", "Carlos Pérez (Proveedor)", "Entrega de paquetería", "PBX-2210", "Dejó 2 cajas en garita"));
+        historialCompleto.add(new RegistroEntradaFila("17/07/2026", "19:05", "Externa", "Ana Gómez (Visita)", "Visita social", "", "Autorizado vía llamada"));
     }
 
     public static class RegistroEntradaFila {
@@ -175,14 +174,16 @@ public class GestionarHistorialIngresosController {
         private final String persona;
         private final String motivo;
         private final String placa;
+        private final String infoAdicional;
 
-        public RegistroEntradaFila(String fecha, String hora, String tipo, String persona, String motivo, String placa) {
+        public RegistroEntradaFila(String fecha, String hora, String tipo, String persona, String motivo, String placa, String infoAdicional) {
             this.fecha = fecha;
             this.hora = hora;
             this.tipo = tipo;
             this.persona = persona;
             this.motivo = motivo;
             this.placa = placa;
+            this.infoAdicional = infoAdicional;
         }
 
         public String getFecha() { return fecha; }
@@ -191,6 +192,7 @@ public class GestionarHistorialIngresosController {
         public String getPersona() { return persona; }
         public String getMotivo() { return motivo; }
         public String getPlaca() { return placa; }
+        public String getInfoAdicional() { return infoAdicional; }
 
         public LocalDate getFechaComoLocalDate() {
             String[] partes = fecha.split("/");

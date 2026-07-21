@@ -14,9 +14,9 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="TOP_CENTER"
-      maxHeight="1.7976931348623157E308"
-      maxWidth="1.7976931348623157E308"
-      prefHeight="600.0"
+      maxHeight="Infinity"
+      maxWidth="Infinity"
+      prefHeight="800.0"
       prefWidth="900.0"
       spacing="16.0"
       styleClass="module-content"
@@ -38,54 +38,53 @@
             </children>
         </VBox>
 
-        <!-- FORMULARIO -->
         <VBox maxWidth="960.0" spacing="14.0" styleClass="module-card">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
             </padding>
             <children>
-                <GridPane hgap="12.0" vgap="14.0" maxWidth="1.7976931348623157E308">
+                <GridPane hgap="12.0" vgap="14.0" maxWidth="Infinity">
                     <columnConstraints>
                         <ColumnConstraints minWidth="150.0" prefWidth="160.0"/>
                         <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="360.0"/>
                     </columnConstraints>
                     <children>
-                        <Label styleClass="form-label" text="Nombre del visitante"
-                               GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <Label styleClass="form-label" text="Identificación" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <HBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <children>
+                                <TextField fx:id="txtIdentificacionVisitante" promptText="Cédula / pasaporte"
+                                           HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                <Button fx:id="btnBuscar" mnemonicParsing="false" onAction="#buscarVisita"
+                                        styleClass="secondary-button" text="Buscar"/>
+                            </children>
+                        </HBox>
+
+                        <Label styleClass="form-label" text="Nombre del visitante" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                         <TextField fx:id="txtNombreVisitante" promptText="Nombre completo"
-                                   maxWidth="1.7976931348623157E308"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                   maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                        <Label styleClass="form-label" text="Identificación"
-                               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtIdentificacionVisitante" promptText="Cédula / pasaporte"
-                                   maxWidth="1.7976931348623157E308"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-
-                        <Label styleClass="form-label" text="Teléfono (opcional)"
-                               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <Label styleClass="form-label" text="Teléfono (opcional)" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                         <TextField fx:id="txtTelefono" promptText="09XXXXXXXX"
-                                   maxWidth="1.7976931348623157E308"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                   maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                        <Label styleClass="form-label" text="Residente / unidad destino"
-                               GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <Label styleClass="form-label" text="Residente relacionado" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
                         <TextField fx:id="txtDestino" promptText="Ej. Depto. 205 - Carla Muñoz"
-                                   maxWidth="1.7976931348623157E308"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                   maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-                        <Label styleClass="form-label" text="Motivo de ingreso"
-                               GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-                        <TextField fx:id="txtMotivo" promptText="Ej. Visita social, entrega, mantenimiento"
-                                   maxWidth="1.7976931348623157E308"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                        <Label styleClass="form-label" text="Información Adicional" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                        <TextField fx:id="txtInfoAdicional" promptText="Ej. Entrega de paquetes (opcional)"
+                                   maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
                     </children>
                 </GridPane>
 
-                <CheckBox fx:id="chkRequiereParqueadero" onAction="#toggleParqueadero"
-                          text="El visitante ingresa con vehículo y requiere parqueadero"/>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Label styleClass="form-label" text="Uso de Parqueadero:"/>
+                        <CheckBox fx:id="chkRequiereParqueadero" onAction="#toggleParqueadero"
+                                  text="El visitante ingresa con vehículo y requiere espacio"/>
+                    </children>
+                </HBox>
 
-                <!-- SECCIÓN CONDICIONAL: PARQUEADERO (CU-07, solo si aplica) -->
                 <VBox fx:id="panelParqueadero" managed="false" spacing="12.0" visible="false"
                       style="-fx-background-color: #f9fafb; -fx-background-radius: 6; -fx-padding: 16;">
                     <children>
@@ -95,13 +94,13 @@
                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label styleClass="form-label" text="Placa"/>
-                                        <TextField fx:id="txtPlaca" promptText="ABC-1234" maxWidth="1.7976931348623157E308"/>
+                                        <TextField fx:id="txtPlaca" promptText="ABC-1234" maxWidth="Infinity"/>
                                     </children>
                                 </VBox>
                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label styleClass="form-label" text="Parqueadero de visita"/>
-                                        <ChoiceBox fx:id="cbParqueadero" maxWidth="1.7976931348623157E308"/>
+                                        <ChoiceBox fx:id="cbParqueadero" maxWidth="Infinity"/>
                                     </children>
                                 </VBox>
                             </children>
@@ -109,9 +108,7 @@
                     </children>
                 </VBox>
 
-                <Label styleClass="form-hint"
-                       text="Al registrar, se notificará automáticamente al residente relacionado y el ingreso quedará guardado en el historial."/>
-
+                <Label styleClass="form-hint" text="Al registrar, se notificará automáticamente al residente relacionado."/>
                 <Label fx:id="lblMensaje" styleClass="message-label"/>
 
                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
@@ -125,19 +122,18 @@
             </children>
         </VBox>
 
-        <!-- REFUERZO INMEDIATO: INGRESOS EXTERNOS RECIENTES -->
         <VBox maxWidth="960.0" spacing="8.0" styleClass="table-card" VBox.vgrow="ALWAYS">
             <padding>
                 <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
             </padding>
             <children>
                 <Label styleClass="module-section-title" text="Ingresos Externos Recientes"/>
-                <TableView fx:id="tablaIngresos" prefHeight="220.0" maxWidth="Infinity">
+                <TableView fx:id="tablaIngresos" prefHeight="400.0" minHeight="300.0" maxWidth="Infinity" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="colHora" prefWidth="90.0" text="Hora"/>
                         <TableColumn fx:id="colNombre" prefWidth="180.0" text="Visitante"/>
-                        <TableColumn fx:id="colDestino" prefWidth="180.0" text="Destino"/>
-                        <TableColumn fx:id="colMotivo" prefWidth="170.0" text="Motivo"/>
+                        <TableColumn fx:id="colDestino" prefWidth="180.0" text="Residente"/>
+                        <TableColumn fx:id="colInfoAdicional" prefWidth="170.0" text="Info. Adicional"/>
                         <TableColumn fx:id="colParqueadero" prefWidth="140.0" text="Parqueadero" style="-fx-alignment: CENTER;"/>
                     </columns>
                     <columnResizePolicy>

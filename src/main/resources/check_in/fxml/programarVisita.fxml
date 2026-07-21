@@ -37,7 +37,6 @@
             </children>
         </VBox>
 
-        <!-- FORMULARIO -->
         <VBox maxWidth="960.0" spacing="14.0" styleClass="module-card">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
@@ -103,7 +102,6 @@
             </children>
         </VBox>
 
-        <!-- MIS VISITAS PROGRAMADAS -->
         <VBox maxWidth="960.0" spacing="8.0" styleClass="table-card" VBox.vgrow="ALWAYS">
             <padding>
                 <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
