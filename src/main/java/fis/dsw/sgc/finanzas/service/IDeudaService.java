@@ -1,5 +1,6 @@
 package fis.dsw.sgc.finanzas.service;
 
+import fis.dsw.sgc.finanzas.dto.CuotaDTO;
 import fis.dsw.sgc.finanzas.dto.DeudaConsultadaDTO;
 import fis.dsw.sgc.finanzas.dto.NuevaDeudaDTO;
 import java.time.LocalDate;
