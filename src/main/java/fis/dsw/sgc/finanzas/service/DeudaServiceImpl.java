@@ -136,50 +136,56 @@ public class DeudaServiceImpl implements IDeudaService {
     }
 
     @Override
-    public List<DeudaConsultadaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir) {
-        if (numeroMesesADiferir < 3 || numeroMesesADiferir > 11) {
-            throw new IllegalArgumentException("El numero de meses a diferir la deuda debe ser de almenos 3 y como máximo 11");
+    public List<CuotaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir) {
+        if (numeroMesesADiferir < 3 || numeroMesesADiferir > 12) {
+            throw new IllegalArgumentException("El número de meses a diferir la deuda debe ser de al menos 3 y como máximo 12.");
         }
 
-        // 1. Verificar si tiene deudas en mora (MOCK)
-        // boolean tieneMora = deudaDAO.verificarDeudasEnMoraPorUsuario(idUsuario);
+        // 1. Consultar si tiene deudas en mora (MOCK)
+        // boolean tieneMora = deudaDAO.verificarDeudasEnMoraPorUsuario(deudaDiferir.getIdUsuario());
         boolean tieneMora = false;
         if (tieneMora) {
-            throw new IllegalStateException("No puede acceder a este beneficio porque tiene deudas en estado EN MORA");
+            throw new IllegalStateException("No puede ser beneficiario a este beneficio porque tiene deudas en estado EN MORA");
         }
 
+        // 2. Obtener la deuda original a diferir
         Deuda deudaDiferir = mockBuscarDeuda(idDeuda);
+
+        // 3. Generar las nuevas Deudas (Cuotas) y los DTOs
         double valorCuota = deudaDiferir.getSaldo() / numeroMesesADiferir;
+        List<CuotaDTO> cuotasGeneradas = new ArrayList<>();
 
-        List<DeudaConsultadaDTO> cuotasGeneradas = new ArrayList<>();
-
-        // Según tu Modelo de Dominio, creamos N deudas nuevas saltando de 1 en 1 mes
+        // Creamos N deudas como dicta el Modelo de Dominio, saltando de un mes en un mes
         for (int i = 1; i <= numeroMesesADiferir; i++) {
             Deuda cuota = new Deuda();
             cuota.setIdUsuario(deudaDiferir.getIdUsuario());
-            cuota.setTipoDeuda(deudaDiferir.getTipoDeuda()); // Mismo motivo
+            cuota.setTipoDeuda(deudaDiferir.getTipoDeuda());
             cuota.setValorBase(valorCuota);
             cuota.setSaldo(valorCuota);
-            cuota.setFechaVencimiento(LocalDate.now().plusMonths(i));
+
+            LocalDate fechaVencimientoCuota = LocalDate.now().plusMonths(i);
+            cuota.setFechaVencimiento(fechaVencimientoCuota);
+
             cuota.setEstado(new EstadoPendiente());
             cuota.setDescripcion("Cuota " + i + " de " + numeroMesesADiferir + " - " + deudaDiferir.getDescripcion());
 
-            // deudaDAO.guardar(cuota); // Guardar en BD cada cuota como deuda independiente
+            // deudaDAO.guardar(cuota); // MOCK: El DAO multiplicaría el saldo por 100 aquí
 
-            cuotasGeneradas.add(new DeudaConsultadaDTO(
-                    (int)(Math.random() * 1000), // ID simulado
-                    cuota.getTipoDeuda().getMotivo(),
-                    cuota.getSaldo(),
-                    cuota.getFechaVencimiento(),
-                    cuota.getEstado().getNombreEstado()
-            ));
+            // --- TRANSFORMACIÓN AL NUEVO CuotaDTO ---
+            // Formateamos los datos requeridos como String
+            String numeroCuotaStr = "Cuota " + i + " de " + numeroMesesADiferir;
+            String fechaMaximaPagoStr = fechaVencimientoCuota.toString(); // Formato: YYYY-MM-DD
+            // Usamos String.format para asegurar que el valor tenga 2 decimales
+            String valorStr = String.format(java.util.Locale.US, "%.2f", valorCuota);
+
+            cuotasGeneradas.add(new CuotaDTO(numeroCuotaStr, fechaMaximaPagoStr, valorStr));
         }
 
-        // Anulamos o marcamos como procesada la deuda original
+        // 4. Anular/Pagar la deuda original porque ya fue diferida
         deudaDiferir.setEstado(new EstadoPagada());
         // deudaDAO.actualizar(deudaDiferir);
 
-        System.out.println("Deuda diferida exitosamente");
+        System.out.println("Deuda diferida exitosamente en " + numeroMesesADiferir + " cuotas.");
         return cuotasGeneradas;
     }
 
@@ -203,13 +209,104 @@ public class DeudaServiceImpl implements IDeudaService {
         return deudasActivas;
     }
 
-    // --- MÉTODOS QUE SE HARÁN DESPUÉS ---
     @Override
-    public void registrarDeudaAlicuotaMensual(String numeroCedulaResidente) {}
+    public void registrarDeudaAlicuotaMensual(String numeroCedulaResidente) {
+        // 1. El Sistema verifica si es el primer día del mes
+        if (LocalDate.now().getDayOfMonth() != 1) {
+            System.out.println("Hoy no es el primer día del mes. No se genera alícuota automática.");
+            return;
+        }
+
+        // 2. Verificar existencia del residente (MOCK)
+        boolean existeResidente = true; // usuariosFacade.existeResidente(numeroCedulaResidente);
+        if (!existeResidente) {
+            throw new IllegalArgumentException("No existe un residente con la cédula proporcionada.");
+        }
+
+        int idResidenteMock = 101;
+        double valorAlicuota = 150.00; // Esto luego vendrá del DAO consultando 'configuracion_alicuota'
+
+        // 3. Generar la deuda
+        Deuda nuevaDeuda = deudaFactory.crearDeuda(
+                "ALICUOTA",
+                idResidenteMock,
+                valorAlicuota,
+                Date.from(LocalDate.now().plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant()) // Damos 10 días para pagar
+        );
+        nuevaDeuda.setDescripcion("Alícuota mensual generada automáticamente");
+
+        // deudaDAO.guardar(nuevaDeuda);
+
+        System.out.println("Deuda de alícuota mensual registrada con éxito para el residente con cédula: " + numeroCedulaResidente);
+    }
+
     @Override
-    public void enviarRecordatorioDeudaPendiente(String numeroCedulaResidente) {}
+    public void enviarRecordatorioDeudaPendiente(String numeroCedulaResidente) {
+        // 1. Consultar deudas del residente
+        List<Deuda> deudasDelResidente = mockObtenerDeudasResidente(numeroCedulaResidente);
+        LocalDate hoy = LocalDate.now();
+
+        for (Deuda deuda : deudasDelResidente) {
+            // 2. Verificar que esté PENDIENTE
+            if (deuda.getEstado() != null && deuda.getEstado().getNombreEstado().equals("PENDIENTE")) {
+
+                // Calcular días restantes (utilizamos ChronoUnit de java.time)
+                long diasRestantes = java.time.temporal.ChronoUnit.DAYS.between(hoy, deuda.getFechaVencimiento());
+
+                // 3. Si quedan 3 días o menos (pero no está vencida)
+                if (diasRestantes >= 0 && diasRestantes <= 3) {
+                    // MOCK del Módulo de Comunicación (Fachada)
+                    // comunicacionFacade.enviarNotificacionParticular(numeroCedulaResidente, "Estimado residente, le recordamos que su deuda vence en " + diasRestantes + " días.");
+
+                    System.out.println("MÓDULO COMUNICACIÓN (MOCK): Enviando recordatorio a " + numeroCedulaResidente +
+                            " -> Su deuda por " + deuda.getTipoDeuda().getMotivo() + " vence en " + diasRestantes + " días.");
+                }
+            }
+        }
+    }
+
     @Override
-    public void registrarMoraDeuda(String numeroCedulaResidente) {}
+    public void registrarMoraDeuda(String numeroCedulaResidente) {
+        // 1. Consultar deudas del residente
+        List<Deuda> deudasDelResidente = mockObtenerDeudasResidente(numeroCedulaResidente);
+        LocalDate hoy = LocalDate.now();
+
+        for (Deuda deuda : deudasDelResidente) {
+            // 2. Verificar que esté PENDIENTE
+            if (deuda.getEstado() != null && deuda.getEstado().getNombreEstado().equals("PENDIENTE")) {
+
+                // 3. Verificar si la fecha máxima de pago ya pasó
+                if (deuda.getFechaVencimiento().isBefore(hoy)) {
+
+                    // ¡Aquí brilla tu Modelo de Dominio Rico! Le delegamos la lógica de negocio a la entidad
+                    deuda.aplicarMora();
+
+                    // MOCK: Actualizar la deuda en base de datos
+                    // deudaDAO.actualizar(deuda); // El DAO aquí convertiría el nuevo saldo a centavos
+
+                    System.out.println("Mora del 15% aplicada automáticamente a la deuda ID: " + deuda.getIdDeuda() +
+                            ". Nuevo saldo con mora: " + deuda.getSaldo());
+                }
+            }
+        }
+    }
+
+    // --- METODO UTILITARIO PARA LOS MOCKS DE CONSULTA ---
+    private List<Deuda> mockObtenerDeudasResidente(String cedula) {
+        List<Deuda> lista = new ArrayList<>();
+
+        // Deuda 1: Vencida (Para probar registrarMoraDeuda)
+        Deuda d1 = mockBuscarDeuda(1);
+        d1.setFechaVencimiento(LocalDate.now().minusDays(5));
+
+        // Deuda 2: Por vencer en 2 días (Para probar enviarRecordatorio)
+        Deuda d2 = mockBuscarDeuda(2);
+        d2.setFechaVencimiento(LocalDate.now().plusDays(2));
+
+        lista.add(d1);
+        lista.add(d2);
+        return lista;
+    }
 
 
     // --- UTILS (MOCKS Y VALIDACIONES) ---

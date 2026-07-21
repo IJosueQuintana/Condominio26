@@ -11,11 +11,12 @@ public interface IDeudaService {
     void eliminarDeuda(Integer idDeuda);
     void pagarDeuda(Integer idDeuda, String metodoPago);
     void pagarDeudaTarjeta(Integer idDeuda, String numeroTarjeta, LocalDate fechaVencimientoTarjeta, String nombreTitularTarjeta, Integer ccv);
-    List<DeudaConsultadaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir);
+    List<CuotaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir);
     List<DeudaConsultadaDTO> consultarDeuda(String numeroCedulaResidente);
 
     // Estos los dejamos para después como pediste
     void registrarDeudaAlicuotaMensual(String numeroCedulaResidente);
     void enviarRecordatorioDeudaPendiente(String numeroCedulaResidente);
     void registrarMoraDeuda(String numeroCedulaResidente);
+
 }
