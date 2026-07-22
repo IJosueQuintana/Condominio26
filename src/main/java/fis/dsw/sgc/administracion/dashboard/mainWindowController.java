@@ -32,11 +32,13 @@ public class mainWindowController {
     @FXML private VBox submenuReservas;
     @FXML private VBox submenuCheckIn;
     @FXML private VBox submenuComunicacion;
+    @FXML private VBox reservasBox;
 
     @FXML private Button btnAdministracion;
     @FXML private Button btnFinanzas;
     @FXML private Button btnInmuebles;
     @FXML private Button btnReservas;
+    @FXML private Button btnAuditarReservas;
     @FXML private Button btnCheckIn;
     @FXML private Button btnComunicacion;
 
@@ -69,6 +71,21 @@ public class mainWindowController {
                 .collect(Collectors.joining(", "));
 
         setUsuario(usuario.getNombre(), roles);
+
+        if (btnAuditarReservas != null) {
+            boolean esAdmin = roles.contains("ADMINISTRADOR");
+            btnAuditarReservas.setVisible(esAdmin);
+            btnAuditarReservas.setManaged(esAdmin);
+        }
+
+        if (reservasBox != null) {
+            boolean tieneAccesoReservas = roles.contains("ADMINISTRADOR") ||
+                                          roles.contains("RESIDENTE") ||
+                                          roles.contains("PROPIETARIO") ||
+                                          roles.contains("PRESIDENTE");
+            reservasBox.setVisible(tieneAccesoReservas);
+            reservasBox.setManaged(tieneAccesoReservas);
+        }
     }
 
     // ==================== Avatar ====================

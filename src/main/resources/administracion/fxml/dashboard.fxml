@@ -157,7 +157,7 @@
                                                         styleClass="submenu-item" text="Añadir Reserva"/>
                                                 <Button mnemonicParsing="false" onAction="#irAVerReserva"
                                                         styleClass="submenu-item" text="Ver Reserva"/>
-                                                <Button mnemonicParsing="false" onAction="#irAAuditarReservas"
+                                                <Button fx:id="btnAuditarReservas" mnemonicParsing="false" onAction="#irAAuditarReservas"
                                                         styleClass="submenu-item" text="Auditar Reservas"/>
                                             </children>
                                         </VBox>
