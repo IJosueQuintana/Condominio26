@@ -17,7 +17,7 @@ import java.util.List;
 
 public class AlertaSeguridadDAO implements IAlertaSeguridadDAO {
 
-    // Constructor explícito requerido para instanciación manual desde Main (DI manual del jefe de proyecto)
+    // Constructor explícito requerido para instanciación manual desde Main 
     public AlertaSeguridadDAO() {}
 
     @Override
