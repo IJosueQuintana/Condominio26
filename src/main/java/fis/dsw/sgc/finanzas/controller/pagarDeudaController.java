@@ -1,7 +1,9 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.core.util.NavigationUtil;
+import fis.dsw.sgc.finanzas.dto.DeudaConsultadaDTO;
 import fis.dsw.sgc.finanzas.dto.PagoTarjetaDTO;
+import fis.dsw.sgc.finanzas.service.IDeudaService;
 import fis.dsw.sgc.finanzas.service.IPagoService;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -12,6 +14,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+
+import java.util.Locale;
 
 // Controlador de la vista Pagar deuda
 public class pagarDeudaController {
@@ -30,9 +34,11 @@ public class pagarDeudaController {
     private boolean deudaCargada;
     private String estadoActual = "";
     private final IPagoService pagoService;
+    private final IDeudaService deudaService;
 
-    public pagarDeudaController(IPagoService pagoService) {
+    public pagarDeudaController(IPagoService pagoService, IDeudaService deudaService) {
         this.pagoService = pagoService;
+        this.deudaService = deudaService;
     }
 
     @FXML
@@ -55,28 +61,35 @@ public class pagarDeudaController {
             setMensaje("Debe ingresar el ID de la deuda.", "message-error");
             return;
         }
-        if (idDeuda.equalsIgnoreCase("DEU-404") || idDeuda.equalsIgnoreCase("NO-EXISTE")) {
+
+        Integer idNumerico = idDeudaNumerico(idDeuda);
+        if (idNumerico == null) {
             deudaCargada = false;
             lblValor.setText("(sin datos)");
             lblEstado.setText("(sin datos)");
-            setMensaje("No existe una deuda con el identificador proporcionado.", "message-error");
-            return;
-        }
-        if (idDeuda.equalsIgnoreCase("DEU-PAGADA") || idDeuda.toUpperCase().endsWith("-PAGADA")) {
-            deudaCargada = true;
-            lblValor.setText("$0.00");
-            lblEstado.setText("PAGADA");
-            estadoActual = "PAGADA";
-            setMensaje("Esta deuda ya ha sido pagada.", "message-error");
+            setMensaje("El ID de la deuda debe ser numérico.", "message-error");
             return;
         }
 
-        // Datos de ejemplo hasta conectar el servicio
-        deudaCargada = true;
-        lblValor.setText("$45.00");
-        lblEstado.setText("PENDIENTE");
-        estadoActual = "PENDIENTE";
-        setMensaje("Deuda encontrada. Elija el método de pago y pulse Pagar.", "message-success");
+        try {
+            DeudaConsultadaDTO dto = deudaService.consultarDeudaPorId(idNumerico);
+            deudaCargada = true;
+            estadoActual = dto.getEstadoActual() == null ? "" : dto.getEstadoActual().trim();
+            lblValor.setText(dto.getSaldoPendiente() == null ? "$0.00"
+                    : String.format(Locale.US, "$%.2f", dto.getSaldoPendiente()));
+            lblEstado.setText(estadoActual);
+
+            if ("PAGADA".equalsIgnoreCase(estadoActual)) {
+                setMensaje("Esta deuda ya ha sido pagada.", "message-error");
+                return;
+            }
+            setMensaje("Deuda encontrada. Elija el método de pago y pulse Pagar.", "message-success");
+        } catch (RuntimeException ex) {
+            deudaCargada = false;
+            lblValor.setText("(sin datos)");
+            lblEstado.setText("(sin datos)");
+            setMensaje(ex.getMessage(), "message-error");
+        }
     }
 
 
@@ -166,7 +179,7 @@ public class pagarDeudaController {
 
     private Integer idDeudaNumerico(String idDeuda) {
         try {
-            return Integer.valueOf(idDeuda.replaceAll("\\D", ""));
+            return Integer.valueOf(idDeuda.trim());
         } catch (NumberFormatException ex) {
             return null;
         }

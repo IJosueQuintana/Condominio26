@@ -1,8 +1,16 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.core.util.NavigationUtil;
+import fis.dsw.sgc.finanzas.dao.DeudaDAOImpl;
+import fis.dsw.sgc.finanzas.dao.IDeudaDAO;
+import fis.dsw.sgc.finanzas.dao.IPagoDAO;
+import fis.dsw.sgc.finanzas.dao.PagoDAOImpl;
 import fis.dsw.sgc.finanzas.dto.DeudaConsultadaDTO;
 import fis.dsw.sgc.finanzas.service.IDeudaService;
+import fis.dsw.sgc.finanzas.service.IPagoFactory;
+import fis.dsw.sgc.finanzas.service.IPagoService;
+import fis.dsw.sgc.finanzas.service.PagoFactoryImpl;
+import fis.dsw.sgc.finanzas.service.PagoServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -50,9 +58,14 @@ public class ConsultarDeudasController {
     private final ObservableList<DeudaFila> filas = FXCollections.observableArrayList();
     private Label placeholderTabla;
     private final IDeudaService deudaService;
+    private final IPagoService pagoService;
 
     public ConsultarDeudasController(IDeudaService deudaService) {
         this.deudaService = deudaService;
+        IPagoFactory pagoFactory = new PagoFactoryImpl();
+        IPagoDAO pagoDAO = new PagoDAOImpl();
+        IDeudaDAO deudaDAO = new DeudaDAOImpl();
+        this.pagoService = new PagoServiceImpl(pagoFactory, pagoDAO, deudaDAO);
     }
 
     @FXML
@@ -124,7 +137,7 @@ public class ConsultarDeudasController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/finanzas/fxml/detalleDeuda.fxml"));
-            DetalleDeudaController ctrl = new DetalleDeudaController(deudaService);
+            DetalleDeudaController ctrl = new DetalleDeudaController(deudaService, pagoService);
             loader.setController(ctrl);
             Parent root = loader.load();
             ctrl.setDeuda(fila, () -> {

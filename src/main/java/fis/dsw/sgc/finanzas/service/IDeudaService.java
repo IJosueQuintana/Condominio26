@@ -12,6 +12,7 @@ public interface IDeudaService {
     void eliminarDeuda(Integer idDeuda);
     List<CuotaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir);
     List<DeudaConsultadaDTO> consultarDeuda(String numeroCedulaResidente);
+    DeudaConsultadaDTO consultarDeudaPorId(Integer idDeuda);
     boolean consultarDeudasEnMora(String numeroCedulaResidente);
 
     // Estos los dejamos para después como pediste

@@ -1,6 +1,7 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.finanzas.service.IDeudaService;
+import fis.dsw.sgc.finanzas.service.IPagoService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -33,9 +34,11 @@ public class DetalleDeudaController {
     private String estadoActualizado;
     private String fechaActualizada;
     private final IDeudaService deudaService;
+    private final IPagoService pagoService;
 
-    public DetalleDeudaController(IDeudaService deudaService) {
+    public DetalleDeudaController(IDeudaService deudaService, IPagoService pagoService) {
         this.deudaService = deudaService;
+        this.pagoService = pagoService;
     }
 
     private Integer idDeudaNumerico() {
@@ -86,10 +89,15 @@ public class DetalleDeudaController {
             setMensaje("Solo se valida si la deuda está EN PROCESO.", "message-error");
             return;
         }
-        estadoActualizado = "PAGADA";
-        resultadoAccion = "VALIDADA";
-        setMensaje("Pago registrado exitosamente.", "message-success");
-        notificarYCerrar(event);
+        try {
+            pagoService.registrarPagoEfectivoTransferenciaResidente(idDeudaNumerico());
+            estadoActualizado = "PAGADA";
+            resultadoAccion = "VALIDADA";
+            setMensaje("Pago registrado exitosamente.", "message-success");
+            notificarYCerrar(event);
+        } catch (RuntimeException ex) {
+            setMensaje(ex.getMessage(), "message-error");
+        }
     }
 
     @FXML

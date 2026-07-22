@@ -187,6 +187,22 @@ public class DeudaServiceImpl implements IDeudaService {
     }
 
     @Override
+    public DeudaConsultadaDTO consultarDeudaPorId(Integer idDeuda) {
+        Deuda deudaBD = deudaDAO.buscarPorId(idDeuda);
+        if (deudaBD == null) {
+            throw new DeudaNoExisteException("No existe una deuda con el identificador proporcionado.");
+        }
+
+        return new DeudaConsultadaDTO(
+                deudaBD.getIdDeuda(),
+                deudaBD.getTipoDeuda().getMotivo(),
+                deudaBD.getSaldo(),
+                deudaBD.getFechaVencimiento(),
+                deudaBD.getEstado().getNombreEstadoUI()
+        );
+    }
+
+    @Override
     public boolean consultarDeudasEnMora(String numeroCedulaResidente) {
         try{
             ResidenteFachadaDTO residente = gestionUsuariosAPI.obtenerResidentePorCedula(numeroCedulaResidente);
