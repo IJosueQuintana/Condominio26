@@ -1,354 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<ScrollPane xmlns="http://javafx.com/javafx/26"
-            xmlns:fx="http://javafx.com/fxml/1"
+<ScrollPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="fis.dsw.sgc.comunicacion.controller.EnviarMensajeController"
-            fitToWidth="true"
-            fitToHeight="false"
-            hbarPolicy="NEVER"
-            vbarPolicy="AS_NEEDED"
-            pannable="true"
-            prefHeight="600.0"
-            prefWidth="900.0"
-            styleClass="module-scroll-pane"
-            stylesheets="@../css/comunicacionStyles.css">
-
+            fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+            pannable="true" prefHeight="700" prefWidth="1050"
+            styleClass="module-scroll-pane" stylesheets="@../css/comunicacionStyles.css">
     <content>
-        <VBox alignment="TOP_CENTER"
-              fillWidth="true"
-              maxWidth="1.7976931348623157E308"
-              minHeight="-Infinity"
-              spacing="16.0"
-              styleClass="module-content">
+        <VBox alignment="TOP_CENTER" fillWidth="true" spacing="18" styleClass="module-content">
+            <padding><Insets top="32" right="32" bottom="42" left="32"/></padding>
 
-            <padding>
-                <Insets top="32.0"
-                        right="32.0"
-                        bottom="40.0"
-                        left="32.0"/>
-            </padding>
+            <VBox alignment="CENTER" maxWidth="980" spacing="5">
+                <Label styleClass="module-eyebrow" text="COMUNICACIÓN INSTITUCIONAL"/>
+                <Label styleClass="module-title" text="Enviar mensaje"/>
+                <Label maxWidth="760" styleClass="module-subtitle"
+                       text="Redacte, valide y distribuya mensajes a los diferentes grupos del condominio."
+                       textAlignment="CENTER" wrapText="true"/>
+            </VBox>
 
-            <children>
+            <VBox maxWidth="980" spacing="16" styleClass="module-card">
+                <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+                <HBox styleClass="section-header">
+                    <Label styleClass="section-badge" text="1"/>
+                    <VBox spacing="2">
+                        <Label styleClass="module-section-title" text="Destinatarios y clasificación"/>
+                        <Label styleClass="table-subtitle"
+                               text="Defina el alcance y la prioridad de la comunicación."/>
+                    </VBox>
+                </HBox>
 
-                <!-- ENCABEZADO -->
-                <VBox alignment="CENTER"
-                      maxWidth="960.0"
-                      spacing="4.0">
+                <GridPane hgap="16" vgap="14">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50" hgrow="SOMETIMES" minWidth="220"/>
+                        <ColumnConstraints percentWidth="50" hgrow="SOMETIMES" minWidth="220"/>
+                    </columnConstraints>
+                    <VBox spacing="6" GridPane.columnIndex="0">
+                        <Label styleClass="form-label" text="Tipo de mensaje"/>
+                        <ComboBox fx:id="cmbTipoMensaje" maxWidth="Infinity"
+                                  promptText="Seleccione el tipo de comunicación"/>
+                    </VBox>
+                    <VBox spacing="6" GridPane.columnIndex="1">
+                        <Label styleClass="form-label" text="Prioridad"/>
+                        <ComboBox fx:id="cmbPrioridad" maxWidth="Infinity"
+                                  promptText="Seleccione la prioridad"/>
+                    </VBox>
+                </GridPane>
 
-                    <children>
-                        <Label styleClass="module-title"
-                               text="Enviar mensaje"/>
+                <HBox alignment="CENTER_LEFT" spacing="9" styleClass="recipient-info">
+                    <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                    <Label styleClass="recipient-info-icon" text="i"/>
+                    <Label fx:id="lblDestinatarios" maxWidth="Infinity"
+                           styleClass="recipient-info-text" wrapText="true" HBox.hgrow="ALWAYS"/>
+                </HBox>
 
-                        <Label maxWidth="760.0"
-                               styleClass="module-subtitle"
-                               text="Envíe comunicaciones institucionales a residentes y trabajadores del condominio."
-                               textAlignment="CENTER"
-                               wrapText="true"/>
-                    </children>
+                <VBox spacing="6">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label styleClass="form-label" text="Asunto"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblContadorAsunto" styleClass="character-counter" text="0 / 120"/>
+                    </HBox>
+                    <TextField fx:id="txtAsunto" maxWidth="Infinity"
+                               promptText="Escriba un asunto claro y descriptivo"/>
                 </VBox>
+            </VBox>
 
-                <!-- TARJETA 1: INFORMACIÓN DEL MENSAJE -->
-                <VBox maxWidth="960.0"
-                      spacing="16.0"
-                      styleClass="module-card">
+            <VBox maxWidth="980" spacing="12" styleClass="module-card">
+                <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+                <HBox styleClass="section-header">
+                    <Label styleClass="section-badge" text="2"/>
+                    <VBox spacing="2">
+                        <Label styleClass="module-section-title" text="Contenido del mensaje"/>
+                        <Label styleClass="table-subtitle"
+                               text="Escriba la información completa que recibirán los destinatarios."/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblContadorCaracteres" styleClass="character-counter" text="0 / 2000"/>
+                </HBox>
+                <TextArea fx:id="txtContenido" minHeight="190" prefHeight="190"
+                          maxWidth="Infinity" wrapText="true"
+                          promptText="Redacte aquí el contenido completo..."/>
+                <Label styleClass="form-hint"
+                       text="Utilice un lenguaje claro, respetuoso y apropiado para el grupo seleccionado."
+                       wrapText="true"/>
+            </VBox>
 
-                    <padding>
-                        <Insets top="24.0"
-                                right="24.0"
-                                bottom="24.0"
-                                left="24.0"/>
-                    </padding>
+            <VBox maxWidth="980" spacing="12" styleClass="module-card action-card">
+                <padding><Insets top="18" right="24" bottom="18" left="24"/></padding>
+                <Label fx:id="lblMensaje" minHeight="18" maxWidth="Infinity"
+                       styleClass="message-label" wrapText="true"/>
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                    <Button onAction="#cancelar" styleClass="secondary-button" text="Cancelar"/>
+                    <Button onAction="#limpiarFormulario" styleClass="secondary-button" text="Limpiar"/>
+                    <Button fx:id="btnEnviar" onAction="#enviarMensaje"
+                            styleClass="primary-button" text="Enviar mensaje" defaultButton="true"/>
+                </HBox>
+            </VBox>
 
-                    <children>
-                        <Label styleClass="module-section-title"
-                               text="Información del mensaje"/>
-
-                        <GridPane maxWidth="1.7976931348623157E308"
-                                  hgap="16.0"
-                                  vgap="14.0">
-
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="SOMETIMES"
-                                                   minWidth="220.0"
-                                                   percentWidth="50.0"/>
-
-                                <ColumnConstraints hgrow="SOMETIMES"
-                                                   minWidth="220.0"
-                                                   percentWidth="50.0"/>
-                            </columnConstraints>
-
-                            <rowConstraints>
-                                <RowConstraints valignment="TOP"/>
-                                <RowConstraints valignment="TOP"/>
-                            </rowConstraints>
-
-                            <children>
-
-                                <!-- TIPO -->
-                                <VBox spacing="6.0"
-                                      GridPane.columnIndex="0"
-                                      GridPane.rowIndex="0">
-
-                                    <children>
-                                        <Label styleClass="form-label"
-                                               text="Tipo de mensaje"/>
-
-                                        <ComboBox fx:id="cmbTipoMensaje"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  promptText="Seleccione el tipo de comunicación"/>
-                                    </children>
-                                </VBox>
-
-                                <!-- PRIORIDAD -->
-                                <VBox spacing="6.0"
-                                      GridPane.columnIndex="1"
-                                      GridPane.rowIndex="0">
-
-                                    <children>
-                                        <Label styleClass="form-label"
-                                               text="Prioridad"/>
-
-                                        <ComboBox fx:id="cmbPrioridad"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  promptText="Seleccione la prioridad"/>
-                                    </children>
-                                </VBox>
-
-                                <!-- DESTINATARIOS -->
-                                <VBox spacing="6.0"
-                                      GridPane.columnIndex="0"
-                                      GridPane.columnSpan="2"
-                                      GridPane.rowIndex="1">
-
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT"
-                                              spacing="8.0"
-                                              styleClass="recipient-info">
-
-                                            <padding>
-                                                <Insets top="9.0"
-                                                        right="12.0"
-                                                        bottom="9.0"
-                                                        left="12.0"/>
-                                            </padding>
-
-                                            <children>
-                                                <Label styleClass="recipient-info-icon"
-                                                       text="i"/>
-
-                                                <Label fx:id="lblDestinatarios"
-                                                       maxWidth="1.7976931348623157E308"
-                                                       styleClass="recipient-info-text"
-                                                       text="Destinatarios: seleccione un tipo de mensaje."
-                                                       wrapText="true"
-                                                       HBox.hgrow="ALWAYS"/>
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-
-                            </children>
-                        </GridPane>
-
-                        <!-- ASUNTO -->
-                        <VBox spacing="6.0">
-
-                            <children>
-                                <HBox alignment="CENTER_LEFT">
-
-                                    <children>
-                                        <Label styleClass="form-label"
-                                               text="Asunto"/>
-
-                                        <Region HBox.hgrow="ALWAYS"/>
-
-                                        <Label fx:id="lblContadorAsunto"
-                                               styleClass="character-counter"
-                                               text="0 / 120"/>
-                                    </children>
-                                </HBox>
-
-                                <TextField fx:id="txtAsunto"
-                                           maxWidth="1.7976931348623157E308"
-                                           promptText="Escriba un asunto claro y descriptivo"/>
-                            </children>
-                        </VBox>
-
-                    </children>
+            <VBox maxWidth="980" minHeight="390" spacing="12" styleClass="table-card">
+                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                <VBox spacing="3">
+                    <Label styleClass="module-section-title" text="Historial reciente"/>
+                    <Label styleClass="table-subtitle"
+                           text="Últimas comunicaciones almacenadas en SQLite."/>
                 </VBox>
-
-                <!-- TARJETA 2: CONTENIDO -->
-                <VBox maxWidth="960.0"
-                      spacing="12.0"
-                      styleClass="module-card">
-
-                    <padding>
-                        <Insets top="24.0"
-                                right="24.0"
-                                bottom="24.0"
-                                left="24.0"/>
-                    </padding>
-
-                    <children>
-                        <HBox alignment="CENTER_LEFT">
-
-                            <children>
-                                <Label styleClass="module-section-title"
-                                       text="Contenido"/>
-
-                                <Region HBox.hgrow="ALWAYS"/>
-
-                                <Label fx:id="lblContadorCaracteres"
-                                       styleClass="character-counter"
-                                       text="0 / 2000"/>
-                            </children>
-                        </HBox>
-
-                        <TextArea fx:id="txtContenido"
-                                  maxWidth="1.7976931348623157E308"
-                                  minHeight="180.0"
-                                  prefHeight="180.0"
-                                  promptText="Redacte aquí el contenido completo de la comunicación institucional..."
-                                  wrapText="true"/>
-
-                        <Label styleClass="form-hint"
-                               text="Use un lenguaje claro, respetuoso y apropiado para los destinatarios seleccionados."
-                               wrapText="true"/>
-                    </children>
-                </VBox>
-
-                <!-- TARJETA 3: ACCIONES -->
-                <VBox maxWidth="960.0"
-                      spacing="14.0"
-                      styleClass="module-card">
-
-                    <padding>
-                        <Insets top="20.0"
-                                right="24.0"
-                                bottom="20.0"
-                                left="24.0"/>
-                    </padding>
-
-                    <children>
-                        <Label fx:id="lblMensaje"
-                               maxWidth="1.7976931348623157E308"
-                               minHeight="18.0"
-                               styleClass="message-label"
-                               text=""
-                               wrapText="true"/>
-
-                        <HBox alignment="CENTER_RIGHT"
-                              spacing="12.0">
-
-                            <children>
-                                <Button fx:id="btnCancelar"
-                                        mnemonicParsing="false"
-                                        onAction="#cancelar"
-                                        styleClass="secondary-button"
-                                        text="Cancelar"/>
-
-                                <Button fx:id="btnLimpiar"
-                                        mnemonicParsing="false"
-                                        onAction="#limpiarFormulario"
-                                        styleClass="secondary-button"
-                                        text="Limpiar"/>
-
-                                <Button fx:id="btnEnviar"
-                                        defaultButton="true"
-                                        mnemonicParsing="false"
-                                        onAction="#enviarMensaje"
-                                        styleClass="primary-button"
-                                        text="Enviar mensaje"/>
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
-
-                <!-- TARJETA 4: HISTORIAL RECIENTE -->
-                <VBox maxWidth="960.0"
-                      minHeight="370.0"
-                      spacing="10.0"
-                      styleClass="table-card">
-
-                    <padding>
-                        <Insets top="16.0"
-                                right="16.0"
-                                bottom="16.0"
-                                left="16.0"/>
-                    </padding>
-
-                    <children>
-                        <VBox spacing="3.0">
-
-                            <children>
-                                <Label styleClass="module-section-title"
-                                       text="Historial reciente"/>
-
-                                <Label styleClass="table-subtitle"
-                                       text="Últimas comunicaciones gestionadas desde este módulo."
-                                       wrapText="true"/>
-                            </children>
-                        </VBox>
-
-                        <TableView fx:id="tblMensajesRecientes"
-                                   maxWidth="1.7976931348623157E308"
-                                   minHeight="300.0"
-                                   prefHeight="300.0"
-                                   onMouseClicked="#seleccionarMensaje"
-                                   VBox.vgrow="ALWAYS">
-
-                            <columns>
-                                <TableColumn fx:id="colFecha"
-                                             minWidth="125.0"
-                                             prefWidth="145.0"
-                                             text="Fecha"/>
-
-                                <TableColumn fx:id="colTipo"
-                                             minWidth="150.0"
-                                             prefWidth="190.0"
-                                             text="Tipo"/>
-
-                                <TableColumn fx:id="colPrioridad"
-                                             minWidth="90.0"
-                                             prefWidth="105.0"
-                                             text="Prioridad"/>
-
-                                <TableColumn fx:id="colAsunto"
-                                             minWidth="210.0"
-                                             prefWidth="300.0"
-                                             text="Asunto"/>
-
-                                <TableColumn fx:id="colEstado"
-                                             minWidth="95.0"
-                                             prefWidth="110.0"
-                                             text="Estado"/>
-                            </columns>
-
-                            <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
-                            </columnResizePolicy>
-                        </TableView>
-                    </children>
-                </VBox>
-
-            </children>
+                <TableView fx:id="tblMensajesRecientes" minHeight="300" prefHeight="300"
+                           maxWidth="Infinity" onMouseClicked="#seleccionarMensaje" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colFecha" text="Fecha" prefWidth="145"/>
+                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="190"/>
+                        <TableColumn fx:id="colPrioridad" text="Prioridad" prefWidth="105"/>
+                        <TableColumn fx:id="colAsunto" text="Asunto" prefWidth="320"/>
+                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="115"/>
+                    </columns>
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                </TableView>
+            </VBox>
         </VBox>
     </content>
 </ScrollPane>
