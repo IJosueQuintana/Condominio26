@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="fis.dsw.sgc.comunicacion.controller.PublicarAnuncioController"
+            fitToWidth="true" fitToHeight="false" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+            pannable="true" styleClass="module-scroll-pane" stylesheets="@../css/comunicacionStyles.css">
+    <content>
+        <VBox alignment="TOP_CENTER" fillWidth="true" spacing="16" styleClass="module-content">
+            <padding><Insets top="32" right="32" bottom="40" left="32"/></padding>
+            <children>
+                <VBox alignment="CENTER" maxWidth="960" spacing="4">
+                    <Label styleClass="module-title" text="Publicar anuncio"/>
+                    <Label maxWidth="760" styleClass="module-subtitle" text="Cree anuncios institucionales y defina su vigencia dentro del condominio." textAlignment="CENTER" wrapText="true"/>
+                </VBox>
+
+                <VBox maxWidth="960" spacing="16" styleClass="module-card">
+                    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+                    <Label styleClass="module-section-title" text="Información del anuncio"/>
+                    <GridPane hgap="16" vgap="14">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50" hgrow="SOMETIMES" minWidth="220"/>
+                            <ColumnConstraints percentWidth="50" hgrow="SOMETIMES" minWidth="220"/>
+                        </columnConstraints>
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label styleClass="form-label" text="Tipo de anuncio"/>
+                            <ComboBox fx:id="cmbTipoAnuncio" maxWidth="Infinity" promptText="Seleccione el tipo"/>
+                        </VBox>
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label styleClass="form-label" text="Prioridad"/>
+                            <ComboBox fx:id="cmbPrioridad" maxWidth="Infinity" promptText="Seleccione la prioridad"/>
+                        </VBox>
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label styleClass="form-label" text="Fecha de publicación"/>
+                            <DatePicker fx:id="dpFechaPublicacion" maxWidth="Infinity"/>
+                        </VBox>
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label styleClass="form-label" text="Fecha de expiración"/>
+                            <DatePicker fx:id="dpFechaExpiracion" maxWidth="Infinity"/>
+                        </VBox>
+                    </GridPane>
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label styleClass="form-label" text="Título"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblContadorTitulo" styleClass="character-counter" text="0 / 120"/>
+                        </HBox>
+                        <TextField fx:id="txtTitulo" maxWidth="Infinity" promptText="Escriba el título del anuncio"/>
+                    </VBox>
+                </VBox>
+
+                <VBox maxWidth="960" spacing="12" styleClass="module-card">
+                    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+                    <HBox alignment="CENTER_LEFT">
+                        <Label styleClass="module-section-title" text="Contenido"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblContadorContenido" styleClass="character-counter" text="0 / 2000"/>
+                    </HBox>
+                    <TextArea fx:id="txtContenido" minHeight="180" prefHeight="180" maxWidth="Infinity" wrapText="true" promptText="Redacte el contenido del anuncio..."/>
+                    <Label styleClass="form-hint" text="El anuncio será visible durante el rango de fechas seleccionado." wrapText="true"/>
+                </VBox>
+
+                <VBox maxWidth="960" spacing="14" styleClass="module-card">
+                    <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+                    <Label fx:id="lblMensaje" minHeight="18" maxWidth="Infinity" styleClass="message-label" wrapText="true"/>
+                    <HBox alignment="CENTER_RIGHT" spacing="12">
+                        <Button onAction="#cancelar" styleClass="secondary-button" text="Cancelar"/>
+                        <Button onAction="#limpiarFormulario" styleClass="secondary-button" text="Limpiar"/>
+                        <Button onAction="#publicarAnuncio" styleClass="primary-button" text="Publicar anuncio" defaultButton="true"/>
+                    </HBox>
+                </VBox>
+
+                <VBox maxWidth="960" minHeight="370" spacing="10" styleClass="table-card">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <VBox spacing="3">
+                        <Label styleClass="module-section-title" text="Anuncios recientes"/>
+                        <Label styleClass="table-subtitle" text="Últimos anuncios preparados o publicados desde este módulo."/>
+                    </VBox>
+                    <TableView fx:id="tblAnunciosRecientes" minHeight="300" prefHeight="300" maxWidth="Infinity" onMouseClicked="#seleccionarAnuncio" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colFecha" text="Fecha" prefWidth="100"/>
+                            <TableColumn fx:id="colTipo" text="Tipo" prefWidth="150"/>
+                            <TableColumn fx:id="colPrioridad" text="Prioridad" prefWidth="90"/>
+                            <TableColumn fx:id="colTitulo" text="Título" prefWidth="220"/>
+                            <TableColumn fx:id="colVigencia" text="Vigencia" prefWidth="170"/>
+                            <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
+                        </columns>
+                        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                    </TableView>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

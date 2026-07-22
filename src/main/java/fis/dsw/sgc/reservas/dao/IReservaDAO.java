@@ -1,10 +1,16 @@
 package fis.dsw.sgc.reservas.dao;
 
-import fis.dsw.sgc.reservas.model.Reserva;
+import fis.dsw.sgc.reservas.dto.ReservaDTO;
+
 import java.util.List;
 
 public interface IReservaDAO {
-    void guardar(Reserva reserva);
-    void actualizar(Reserva reserva);
-    List<Reserva> buscarPorUsuario(String idUsuario);
+    void guardar(ReservaDTO reserva);
+    void actualizar(ReservaDTO reserva);
+    ReservaDTO buscarPorId(int idReserva);
+    List<ReservaDTO> buscarPorUsuario(int idUsuario);
+    List<ReservaDTO> buscarPorEspacioYFecha(int idEspacioComun, String fechaReserva);
+    List<ReservaDTO> buscarTodas();
+    void cancelar(int idReserva, String motivoCancelacion);
+    void finalizarReservasVencidas();
 }

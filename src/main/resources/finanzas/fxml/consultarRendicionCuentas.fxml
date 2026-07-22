@@ -93,6 +93,13 @@
                         </TableView>
                     </children>
                 </VBox>
+
+                <HBox fx:id="boxImprimir" alignment="CENTER" spacing="20.0" visible="false" managed="false">
+                    <children>
+                        <Label fx:id="lblIconoImprimir" text="Label" />
+                        <Button fx:id="btnImprimir" mnemonicParsing="false" onAction="#imprimirReporte" styleClass="primary-button" text="DESCARGAR" />
+                    </children>
+                </HBox>
             </children>
         </VBox>
     </children>

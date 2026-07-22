@@ -1,5 +1,8 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.finanzas.dto.NuevaDeudaDTO;
+import fis.dsw.sgc.finanzas.service.DeudaServiceImpl;
+import fis.dsw.sgc.finanzas.service.IDeudaService;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,6 +24,8 @@ public class RegistrarDeudaController {
     @FXML private TextArea txtDescripcion;
     @FXML private Label lblMensaje;
 
+    private final IDeudaService deudaService = new DeudaServiceImpl();
+
     @FXML
     public void initialize() {
         cmbMotivo.setItems(FXCollections.observableArrayList("ALICUOTA", "MULTA", "RESERVA"));
@@ -41,21 +46,12 @@ public class RegistrarDeudaController {
             setMensaje("Debe ingresar la cédula del residente.", "message-error");
             return;
         }
-        if (!cedula.matches("\\d{10}")) {
-            setMensaje("Cédula inválida. Ingrese 10 dígitos.", "message-error");
-            return;
-        }
-        if ("9999999999".equals(cedula)) {
-            setMensaje("No existe un cliente con el número de cédula de identidad proporcionada.",
-                    "message-error");
+        if (!cedula.matches("\\d+")) {
+            setMensaje("La cédula solo debe contener números.", "message-error");
             return;
         }
         if (fecha == null) {
             setMensaje("Seleccione la fecha máxima de pago.", "message-error");
-            return;
-        }
-        if (!fecha.isAfter(LocalDate.now())) {
-            setMensaje("La fecha máxima de pago debe ser mayor a la fecha actual.", "message-error");
             return;
         }
         if (valor.isEmpty() || !valor.matches("\\d+(\\.\\d{1,2})?")) {
@@ -66,28 +62,19 @@ public class RegistrarDeudaController {
             setMensaje("Ingrese la descripción de la deuda.", "message-error");
             return;
         }
-        if (!desc.matches("[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ .,]+")) {
-            setMensaje("Descripción con caracteres no permitidos.", "message-error");
-            return;
-        }
-        if (!motivo.equals("ALICUOTA") && !motivo.equals("MULTA") && !motivo.equals("RESERVA")) {
-            setMensaje("El motivo debe ser ALICUOTA, MULTA o RESERVA.", "message-error");
-            return;
-        }
 
-        String valorFinal = valor;
-        if ("ALICUOTA".equals(motivo) && "0".equals(valor)) {
-            valorFinal = "45.00";
+        try {
+            NuevaDeudaDTO nuevaDeuda = new NuevaDeudaDTO(cedula, motivo, fecha, desc, Double.parseDouble(valor));
+            deudaService.registrarDeuda(nuevaDeuda);
+            String motivoTxt = motivo.equalsIgnoreCase("ALICUOTA") ? "alícuota"
+                    : motivo.equalsIgnoreCase("MULTA") ? "multa" : "reserva";
+            setMensaje(
+                    "Deuda por motivo de " + motivoTxt + " con el valor de " + valor
+                            + " registrada exitosamente para el residente.",
+                    "message-success");
+        } catch (RuntimeException ex) {
+            setMensaje(ex.getMessage(), "message-error");
         }
-
-        String nombreDemo = "Residente " + cedula.substring(Math.max(0, cedula.length() - 4));
-        String motivoTxt = motivo.equals("ALICUOTA") ? "alícuota"
-                : motivo.equals("MULTA") ? "multa" : "reserva";
-
-        setMensaje(
-                "Deuda por motivo de " + motivoTxt + " con el valor de " + valorFinal
-                        + " registrada exitosamente para el residente " + nombreDemo + ".",
-                "message-success");
     }
 
     @FXML

@@ -114,26 +114,34 @@
                      </children>
                   </VBox>
 
-                                <!-- INMUEBLES -->
-                                <VBox fx:id="inmueblesBox">
-                                    <children>
-                                        <Button fx:id="btnInmuebles" mnemonicParsing="false" onAction="#toggleInmuebles"
-                                                styleClass="menu-item" text="INMUEBLES">
-                                            <graphic>
-                                                <FontIcon iconLiteral="fa-building" iconSize="16"/>
-                                            </graphic>
-                                        </Button>
-                                        <VBox fx:id="submenuInmuebles" managed="false" styleClass="submenu" visible="false">
-                                            <children>
-                                                <Button mnemonicParsing="false" onAction="#opcionPendiente"
-                                                        styleClass="submenu-item" text="Opción 1"/>
-                                                <Button mnemonicParsing="false" onAction="#opcionPendiente"
-                                                        styleClass="submenu-item" text="Opción 2"/>
-                                            </children>
-                                        </VBox>
-                                    </children>
-                                </VBox>
+                    <!-- INMUEBLES -->
+                    <VBox fx:id="inmueblesBox">
+                        <children>
+                            <Button fx:id="btnInmuebles" mnemonicParsing="false" onAction="#toggleInmuebles"
+                                    styleClass="menu-item" text="INMUEBLES">
+                                <graphic>
+                                    <FontIcon iconLiteral="fa-building" iconSize="16"/>
+                                </graphic>
+                            </Button>
 
+                            <VBox fx:id="submenuInmuebles" managed="false" styleClass="submenu" visible="false">
+                                <children>
+                                    <Button mnemonicParsing="false" onAction="#irAVerInmuebles"
+                                            styleClass="submenu-item" text="Ver Inmuebles"/>
+
+                                    <Button mnemonicParsing="false" onAction="#irARegistrarInmueble"
+                                            styleClass="submenu-item" text="Registrar Inmueble"/>
+
+                                    <Button mnemonicParsing="false" onAction="#irAEditarInmueble"
+                                            styleClass="submenu-item" text="Editar Inmueble"/>
+
+                                    <Button mnemonicParsing="false" onAction="#irARegistrarCasoFortuito"
+                                            styleClass="submenu-item" text="Registrar Caso Fortuito"/>
+                                </children>
+                            </VBox>
+                        </children>
+                    </VBox>
+            
                                 <!-- RESERVAS -->
                                 <VBox fx:id="reservasBox">
                                     <children>
@@ -191,12 +199,35 @@
                                                 <FontIcon iconLiteral="fa-comments" iconSize="16"/>
                                             </graphic>
                                         </Button>
-                                        <VBox fx:id="submenuComunicacion" managed="false" styleClass="submenu" visible="false">
+                                        <VBox fx:id="submenuComunicacion"
+                                              managed="false"
+                                              styleClass="submenu"
+                                              visible="false">
                                             <children>
-                                                <Button mnemonicParsing="false" onAction="#opcionPendiente"
-                                                        styleClass="submenu-item" text="Opción 1"/>
-                                                <Button mnemonicParsing="false" onAction="#opcionPendiente"
-                                                        styleClass="submenu-item" text="Opción 2"/>
+                                                <Button mnemonicParsing="false"
+                                                        onAction="#irAEnviarMensaje"
+                                                        styleClass="submenu-item"
+                                                        text="Enviar mensaje"/>
+
+                                                <Button mnemonicParsing="false"
+                                                        onAction="#irAPublicarAnuncio"
+                                                        styleClass="submenu-item"
+                                                        text="Publicar anuncio"/>
+
+                                                <Button mnemonicParsing="false"
+                                                        onAction="#irAConsultarHistorialComunicacion"
+                                                        styleClass="submenu-item"
+                                                        text="Consultar historial"/>
+
+                                                <Button mnemonicParsing="false"
+                                                        onAction="#irAGestionarNotificaciones"
+                                                        styleClass="submenu-item"
+                                                        text="Gestionar notificaciones"/>
+
+                                                <Button mnemonicParsing="false"
+                                                        onAction="#irAGenerarReporteComunicacion"
+                                                        styleClass="submenu-item"
+                                                        text="Generar reporte"/>
                                             </children>
                                         </VBox>
                                     </children>

@@ -2,6 +2,7 @@ package fis.dsw.sgc.administracion.service;
 
 import fis.dsw.sgc.administracion.model.NombreRol;
 import fis.dsw.sgc.administracion.model.Usuario;
+import fis.dsw.sgc.usuarios.dto.ResidenteFachadaDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,8 @@ public interface IGestionUsuariosAPI {
 
     boolean autenticar(String correo, String contrasena);
 
+    Usuario obtenerUsuarioPorCorreo(String correo);
+
     Usuario obtenerUsuarioPorId(UUID idUsuario);
 
     boolean validarPermiso(UUID idCuenta, String recurso);
@@ -22,4 +25,6 @@ public interface IGestionUsuariosAPI {
     List<Usuario> listarUsuariosPorRol(NombreRol rol);
 
     void iniciarRecuperacionContrasena(String correo);
+
+    ResidenteFachadaDTO obtenerResidentePorCedula(String cedula);
 }

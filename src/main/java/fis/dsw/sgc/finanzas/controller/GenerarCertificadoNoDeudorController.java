@@ -5,6 +5,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +22,10 @@ public class GenerarCertificadoNoDeudorController {
     @FXML private Label lblMensaje;
     @FXML private Label lblResumen;
 
+    @FXML private HBox boxImprimir;
+    @FXML private Label lblIconoImprimir;
+    @FXML private Button btnImprimir;
+
     private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     @FXML
@@ -29,11 +36,18 @@ public class GenerarCertificadoNoDeudorController {
         dpInicio.setPromptText("Fecha de inicio");
         dpFin.setPromptText("Fecha de fin");
         setMensaje("Seleccione el periodo y pulse Generar certificado.", "message-info");
+
+        FontIcon iconPrint = new FontIcon("fa-file-excel-o");
+        iconPrint.getStyleClass().add("optionsIcon");
+        lblIconoImprimir.setGraphic(iconPrint);
+        lblIconoImprimir.setText(null);
     }
+
 
     @FXML
     void descargarReporte(ActionEvent event) {
-
+        setMensaje("Imprimiendo certificado...", "message-success");
+        // Lógica de impresión
     }
 
     @FXML
@@ -88,6 +102,8 @@ public class GenerarCertificadoNoDeudorController {
                 "Certificado de No Deudor generado exitosamente. Disponible para consulta del residente.",
                 "message-success"
         );
+        boxImprimir.setVisible(true);
+        boxImprimir.setManaged(true);
     }
 
     @FXML
@@ -98,8 +114,14 @@ public class GenerarCertificadoNoDeudorController {
         txtObservaciones.clear();
         lblResumen.setText("el sistema de gestión del condominio [Nombre del Condominio] certifica que el residente [Nombre y apellido] con cédula [0123456789] no presenta deudas pendientes entre las fechas [inicio] [fin]. ");
         setMensaje("Certificado listo. Seleccione un nuevo periodo.", "message-info");
+        ocultarBotonImprimir();
     }
-
+    private void ocultarBotonImprimir() {
+        if (boxImprimir != null) {
+            boxImprimir.setVisible(false);
+            boxImprimir.setManaged(false);
+        }
+    }
     private void setMensaje(String texto, String estilo) {
         lblMensaje.getStyleClass().removeAll("message-info", "message-success", "message-error");
         if (!lblMensaje.getStyleClass().contains("message-label")) {

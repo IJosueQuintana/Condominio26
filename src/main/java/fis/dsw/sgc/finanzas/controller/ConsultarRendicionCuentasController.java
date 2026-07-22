@@ -10,8 +10,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-
+import javafx.scene.control.Button;
 import java.time.LocalDate;
+import javafx.scene.layout.HBox;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class ConsultarRendicionCuentasController {
 
@@ -28,6 +30,11 @@ public class ConsultarRendicionCuentasController {
     @FXML private TableColumn<RegistroFila, String> colFecha;
     @FXML private TableColumn<RegistroFila, String> colEstado;
     @FXML private TableColumn<RegistroFila, String> colDescripcion;
+
+
+    @FXML private HBox boxImprimir;
+    @FXML private Label lblIconoImprimir;
+    @FXML private Button btnImprimir;
 
     private final ObservableList<RegistroFila> filas = FXCollections.observableArrayList();
     private Label placeholderTabla;
@@ -57,6 +64,11 @@ public class ConsultarRendicionCuentasController {
         dpFin.setValue(hoy);
 
         setMensaje(MSG_INICIAL, "message-info");
+
+        FontIcon iconPrint = new FontIcon("fa-file-excel-o");
+        iconPrint.getStyleClass().add("optionsIcon");
+        lblIconoImprimir.setGraphic(iconPrint);
+        lblIconoImprimir.setText(null);
     }
 
     @FXML
@@ -85,6 +97,10 @@ public class ConsultarRendicionCuentasController {
         );
 
         setMensaje("Consulta generada exitosamente. Se encontraron " + filas.size() + " registros.", "message-success");
+
+        boxImprimir.setVisible(true);
+        boxImprimir.setManaged(true);
+
     }
 
     @FXML
@@ -95,6 +111,19 @@ public class ConsultarRendicionCuentasController {
 
         filas.clear();
         setMensaje(MSG_INICIAL, "message-info");
+        ocultarBotonImprimir();
+    }
+
+    @FXML
+    void imprimirReporte(ActionEvent event) {
+        setMensaje("Imprimiendo reporte...", "message-success");
+
+    }
+
+
+    private void ocultarBotonImprimir() {
+        boxImprimir.setVisible(false);
+        boxImprimir.setManaged(false);
     }
 
     private void setMensaje(String texto, String estilo) {

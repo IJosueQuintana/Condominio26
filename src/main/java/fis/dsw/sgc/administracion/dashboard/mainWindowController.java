@@ -1,5 +1,11 @@
 package fis.dsw.sgc.administracion.dashboard;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.stream.Collectors;
+
+import fis.dsw.sgc.administracion.model.SesionUsuario;
+import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.core.util.NavigationUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,9 +18,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class mainWindowController {
 
@@ -46,12 +49,26 @@ public class mainWindowController {
     @FXML
     public void initialize() {
         cargarAvatar();
+        cargarDatosUsuarioSesion();
         irAInicio(null);
     }
 
     public void setUsuario(String nombre, String rol) {
         lblNombreUsuario.setText(nombre);
         lblRolUsuario.setText(rol);
+    }
+
+    private void cargarDatosUsuarioSesion() {
+        Usuario usuario = SesionUsuario.obtenerInstancia().getUsuarioActual();
+        if (usuario == null) {
+            return;
+        }
+
+        String roles = usuario.getCuenta() == null ? "" : usuario.getCuenta().getRoles().stream()
+                .map(rol -> rol.getNombre().name())
+                .collect(Collectors.joining(", "));
+
+        setUsuario(usuario.getNombre(), roles);
     }
 
     // ==================== Avatar ====================
@@ -135,8 +152,12 @@ public class mainWindowController {
     @FXML void irAGenerarReportePagosInternos(ActionEvent event)     { cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml"); }
     @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event)      { cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml");         }
 
-  
+    // ==================== Submenú Inmuebles ====================
 
+    @FXML void irAVerInmuebles(ActionEvent event) { cargarVista("/inmuebles/fxml/inmuebles_home.fxml"); }
+    @FXML void irARegistrarInmueble(ActionEvent event) { cargarVista("/inmuebles/fxml/registrarInmueble.fxml"); }
+    @FXML void irAEditarInmueble(ActionEvent event) { cargarVista("/inmuebles/fxml/editarInmueble.fxml"); }
+    @FXML void irARegistrarCasoFortuito(ActionEvent event) { cargarVista("/inmuebles/fxml/registrarCasoFortuito.fxml"); }
 
     // ==================== Submenú Reservas ====================
 
@@ -151,6 +172,16 @@ public class mainWindowController {
     @FXML void irAProgramarVisita(ActionEvent event)            { cargarVista("/check_in/fxml/programarVisita.fxml");           }
     @FXML void irAGestionarHistorialIngresos(ActionEvent event) { cargarVista("/check_in/fxml/gestionarHistorialIngresos.fxml");}
     @FXML void irAEnviarAlerta(ActionEvent event)               { cargarVista("/check_in/fxml/enviarAlerta.fxml");              }
+
+    // ==================== Submenú Comunicación ====================
+
+    @FXML void irAEnviarMensaje(ActionEvent event) { cargarVista("/comunicacion/fxml/enviarMensaje.fxml");}
+    @FXML void irAPublicarAnuncio(ActionEvent event) { cargarVista("/comunicacion/fxml/publicarAnuncio.fxml");}
+    @FXML void irAConsultarHistorialComunicacion(ActionEvent event) { cargarVista("/comunicacion/fxml/consultarHistorial.fxml");}
+    @FXML void irAGestionarNotificaciones(ActionEvent event) { cargarVista("/comunicacion/fxml/gestionarNotificaciones.fxml");}
+    @FXML void irAGenerarReporteComunicacion(ActionEvent event) { cargarVista("/comunicacion/fxml/generarReporteComunicacion.fxml");}
+
+
 
     // ==================== Notificaciones ====================
 

@@ -26,3 +26,46 @@
 .primary-button:hover {
     -fx-background-color: #8a1a30;
 }
+
+.module-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #5a5a5a;
+}
+
+.message-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #2b2b2b;
+    -fx-wrap-text: true;
+}
+
+.message-info {
+    -fx-text-fill: #4a5568;
+}
+
+.message-success {
+    -fx-text-fill: #1b7a3d;
+    -fx-font-weight: bold;
+}
+
+.message-error {
+    -fx-text-fill: #b5202e;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #a4203a;
+    -fx-padding: 0 0 4 0;
+}
+
+.field-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+}
+
+.field-hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9aa0a6;
+}

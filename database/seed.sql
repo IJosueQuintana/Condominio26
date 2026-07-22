@@ -51,13 +51,13 @@ VALUES
 INSERT OR IGNORE INTO cuenta
 (id_cuenta, id_usuario, nombre_usuario, hash_contrasena, estado, intentos_fallidos, fecha_creacion)
 VALUES
-(1, 1, 'admin', 'HASH_DEMO_ADMIN_1234', 'ACTIVA', 0, CURRENT_TIMESTAMP),
-(2, 2, 'carlos', 'HASH_DEMO_CARLOS_1234', 'ACTIVA', 0, CURRENT_TIMESTAMP),
-(3, 3, 'maria', 'HASH_DEMO_MARIA_1234', 'ACTIVA', 0, CURRENT_TIMESTAMP),
-(4, 4, 'guardia', 'HASH_DEMO_GUARDIA_1234', 'ACTIVA', 0, CURRENT_TIMESTAMP),
-(5, 5, 'presidenta', 'HASH_DEMO_PRESIDENTA_1234', 'ACTIVA', 0, CURRENT_TIMESTAMP),
-(6, 6, 'jorge', 'HASH_DEMO_JORGE_1234', 'ACTIVA', 0, CURRENT_TIMESTAMP),
-(7, 7, 'sofia', 'HASH_DEMO_SOFIA_1234', 'ACTIVA', 0, CURRENT_TIMESTAMP);
+(1, 1, 'admin', '$2a$10$0gVnFsGi7I7bwYolUNx87ucpC2rTyGkdecy2v2owmeHn0vwDHgDD.', 'ACTIVA', 0, CURRENT_TIMESTAMP),
+(2, 2, 'carlos', '$2a$10$uFfz111cpUIFWm8aw6oth.njWnXTgTA6vWb0ZuNBmTvECwA0GCymK', 'ACTIVA', 0, CURRENT_TIMESTAMP),
+(3, 3, 'maria', '$2a$10$DND7xAw/rvaYoG..Pl0FpOqKoV0pLJhwLxPZuL/xsXoSvLmsYHBMi', 'ACTIVA', 0, CURRENT_TIMESTAMP),
+(4, 4, 'guardia', '$2a$10$2vJ1zJ62esys9NVk3Jdgs.ZfRrcTqgL2Cg4ljZGEDBDg5nvh.nI8q', 'ACTIVA', 0, CURRENT_TIMESTAMP),
+(5, 5, 'presidenta', '$2a$10$T73cIdHQ.xD4WVHZFXvnzuEr4Hhw5mZdQ8mhycJgkVCYYi78TH0NS', 'ACTIVA', 0, CURRENT_TIMESTAMP),
+(6, 6, 'jorge', '$2a$10$FI6VITZKb8LojQt9LKXoDOz7TLmZKVhR2c3fbFMy17L4dgGUluyO2', 'ACTIVA', 0, CURRENT_TIMESTAMP),
+(7, 7, 'sofia', '$2a$10$PVaRJ7EOhAtARYumAM2n2uyC7nr7gyn1ZRVowL5G4uf6I.T5bjlqS', 'ACTIVA', 0, CURRENT_TIMESTAMP);
 
 INSERT OR IGNORE INTO usuario_rol (id_usuario, id_rol) VALUES
 (1,1),
