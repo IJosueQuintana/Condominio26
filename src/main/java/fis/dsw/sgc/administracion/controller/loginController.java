@@ -107,8 +107,12 @@ public class loginController {
             // 2. Le decimos a JavaFX CÓMO construir el mainWindowController
             loader.setControllerFactory(clazz -> {
                 if (clazz == mainWindowController.class) {
-                    // ¡Aquí ocurre la inyección! Le pasamos el arreglo preparado
-                    return new mainWindowController(dependenciasDashboard);
+                    // ¡Aquí ocurre la inyección! Le pasamos el arreglo preparado.
+                    // Si no llegó (p. ej. login sin pasar por Main.java, como tras
+                    // un logOut), usamos el constructor vacío de respaldo.
+                    return dependenciasDashboard != null
+                            ? new mainWindowController(dependenciasDashboard)
+                            : new mainWindowController();
                 }
                 try {
                     return clazz.getDeclaredConstructor().newInstance();

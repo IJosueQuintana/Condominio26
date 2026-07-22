@@ -154,6 +154,7 @@ public class mainWindowController {
 
         fis.dsw.sgc.finanzas.service.IPagoService pagoService = new fis.dsw.sgc.finanzas.service.PagoServiceImpl(pagoFactory, pagoDAO, deudaDAO);
         fis.dsw.sgc.finanzas.service.IGastoService gastoService = new fis.dsw.sgc.finanzas.service.GastoServiceImpl(gastoDAO);
+        fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService financieraService = new fis.dsw.sgc.finanzas.service.ConfiguracionFinancieraService();
         fis.dsw.sgc.finanzas.service.IReportesService reportesService = new fis.dsw.sgc.finanzas.service.ReportesServiceImpl(reportesDAO, usuariosService);
         fis.dsw.sgc.check_in.service.ICheckInService checkInService = new fis.dsw.sgc.check_in.service.CheckInServiceImpl(registroEntradaDAO, programacionVisitaDAO);
         fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService = new fis.dsw.sgc.check_in.service.AlertaSeguridadServiceImpl(alertaSeguridadDAO);
@@ -163,9 +164,9 @@ public class mainWindowController {
         fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService = new fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl(comunicacionDAO);
 
         return new Object[] {
-                pagoService, gastoService, reportesService, checkInService,
-                alertaSeguridadService, programVisitaService, servicioReservas,
-                comunicacionService, cuentasService
+                pagoService, gastoService, deudaService, financieraService, reportesService,
+                checkInService, alertaSeguridadService, programVisitaService, servicioReservas,
+                comunicacionService, usuariosService, cuentasService
         };
     }
 
@@ -396,6 +397,7 @@ public class mainWindowController {
 
     @FXML
     void logOut(ActionEvent event) throws IOException {
+        SesionUsuario.obtenerInstancia().cerrarSesion();
         String vista = "/administracion/fxml/login.fxml";
         Parent root = FXMLLoader.load(getClass().getResource(vista));
         NavigationUtil.changeScene(event, root);
