@@ -64,7 +64,6 @@ public class Main extends Application {
         fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService = new fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl(comunicacionDAO);
 
 
-
         Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/login.fxml"));
         Scene scene = new Scene(root);
         primaryStage.setTitle("Sistema de Gestión Para Condominio");

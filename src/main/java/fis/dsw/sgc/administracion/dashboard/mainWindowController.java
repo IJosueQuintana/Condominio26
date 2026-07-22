@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import fis.dsw.sgc.core.session.SesionUsuario;
 import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.core.util.NavigationUtil;
+import fis.dsw.sgc.finanzas.controller.pagarDeudaController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,6 +48,26 @@ public class mainWindowController {
     private static final String CLASE_ACTIVO = "active";
 
     // Se eliminaron las variables que restringían a un solo menú activo a la vez
+
+    private final fis.dsw.sgc.finanzas.service.IPagoService pagoService;
+    private final fis.dsw.sgc.finanzas.service.IGastoService gastoService;
+    private final fis.dsw.sgc.finanzas.service.IReportesService reportesService;
+    private final fis.dsw.sgc.check_in.service.ICheckInService checkInService;
+    private final fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService;
+    private final fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService;
+    private final fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas;
+    private final fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService;
+
+    public mainWindowController(fis.dsw.sgc.finanzas.service.IPagoService pagoService, fis.dsw.sgc.finanzas.service.IGastoService gastoService, fis.dsw.sgc.finanzas.service.IReportesService reportesService, fis.dsw.sgc.check_in.service.ICheckInService checkInService, fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService, fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService, fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas, fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService) {
+        this.pagoService = pagoService;
+        this.gastoService = gastoService;
+        this.reportesService = reportesService;
+        this.checkInService = checkInService;
+        this.alertaSeguridadService = alertaSeguridadService;
+        this.programVisitaService = programVisitaService;
+        this.servicioReservas = servicioReservas;
+        this.comunicacionService = comunicacionService;
+    }
 
     @FXML
     public void initialize() {
@@ -156,7 +177,9 @@ public class mainWindowController {
 
     // ==================== Submenú Finanzas ====================
 
-    @FXML void irAPagarDeuda(ActionEvent event)    { cargarVista("/finanzas/fxml/pagarDeuda.fxml");    }
+    @FXML void irAPagarDeuda(ActionEvent event)    {
+        pagarDeudaController pagarDeudaController = new pagarDeudaController(pagoService);
+        cargarVista("/finanzas/fxml/pagarDeuda.fxml",pagarDeudaController);    }
     @FXML void irAGenerarRendicionCuentas(ActionEvent event) { cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml"); }
     @FXML void irAConsultarDeudas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarDeudas.fxml");         }
     @FXML void irARegistrarDeuda(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarDeuda.fxml");         }
@@ -219,17 +242,21 @@ public class mainWindowController {
 
     // ==================== Utilidades ====================
 
-    private void cargarVista(String rutaFxml) {
+    private void cargarVista(String rutaFxml, Object controller) {
         try {
-            Parent vista = FXMLLoader.load(getClass().getResource(rutaFxml));
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource(rutaFxml));
+            loader.setController(controller);
+            javafx.scene.Parent vista = loader.load();
+
             contentPane.getChildren().clear();
             contentPane.getChildren().add(vista);
-        } catch (IOException | NullPointerException e) {
+        } catch (java.io.IOException | java.lang.NullPointerException e) {
             e.printStackTrace();
             contentPane.getChildren().clear();
             contentPane.getChildren().add(crearPlaceholder("Vista aún no implementada:\n" + rutaFxml));
         }
     }
+
 
     private Label crearPlaceholder(String mensaje) {
         Label aviso = new Label(mensaje);
