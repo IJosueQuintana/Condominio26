@@ -1,6 +1,5 @@
 package fis.dsw.sgc.comunicacion.service;
 
-
 import fis.dsw.sgc.comunicacion.dao.ComunicacionSchemaInitializer;
 import fis.dsw.sgc.comunicacion.dao.IComunicacionDAO;
 import fis.dsw.sgc.comunicacion.dto.AnuncioResumenDTO;
@@ -11,6 +10,8 @@ import fis.dsw.sgc.comunicacion.dto.NotificacionDTO;
 import fis.dsw.sgc.comunicacion.dto.PublicarAnuncioDTO;
 import fis.dsw.sgc.comunicacion.dto.ResumenReporteDTO;
 import fis.dsw.sgc.comunicacion.exception.ComunicacionException;
+import fis.dsw.sgc.comunicacion.strategy.ComunicacionStrategyResolver;
+import fis.dsw.sgc.comunicacion.strategy.IComunicacionStrategyResolver;
 import fis.dsw.sgc.comunicacion.util.ComunicacionCatalogos;
 
 import java.sql.SQLException;
@@ -22,23 +23,51 @@ public class ComunicacionServiceImpl
         implements IComunicacionService {
 
     private final IComunicacionDAO dao;
+    private final IComunicacionStrategyResolver strategyResolver;
 
+    /**
+     * Mantiene compatible la composición actual del proyecto:
+     * new ComunicacionServiceImpl(dao).
+     */
     public ComunicacionServiceImpl(IComunicacionDAO dao) {
+        this(
+                dao,
+                ComunicacionStrategyResolver.porDefecto()
+        );
+    }
+
+    /**
+     * Constructor completamente inyectable para pruebas o composición manual.
+     */
+    public ComunicacionServiceImpl(
+            IComunicacionDAO dao,
+            IComunicacionStrategyResolver strategyResolver
+    ) {
         this.dao = Objects.requireNonNull(
                 dao,
                 "El DAO de Comunicación no puede ser nulo."
         );
 
+        this.strategyResolver = Objects.requireNonNull(
+                strategyResolver,
+                "El resolver de estrategias no puede ser nulo."
+        );
+
+        inicializarEsquemaComunicacion();
+    }
+
+    private void inicializarEsquemaComunicacion() {
         try {
             ComunicacionSchemaInitializer.inicializar();
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new ComunicacionException(
                     "No se pudo preparar Comunicación en SQLite: "
-                            + e.getMessage(),
-                    e
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
+
     @Override
     public long obtenerIdEmisorActual() {
         try {
@@ -57,6 +86,10 @@ public class ComunicacionServiceImpl
             EnviarComunicacionDTO dto
     ) {
         validarMensaje(dto);
+
+        strategyResolver
+                .obtener(dto.tipo())
+                .validar(dto);
 
         try {
             return dao.guardarMensaje(dto);

@@ -489,60 +489,219 @@ CREATE TABLE IF NOT EXISTS alerta_seguridad (
     FOREIGN KEY (id_registro_entrada) REFERENCES registro_entrada(id_entrada) ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (id_usuario_reporta) REFERENCES usuario(id_usuario) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
 -- ============================================================
 -- GRF - COMUNICACIONES Y NOTIFICACIONES
 -- ============================================================
 CREATE TABLE IF NOT EXISTS mensaje (
-                                       id_mensaje              INTEGER PRIMARY KEY AUTOINCREMENT,
-                                       id_emisor               INTEGER NOT NULL,
-
-                                       asunto                  TEXT NOT NULL,
-                                       contenido               TEXT NOT NULL,
-
-                                       tipo                    TEXT NOT NULL DEFAULT 'MENSAJE_GLOBAL'
-                                       CHECK (
-                                       tipo IN (
+                                       id_mensaje INTEGER PRIMARY KEY AUTOINCREMENT,
+                                       id_emisor INTEGER NOT NULL,
+                                       asunto TEXT NOT NULL,
+                                       contenido TEXT NOT NULL,
+                                       tipo TEXT NOT NULL DEFAULT 'MENSAJE_GLOBAL'
+                                       CHECK (tipo IN (
                                        'MENSAJE_RESIDENTES',
                                        'COMUNICADO_TRABAJADORES',
                                        'MENSAJE_GLOBAL',
                                        'MENSAJE_URGENTE',
                                        'ALERTA_EMERGENCIA',
                                        'BOLETIN_INFORMATIVO'
-)
-    ),
-
-    prioridad               TEXT NOT NULL DEFAULT 'NORMAL'
-    CHECK (
-              prioridad IN (
-              'BAJA',
-              'NORMAL',
-              'ALTA',
-              'URGENTE'
-                           )
-    ),
-
-    fecha_creacion          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_envio             TEXT,
-
-    estado                  TEXT NOT NULL DEFAULT 'BORRADOR'
-    CHECK (
-              estado IN (
-              'BORRADOR',
-              'ENVIADO',
-              'CANCELADO'
-                        )
-    ),
-
+)),
+    prioridad TEXT NOT NULL DEFAULT 'NORMAL'
+    CHECK (prioridad IN ('BAJA','NORMAL','ALTA','URGENTE')),
+    fecha_creacion TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_envio TEXT,
+    estado TEXT NOT NULL DEFAULT 'BORRADOR'
+    CHECK (estado IN ('BORRADOR','ENVIADO','CANCELADO')),
     FOREIGN KEY (id_emisor)
     REFERENCES usuario(id_usuario)
     ON UPDATE CASCADE
     ON DELETE RESTRICT
     );
 
+CREATE TABLE IF NOT EXISTS mensaje_destinatario (
+                                                    id_mensaje INTEGER NOT NULL,
+                                                    id_usuario INTEGER NOT NULL,
+                                                    leido INTEGER NOT NULL DEFAULT 0 CHECK (leido IN (0,1)),
+    fecha_lectura TEXT,
+    PRIMARY KEY (id_mensaje, id_usuario),
+    FOREIGN KEY (id_mensaje)
+    REFERENCES mensaje(id_mensaje)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuario(id_usuario)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS anuncio (
+                                       id_anuncio INTEGER PRIMARY KEY AUTOINCREMENT,
+                                       id_autor INTEGER NOT NULL,
+                                       titulo TEXT NOT NULL,
+                                       contenido TEXT NOT NULL,
+                                       tipo TEXT NOT NULL DEFAULT 'ANUNCIO_GENERAL'
+                                       CHECK (tipo IN (
+                                       'ANUNCIO_GENERAL',
+                                       'AVISO_MANTENIMIENTO',
+                                       'BOLETIN_INFORMATIVO',
+                                       'ALERTA_EMERGENCIA'
+)),
+    fecha_publicacion TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_expiracion TEXT,
+    prioridad TEXT NOT NULL DEFAULT 'NORMAL'
+    CHECK (prioridad IN ('BAJA','NORMAL','ALTA','URGENTE')),
+    estado TEXT NOT NULL DEFAULT 'BORRADOR'
+    CHECK (estado IN ('BORRADOR','PUBLICADO','EXPIRADO','CANCELADO')),
+    CHECK (
+              fecha_expiracion IS NULL
+              OR fecha_expiracion >= fecha_publicacion
+          ),
+    FOREIGN KEY (id_autor)
+    REFERENCES usuario(id_usuario)
+    ON UPDATE CASCADE
+    ON DELETE RESTRICT
+    );
+
+CREATE TABLE IF NOT EXISTS notificacion (
+                                            id_notificacion INTEGER PRIMARY KEY AUTOINCREMENT,
+                                            id_usuario INTEGER NOT NULL,
+                                            id_mensaje INTEGER,
+                                            id_anuncio INTEGER,
+                                            tipo TEXT NOT NULL DEFAULT 'SISTEMA'
+                                            CHECK (tipo IN (
+                                            'MENSAJE',
+                                            'ANUNCIO',
+                                            'ALERTA',
+                                            'RECORDATORIO',
+                                            'SISTEMA',
+                                            'RESERVA',
+                                            'DEUDA'
+)),
+    titulo TEXT NOT NULL,
+    contenido TEXT NOT NULL,
+    fecha_creacion TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_envio TEXT,
+    leida INTEGER NOT NULL DEFAULT 0 CHECK (leida IN (0,1)),
+    fecha_lectura TEXT,
+    estado TEXT NOT NULL DEFAULT 'PENDIENTE'
+    CHECK (estado IN (
+           'PENDIENTE',
+           'ENVIADA',
+           'LEIDA',
+           'FALLIDA',
+           'ELIMINADA'
+                     )),
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuario(id_usuario)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+    FOREIGN KEY (id_mensaje)
+    REFERENCES mensaje(id_mensaje)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+    FOREIGN KEY (id_anuncio)
+    REFERENCES anuncio(id_anuncio)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS historial_comunicacion (
+                                                      id_historial INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                      entidad_tipo TEXT NOT NULL
+                                                      CHECK (entidad_tipo IN ('MENSAJE','ANUNCIO','NOTIFICACION')),
+    id_entidad INTEGER,
+    id_usuario INTEGER,
+    accion TEXT NOT NULL
+    CHECK (accion IN (
+           'CREACION',
+           'ENVIO',
+           'MODIFICACION',
+           'ELIMINACION',
+           'NOTIFICACION'
+                     )),
+    asunto TEXT NOT NULL,
+    tipo TEXT,
+    prioridad TEXT,
+    estado TEXT NOT NULL,
+    detalle TEXT,
+    fecha_registro TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuario(id_usuario)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+    );
+
 -- ============================================================
 -- ÍNDICES
 -- ============================================================
+
+-- GRB - Usuarios y roles
+CREATE INDEX IF NOT EXISTS idx_usuario_estado
+    ON usuario(estado);
+
+CREATE INDEX IF NOT EXISTS idx_usuario_rol_usuario
+    ON usuario_rol(id_usuario);
+
+CREATE INDEX IF NOT EXISTS idx_usuario_rol_rol
+    ON usuario_rol(id_rol);
+
+
+-- GRC - Inmuebles
+CREATE INDEX IF NOT EXISTS idx_inmueble_edificio
+    ON inmueble(id_edificio);
+
+CREATE INDEX IF NOT EXISTS idx_inmueble_tipo
+    ON inmueble(id_tipo_inmueble);
+
+CREATE INDEX IF NOT EXISTS idx_usuario_inmueble_usuario
+    ON usuario_inmueble(id_usuario);
+
+CREATE INDEX IF NOT EXISTS idx_usuario_inmueble_inmueble
+    ON usuario_inmueble(id_inmueble);
+
+
+-- GRD - Reservas
+CREATE INDEX IF NOT EXISTS idx_reserva_usuario
+    ON reserva(id_usuario);
+
+CREATE INDEX IF NOT EXISTS idx_reserva_espacio_fecha
+    ON reserva(id_espacio_comun, fecha_reserva);
+
+CREATE INDEX IF NOT EXISTS idx_reserva_estado
+    ON reserva(estado);
+
+
+-- GRA - Finanzas
+CREATE INDEX IF NOT EXISTS idx_deuda_usuario
+    ON deuda(id_usuario);
+
+CREATE INDEX IF NOT EXISTS idx_deuda_estado
+    ON deuda(estado);
+
+CREATE INDEX IF NOT EXISTS idx_deuda_vencimiento
+    ON deuda(fecha_vencimiento);
+
+CREATE INDEX IF NOT EXISTS idx_pago_deuda
+    ON pago(id_deuda);
+
+
+-- GRE - Seguridad y visitas
+CREATE INDEX IF NOT EXISTS idx_visita_residente
+    ON visitas_programadas(id_residente);
+
+CREATE INDEX IF NOT EXISTS idx_visita_fecha
+    ON visitas_programadas(fecha_programada);
+
+CREATE INDEX IF NOT EXISTS idx_registro_entrada_visita
+    ON registro_entrada(id_visita);
+
+CREATE INDEX IF NOT EXISTS idx_registro_entrada_fecha
+    ON registro_entrada(fecha_llegada);
+
+
+-- GRF - Comunicación
+CREATE INDEX IF NOT EXISTS idx_mensaje_emisor
+    ON mensaje(id_emisor);
 
 CREATE INDEX IF NOT EXISTS idx_mensaje_tipo
     ON mensaje(tipo);
@@ -552,28 +711,33 @@ CREATE INDEX IF NOT EXISTS idx_mensaje_estado
 
 CREATE INDEX IF NOT EXISTS idx_mensaje_fecha_envio
     ON mensaje(fecha_envio);
+
 CREATE INDEX IF NOT EXISTS idx_mensaje_destinatario_usuario
     ON mensaje_destinatario(id_usuario);
-CREATE INDEX IF NOT EXISTS idx_usuario_estado ON usuario(estado);
-CREATE INDEX IF NOT EXISTS idx_usuario_rol_usuario ON usuario_rol(id_usuario);
-CREATE INDEX IF NOT EXISTS idx_usuario_rol_rol ON usuario_rol(id_rol);
-CREATE INDEX IF NOT EXISTS idx_inmueble_edificio ON inmueble(id_edificio);
-CREATE INDEX IF NOT EXISTS idx_inmueble_tipo ON inmueble(id_tipo_inmueble);
-CREATE INDEX IF NOT EXISTS idx_usuario_inmueble_usuario ON usuario_inmueble(id_usuario);
-CREATE INDEX IF NOT EXISTS idx_usuario_inmueble_inmueble ON usuario_inmueble(id_inmueble);
-CREATE INDEX IF NOT EXISTS idx_reserva_usuario ON reserva(id_usuario);
-CREATE INDEX IF NOT EXISTS idx_reserva_espacio_fecha ON reserva(id_espacio_comun, fecha_reserva);
-CREATE INDEX IF NOT EXISTS idx_reserva_estado ON reserva(estado);
-CREATE INDEX IF NOT EXISTS idx_deuda_usuario ON deuda(id_usuario);
-CREATE INDEX IF NOT EXISTS idx_deuda_estado ON deuda(estado);
-CREATE INDEX IF NOT EXISTS idx_deuda_vencimiento ON deuda(fecha_vencimiento);
-CREATE INDEX IF NOT EXISTS idx_pago_deuda ON pago(id_deuda);
-CREATE INDEX IF NOT EXISTS idx_visita_residente ON visitas_programadas(id_residente);
-CREATE INDEX IF NOT EXISTS idx_visita_fecha ON visitas_programadas(fecha_programada);
-CREATE INDEX IF NOT EXISTS idx_registro_entrada_visita ON registro_entrada(id_visita);
-CREATE INDEX IF NOT EXISTS idx_registro_entrada_fecha ON registro_entrada(fecha_llegada);
-CREATE INDEX IF NOT EXISTS idx_mensaje_emisor ON mensaje(id_emisor);
-CREATE INDEX IF NOT EXISTS idx_notificacion_usuario_leida ON notificacion(id_usuario, leida);
+
+CREATE INDEX IF NOT EXISTS idx_anuncio_autor
+    ON anuncio(id_autor);
+
+CREATE INDEX IF NOT EXISTS idx_anuncio_tipo
+    ON anuncio(tipo);
+
+CREATE INDEX IF NOT EXISTS idx_anuncio_estado
+    ON anuncio(estado);
+
+CREATE INDEX IF NOT EXISTS idx_notificacion_usuario
+    ON notificacion(id_usuario);
+
+CREATE INDEX IF NOT EXISTS idx_notificacion_usuario_leida
+    ON notificacion(id_usuario, leida);
+
+CREATE INDEX IF NOT EXISTS idx_notificacion_estado
+    ON notificacion(estado);
+
+CREATE INDEX IF NOT EXISTS idx_historial_comunicacion_fecha
+    ON historial_comunicacion(fecha_registro);
+
+CREATE INDEX IF NOT EXISTS idx_historial_comunicacion_entidad
+    ON historial_comunicacion(entidad_tipo, id_entidad);
 
 -- ============================================================
 -- TRIGGERS BÁSICOS

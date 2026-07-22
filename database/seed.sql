@@ -315,199 +315,86 @@ VALUES
 -- ============================================================
 
 INSERT OR IGNORE INTO mensaje
-(
-    id_mensaje,
-    id_emisor,
-    asunto,
-    contenido,
-    tipo,
-    prioridad,
-    fecha_creacion,
-    fecha_envio,
-    estado
-)
+(id_mensaje,id_emisor,asunto,contenido,tipo,prioridad,fecha_creacion,fecha_envio,estado)
 VALUES
-(
-    1,
-    1,
-    'Mantenimiento de piscina',
-    'La piscina permanecerá cerrada el sábado de 08:00 a 12:00 por mantenimiento.',
-    'MENSAJE_RESIDENTES',
-    'NORMAL',
-    '2026-07-17 08:00:00',
-    '2026-07-17 08:05:00',
-    'ENVIADO'
-),
-(
-    2,
-    5,
-    'Reunión general de copropietarios',
-    'La reunión general se realizará el próximo viernes a las 19:00.',
-    'MENSAJE_GLOBAL',
-    'ALTA',
-    '2026-07-16 17:00:00',
-    '2026-07-16 17:10:00',
-    'ENVIADO'
-),
-(
-    3,
-    4,
-    'Alerta de seguridad',
-    'Se solicita verificar que las puertas de acceso permanezcan cerradas.',
-    'MENSAJE_URGENTE',
-    'URGENTE',
-    '2026-07-18 06:30:00',
-    '2026-07-18 06:35:00',
-    'ENVIADO'
-);
-
+(1,1,'Mantenimiento de piscina',
+ 'La piscina permanecerá cerrada el sábado de 08:00 a 12:00 por mantenimiento.',
+ 'MENSAJE_RESIDENTES','NORMAL',
+ '2026-07-17 08:00:00','2026-07-17 08:05:00','ENVIADO'),
+(2,5,'Reunión general de copropietarios',
+ 'La reunión general se realizará el próximo viernes a las 19:00.',
+ 'MENSAJE_GLOBAL','ALTA',
+ '2026-07-16 17:00:00','2026-07-16 17:10:00','ENVIADO'),
+(3,4,'Alerta de seguridad',
+ 'Se solicita verificar que las puertas de acceso permanezcan cerradas.',
+ 'MENSAJE_URGENTE','URGENTE',
+ '2026-07-18 06:30:00','2026-07-18 06:35:00','ENVIADO');
 
 INSERT OR IGNORE INTO mensaje_destinatario
-(
-    id_mensaje,
-    id_usuario,
-    leido,
-    fecha_lectura
-)
+(id_mensaje,id_usuario,leido,fecha_lectura)
 VALUES
-(1, 2, 1, '2026-07-17 09:00:00'),
-(1, 3, 0, NULL),
-(1, 6, 1, '2026-07-17 10:15:00'),
-(1, 7, 0, NULL),
-
-(2, 2, 1, '2026-07-16 18:00:00'),
-(2, 3, 1, '2026-07-16 18:20:00'),
-(2, 5, 1, '2026-07-16 17:15:00'),
-(2, 6, 0, NULL),
-(2, 7, 0, NULL),
-
-(3, 1, 1, '2026-07-18 06:40:00'),
-(3, 4, 1, '2026-07-18 06:36:00');
-
+(1,2,1,'2026-07-17 09:00:00'),
+(1,3,0,NULL),
+(1,6,1,'2026-07-17 10:15:00'),
+(1,7,0,NULL),
+(2,2,1,'2026-07-16 18:00:00'),
+(2,3,1,'2026-07-16 18:20:00'),
+(2,5,1,'2026-07-16 17:15:00'),
+(2,6,0,NULL),
+(2,7,0,NULL),
+(3,1,1,'2026-07-18 06:40:00'),
+(3,4,1,'2026-07-18 06:36:00');
 
 INSERT OR IGNORE INTO anuncio
-(
-    id_anuncio,
-    id_autor,
-    titulo,
-    contenido,
-    tipo,
-    fecha_publicacion,
-    fecha_expiracion,
-    prioridad,
-    estado
-)
+(id_anuncio,id_autor,titulo,contenido,tipo,fecha_publicacion,fecha_expiracion,prioridad,estado)
 VALUES
-(
-    1,
-    5,
-    'Asamblea general',
-    'Se convoca a todos los propietarios a la asamblea general.',
-    'ANUNCIO_GENERAL',
-    '2026-07-16 17:00:00',
-    '2026-07-30 23:59:59',
-    'ALTA',
-    'PUBLICADO'
-),
-(
-    2,
-    1,
-    'Uso responsable de espacios comunes',
-    'Recordamos respetar los horarios y reglamentos de cada espacio.',
-    'ANUNCIO_GENERAL',
-    '2026-07-15 09:00:00',
-    '2026-08-15 23:59:59',
-    'NORMAL',
-    'PUBLICADO'
-);
-
+(1,5,'Asamblea general',
+ 'Se convoca a todos los propietarios a la asamblea general.',
+ 'ANUNCIO_GENERAL','2026-07-16 17:00:00',
+ '2026-07-30 23:59:59','ALTA','PUBLICADO'),
+(2,1,'Uso responsable de espacios comunes',
+ 'Recordamos respetar los horarios y reglamentos de cada espacio.',
+ 'ANUNCIO_GENERAL','2026-07-15 09:00:00',
+ '2026-08-15 23:59:59','NORMAL','PUBLICADO');
 
 INSERT OR IGNORE INTO notificacion
-(
-    id_notificacion,
-    id_usuario,
-    id_mensaje,
-    id_anuncio,
-    tipo,
-    titulo,
-    contenido,
-    fecha_creacion,
-    fecha_envio,
-    leida,
-    fecha_lectura,
-    estado
-)
+(id_notificacion,id_usuario,id_mensaje,id_anuncio,tipo,titulo,contenido,
+ fecha_creacion,fecha_envio,leida,fecha_lectura,estado)
 VALUES
-(
-    1,
-    2,
-    1,
-    NULL,
-    'MENSAJE',
-    'Mantenimiento de piscina',
-    'La piscina tendrá mantenimiento programado.',
-    '2026-07-17 08:05:00',
-    '2026-07-17 08:05:00',
-    1,
-    '2026-07-17 09:00:00',
-    'LEIDA'
-),
-(
-    2,
-    3,
-    NULL,
-    1,
-    'ANUNCIO',
-    'Asamblea general',
-    'Revisa la convocatoria a la asamblea general.',
-    '2026-07-16 17:05:00',
-    '2026-07-16 17:05:00',
-    0,
-    NULL,
-    'ENVIADA'
-),
-(
-    3,
-    6,
-    NULL,
-    NULL,
-    'RESERVA',
-    'Reserva finalizada',
-    'Tu reserva del Área BBQ fue marcada como finalizada.',
-    '2026-07-12 16:35:00',
-    '2026-07-12 16:35:00',
-    1,
-    '2026-07-12 17:00:00',
-    'LEIDA'
-),
-(
-    4,
-    2,
-    NULL,
-    NULL,
-    'DEUDA',
-    'Nueva deuda generada',
-    'Se generó una deuda por la reserva del Salón de Eventos.',
-    '2026-07-15 09:10:00',
-    '2026-07-15 09:10:00',
-    0,
-    NULL,
-    'ENVIADA'
-),
-(
-    5,
-    1,
-    3,
-    NULL,
-    'ALERTA',
-    'Alerta de seguridad',
-    'Existe una alerta de seguridad activa.',
-    '2026-07-18 06:35:00',
-    '2026-07-18 06:35:00',
-    1,
-    '2026-07-18 06:40:00',
-    'LEIDA'
-);
+(1,2,1,NULL,'MENSAJE','Mantenimiento de piscina',
+ 'La piscina tendrá mantenimiento programado.',
+ '2026-07-17 08:05:00','2026-07-17 08:05:00',
+ 1,'2026-07-17 09:00:00','LEIDA'),
+(2,3,NULL,1,'ANUNCIO','Asamblea general',
+ 'Revisa la convocatoria a la asamblea general.',
+ '2026-07-16 17:05:00','2026-07-16 17:05:00',
+ 0,NULL,'ENVIADA'),
+(3,6,NULL,NULL,'RESERVA','Reserva finalizada',
+ 'Tu reserva del Área BBQ fue marcada como finalizada.',
+ '2026-07-12 16:35:00','2026-07-12 16:35:00',
+ 1,'2026-07-12 17:00:00','LEIDA'),
+(4,2,NULL,NULL,'DEUDA','Nueva deuda generada',
+ 'Se generó una deuda por la reserva del Salón de Eventos.',
+ '2026-07-15 09:10:00','2026-07-15 09:10:00',
+ 0,NULL,'ENVIADA'),
+(5,1,3,NULL,'ALERTA','Alerta de seguridad',
+ 'Existe una alerta de seguridad activa.',
+ '2026-07-18 06:35:00','2026-07-18 06:35:00',
+ 1,'2026-07-18 06:40:00','LEIDA');
+
+INSERT OR IGNORE INTO historial_comunicacion
+(id_historial,entidad_tipo,id_entidad,id_usuario,accion,asunto,tipo,
+ prioridad,estado,detalle,fecha_registro)
+VALUES
+(1,'MENSAJE',1,1,'ENVIO','Mantenimiento de piscina',
+ 'MENSAJE_RESIDENTES','NORMAL','ENVIADO',
+ 'Mensaje enviado a residentes.','2026-07-17 08:05:00'),
+(2,'ANUNCIO',1,5,'CREACION','Asamblea general',
+ 'ANUNCIO_GENERAL','ALTA','PUBLICADO',
+ 'Anuncio publicado para usuarios activos.','2026-07-16 17:00:00'),
+(3,'NOTIFICACION',1,2,'NOTIFICACION','Mantenimiento de piscina',
+ 'MENSAJE','NORMAL','LEIDA',
+ 'Notificación leída por el destinatario.','2026-07-17 09:00:00');
 
 -- ============================================================
 -- VALIDACIONES RÁPIDAS
