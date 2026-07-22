@@ -1,8 +1,8 @@
 package fis.dsw.sgc.check_in.controller;
 
-import fis.dsw.sgc.check_in.dto.RegistroEntradaDTO;
-import fis.dsw.sgc.check_in.model.ReporteHistorial;
-import fis.dsw.sgc.check_in.service.ICheckInService;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,33 +12,32 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.util.List;
-
 public class GestionarHistorialIngresosController {
 
     @FXML private VBox panelPrincipal;
+    @FXML private VBox panelDetalle; // Este será nuestro modal flotante
+
     @FXML private TextField txtBusquedaPersona;
     @FXML private ChoiceBox<String> cbTipoIngreso;
     @FXML private TextField txtPlaca;
     @FXML private DatePicker dpFechaInicio;
     @FXML private DatePicker dpFechaFin;
-    @FXML private Button btnBuscar;
-
     @FXML private Label lblMensaje;
-    @FXML private TableView<RegistroEntradaDTO> tablaHistorial;
-    @FXML private TableColumn<RegistroEntradaDTO, String> colFecha;
-    @FXML private TableColumn<RegistroEntradaDTO, String> colHora;
-    @FXML private TableColumn<RegistroEntradaDTO, String> colTipo;
-    @FXML private TableColumn<RegistroEntradaDTO, String> colPersona;
-    @FXML private TableColumn<RegistroEntradaDTO, String> colDetalle;
 
-    @FXML private VBox panelDetalle;
+    @FXML private TableView<RegistroEntradaFila> tablaHistorial;
+    @FXML private TableColumn<RegistroEntradaFila, String> colFecha;
+    @FXML private TableColumn<RegistroEntradaFila, String> colHora;
+    @FXML private TableColumn<RegistroEntradaFila, String> colTipo;
+    @FXML private TableColumn<RegistroEntradaFila, String> colPersona;
+    @FXML private TableColumn<RegistroEntradaFila, Void> colDetalle;
+
     @FXML private Label lblDetalleTipo;
     @FXML private Label lblDetallePersona;
     @FXML private Label lblDetalleFechaHora;
@@ -46,169 +45,158 @@ public class GestionarHistorialIngresosController {
     @FXML private Label lblDetallePlaca;
     @FXML private Label lblDetalleInfoAdicional;
 
-    private ICheckInService checkInService;
-    private final ObservableList<RegistroEntradaDTO> historial = FXCollections.observableArrayList();
-
-    public GestionarHistorialIngresosController() {
-        this(new fis.dsw.sgc.check_in.service.CheckInServiceImpl());
-    }
-
-    public GestionarHistorialIngresosController(ICheckInService checkInService) {
-        this.checkInService = checkInService;
-    }
-
-    /** Setter para DI manual por mainWindowController tras FXMLLoader */
-    public void setCheckInService(ICheckInService checkInService) {
-        this.checkInService = checkInService;
-    }
-
-    public ICheckInService getCheckInService() {
-        return checkInService;
-    }
+    private final ObservableList<RegistroEntradaFila> historialCompleto = FXCollections.observableArrayList();
+    private final ObservableList<RegistroEntradaFila> historialFiltrado = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        if (cbTipoIngreso != null) {
-            cbTipoIngreso.setItems(FXCollections.observableArrayList("Todos", "RESIDENTE", "VISITANTE", "EXTERNA"));
-            cbTipoIngreso.getSelectionModel().selectFirst();
-        }
+        cbTipoIngreso.setItems(FXCollections.observableArrayList("Todos", "Residente", "Externa"));
+        cbTipoIngreso.getSelectionModel().selectFirst();
 
-        if (colFecha != null) colFecha.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getFecha()));
-        if (colHora != null) colHora.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getHora()));
-        if (colTipo != null) colTipo.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getTipoEntrada()));
-        if (colPersona != null) colPersona.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getPersona()));
-        if (colDetalle != null) colDetalle.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getDestino()));
+        cargarDatosDemo();
 
-        if (tablaHistorial != null) {
-            tablaHistorial.setItems(historial);
-            tablaHistorial.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
-                if (newSel != null) {
-                    mostrarDetalleIngreso(newSel);
+        colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
+        colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
+        colPersona.setCellValueFactory(new PropertyValueFactory<>("persona"));
+
+        colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
+        colTipo.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String tipo, boolean empty) {
+                super.updateItem(tipo, empty);
+                if (empty || tipo == null) {
+                    setGraphic(null);
+                    return;
                 }
-            });
-        }
+                Label badge = new Label(tipo);
+                badge.getStyleClass().addAll("badge-estado",
+                        tipo.equals("Residente") ? "badge-tipo-residente" : "badge-tipo-externa");
+                setGraphic(badge);
+            }
+        });
 
-        buscarHistorial(null);
+        colDetalle.setCellFactory(col -> new TableCell<>() {
+            private final Button btnDetalle = new Button("Ver detalle");
+            {
+                btnDetalle.getStyleClass().addAll("btn-accion-tabla", "btn-accion-detalle");
+                btnDetalle.setOnAction(e -> mostrarDetalle(getTableView().getItems().get(getIndex())));
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btnDetalle);
+            }
+        });
+
+        tablaHistorial.setItems(historialFiltrado);
+        historialFiltrado.setAll(historialCompleto);
     }
 
     @FXML
     void buscarHistorial(ActionEvent event) {
-        if (checkInService == null) return;
-
-        String fechaInicio = dpFechaInicio != null && dpFechaInicio.getValue() != null ? dpFechaInicio.getValue().toString() : null;
-        String fechaFin = dpFechaFin != null && dpFechaFin.getValue() != null ? dpFechaFin.getValue().toString() : null;
-        String tipo = cbTipoIngreso != null ? cbTipoIngreso.getValue() : null;
-        String persona = txtBusquedaPersona != null ? txtBusquedaPersona.getText() : null;
-        String placa = txtPlaca != null ? txtPlaca.getText() : null;
-
-        List<RegistroEntradaDTO> resultados = checkInService.obtenerHistorialDTOAvanzado(fechaInicio, fechaFin, tipo, persona, placa);
-        historial.setAll(resultados);
-
-        mostrarInfo("Se encontraron " + resultados.size() + " registros de ingreso.");
-    }
-
-    @FXML
-    void generarReporte(ActionEvent event) {
-        if (checkInService == null) return;
-
-        String fechaInicio = dpFechaInicio != null && dpFechaInicio.getValue() != null ? dpFechaInicio.getValue().toString() : null;
-        String fechaFin = dpFechaFin != null && dpFechaFin.getValue() != null ? dpFechaFin.getValue().toString() : null;
-        String tipo = cbTipoIngreso != null ? cbTipoIngreso.getValue() : null;
-        String persona = txtBusquedaPersona != null && !txtBusquedaPersona.getText().isBlank() ? txtBusquedaPersona.getText().trim() : null;
-        String placa = txtPlaca != null && !txtPlaca.getText().isBlank() ? txtPlaca.getText().trim() : null;
-
-        List<RegistroEntradaDTO> lista = historial;
-
-        int total = lista.size();
-        long residentes = lista.stream().filter(r -> "RESIDENTE".equalsIgnoreCase(r.getTipoEntrada())).count();
-        long visitantes = lista.stream().filter(r -> "VISITANTE".equalsIgnoreCase(r.getTipoEntrada())).count();
-        long externos = lista.stream().filter(r -> "EXTERNA".equalsIgnoreCase(r.getTipoEntrada())).count();
-        long conVehiculo = lista.stream().filter(r -> r.getParqueadero() != null && !r.getParqueadero().isBlank() && !"-".equals(r.getParqueadero()) && !"N/A".equalsIgnoreCase(r.getParqueadero())).count();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("=========================================================================\n");
-        sb.append("                 REPORTE DETALLADO DE INGRESOS (CHECK-IN)                \n");
-        sb.append("=========================================================================\n\n");
-        sb.append("FILTROS APLICADOS:\n");
-        sb.append(" • Persona / Cédula: ").append(persona != null ? persona : "Todos").append("\n");
-        sb.append(" • Tipo de Ingreso: ").append(tipo != null ? tipo : "Todos").append("\n");
-        sb.append(" • Placa de Vehículo: ").append(placa != null ? placa : "Todas").append("\n");
-        sb.append(" • Rango de Fechas: ").append(fechaInicio != null ? fechaInicio : "Inicio").append(" a ").append(fechaFin != null ? fechaFin : "Fin").append("\n\n");
-        sb.append("RESUMEN ESTADÍSTICO:\n");
-        sb.append(" • Total Registros: ").append(total).append("\n");
-        sb.append(" • Residentes: ").append(residentes).append("\n");
-        sb.append(" • Visitantes: ").append(visitantes).append("\n");
-        sb.append(" • Externos: ").append(externos).append("\n");
-        sb.append(" • Vehículos Registrados: ").append(conVehiculo).append("\n\n");
-        sb.append("=========================================================================\n");
-        sb.append("                    DETALLE INDIVIDUAL DE REGISTROS                      \n");
-        sb.append("=========================================================================\n\n");
-
-        if (lista.isEmpty()) {
-            sb.append("No se encontraron registros de ingreso con los filtros seleccionados.\n");
-        } else {
-            int count = 1;
-            for (RegistroEntradaDTO r : lista) {
-                sb.append(String.format("%d. [%s %s] - Tipo: %s\n", count++, r.getFecha(), r.getHora(), r.getTipoEntrada()));
-                sb.append("   • Persona: ").append(r.getPersona()).append(" (Cédula: ").append(r.getCedula()).append(")\n");
-                sb.append("   • Destino / Unidad: ").append(r.getDestino()).append("\n");
-                sb.append("   • Vehículo / Placa: ").append(r.getParqueadero() != null && !r.getParqueadero().isBlank() ? r.getParqueadero() : "Sin vehículo").append("\n");
-                if (r.getObservaciones() != null && !r.getObservaciones().isBlank()) {
-                    sb.append("   • Observaciones: ").append(r.getObservaciones()).append("\n");
-                }
-                sb.append("-------------------------------------------------------------------------\n");
-            }
+        if (dpFechaInicio.getValue() != null && dpFechaFin.getValue() != null
+                && dpFechaInicio.getValue().isAfter(dpFechaFin.getValue())) {
+            mostrarError("La fecha 'Desde' no puede ser posterior a la fecha 'Hasta'.");
+            return;
         }
 
-        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-        alert.setTitle("Reporte Detallado de Historial de Ingresos");
-        alert.setHeaderText("Reporte de Ingresos (" + total + " registros encontrados)");
+        String persona = txtBusquedaPersona.getText() == null ? "" : txtBusquedaPersona.getText().trim().toLowerCase();
+        String placa = txtPlaca.getText() == null ? "" : txtPlaca.getText().trim().toLowerCase();
+        String tipo = cbTipoIngreso.getValue();
 
-        javafx.scene.control.TextArea textArea = new javafx.scene.control.TextArea(sb.toString());
-        textArea.setEditable(false);
-        textArea.setWrapText(true);
-        textArea.setPrefWidth(650);
-        textArea.setPrefHeight(400);
+        List<RegistroEntradaFila> resultado = new ArrayList<>();
+        for (RegistroEntradaFila fila : historialCompleto) {
+            boolean coincide = true;
+            if (!persona.isEmpty() && !fila.getPersona().toLowerCase().contains(persona)) coincide = false;
+            if (!placa.isEmpty() && !fila.getPlaca().toLowerCase().contains(placa)) coincide = false;
+            if (tipo != null && !tipo.equals("Todos") && !fila.getTipo().equals(tipo)) coincide = false;
 
-        alert.getDialogPane().setContent(textArea);
-        alert.showAndWait();
+            LocalDate fechaFila = fila.getFechaComoLocalDate();
+            if (dpFechaInicio.getValue() != null && fechaFila.isBefore(dpFechaInicio.getValue())) coincide = false;
+            if (dpFechaFin.getValue() != null && fechaFila.isAfter(dpFechaFin.getValue())) coincide = false;
 
-        mostrarExito("Reporte generado con " + total + " registros.");
+            if (coincide) resultado.add(fila);
+        }
+
+        historialFiltrado.setAll(resultado);
+        if (resultado.isEmpty()) {
+            mostrarError("No se encontraron registros para los criterios ingresados.");
+        } else {
+            mostrarInfo(resultado.size() + " registro(s) encontrado(s).");
+        }
     }
 
-    private void mostrarDetalleIngreso(RegistroEntradaDTO item) {
-        if (panelDetalle == null) return;
+    private void mostrarDetalle(RegistroEntradaFila fila) {
+        lblDetalleTipo.setText("Tipo de ingreso: " + fila.getTipo());
+        lblDetallePersona.setText("Persona: " + fila.getPersona());
+        lblDetalleFechaHora.setText("Fecha y hora: " + fila.getFecha() + " " + fila.getHora());
+        lblDetalleMotivo.setText("Motivo: " + fila.getMotivo());
+        lblDetallePlaca.setText("Placa: " + (fila.getPlaca().isEmpty() ? "No registrada" : fila.getPlaca()));
+        lblDetalleInfoAdicional.setText("Información Adicional: " + fila.getInfoAdicional());
 
-        if (lblDetalleTipo != null) lblDetalleTipo.setText("Tipo: " + item.getTipoEntrada());
-        if (lblDetallePersona != null) lblDetallePersona.setText("Persona: " + item.getPersona() + " (Cédula: " + item.getCedula() + ")");
-        if (lblDetalleFechaHora != null) lblDetalleFechaHora.setText("Ingreso: " + item.getFecha() + " a las " + item.getHora());
-        if (lblDetalleMotivo != null) lblDetalleMotivo.setText("Destino / Unidad: " + item.getDestino());
-        if (lblDetallePlaca != null) lblDetallePlaca.setText("Vehículo / Placa: " + item.getParqueadero());
-        if (lblDetalleInfoAdicional != null) lblDetalleInfoAdicional.setText("Observaciones: " + (item.getObservaciones().isBlank() ? "Sin incidencias" : item.getObservaciones()));
-
+        // Mostrar el modal flotante
         panelDetalle.setVisible(true);
-        panelDetalle.setManaged(true);
     }
 
     @FXML
     void cerrarDetalle(ActionEvent event) {
-        if (panelDetalle != null) {
-            panelDetalle.setVisible(false);
-            panelDetalle.setManaged(false);
-        }
+        // Ocultar el modal flotante
+        panelDetalle.setVisible(false);
+    }
+
+    @FXML
+    void generarReporte(ActionEvent event) {
+        // Acción para el nuevo botón
+        mostrarInfo("Generando reporte de los ingresos en pantalla");
     }
 
     private void mostrarInfo(String mensaje) {
-        if (lblMensaje != null) {
-            lblMensaje.setText(mensaje);
-            lblMensaje.getStyleClass().setAll("message-label", "message-info");
-        }
+        lblMensaje.setText(mensaje);
+        lblMensaje.getStyleClass().setAll("message-label", "message-info");
     }
 
-    private void mostrarExito(String mensaje) {
-        if (lblMensaje != null) {
-            lblMensaje.setText(mensaje);
-            lblMensaje.getStyleClass().setAll("message-label", "message-success");
+    private void mostrarError(String mensaje) {
+        lblMensaje.setText(mensaje);
+        lblMensaje.getStyleClass().setAll("message-label", "message-error");
+    }
+
+    private void cargarDatosDemo() {
+        historialCompleto.add(new RegistroEntradaFila("18/07/2026", "08:15", "Residente", "María Fernanda Cárdenas", "Ingreso regular", "", "Sin observaciones"));
+        historialCompleto.add(new RegistroEntradaFila("18/07/2026", "09:40", "Externa", "Carlos Pérez (Proveedor)", "Entrega de paquetería", "PBX-2210", "Dejó 2 cajas en garita"));
+        historialCompleto.add(new RegistroEntradaFila("17/07/2026", "19:05", "Externa", "Ana Gómez (Visita)", "Visita social", "", "Autorizado vía llamada"));
+    }
+
+    public static class RegistroEntradaFila {
+        private final String fecha;
+        private final String hora;
+        private final String tipo;
+        private final String persona;
+        private final String motivo;
+        private final String placa;
+        private final String infoAdicional;
+
+        public RegistroEntradaFila(String fecha, String hora, String tipo, String persona, String motivo, String placa, String infoAdicional) {
+            this.fecha = fecha;
+            this.hora = hora;
+            this.tipo = tipo;
+            this.persona = persona;
+            this.motivo = motivo;
+            this.placa = placa;
+            this.infoAdicional = infoAdicional;
+        }
+
+        public String getFecha() { return fecha; }
+        public String getHora() { return hora; }
+        public String getTipo() { return tipo; }
+        public String getPersona() { return persona; }
+        public String getMotivo() { return motivo; }
+        public String getPlaca() { return placa; }
+        public String getInfoAdicional() { return infoAdicional; }
+
+        public LocalDate getFechaComoLocalDate() {
+            String[] partes = fecha.split("/");
+            return LocalDate.of(Integer.parseInt(partes[2]), Integer.parseInt(partes[1]), Integer.parseInt(partes[0]));
         }
     }
 }

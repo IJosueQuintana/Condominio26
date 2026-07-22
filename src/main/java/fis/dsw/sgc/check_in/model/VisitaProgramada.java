@@ -8,7 +8,6 @@ public class VisitaProgramada {
     private String nombresVisita;
     private String apellidosVisita;
     private String cedulaVisita;
-    private String telefonoVisita;
 
     private String fechaProgramada;
     private String horaProgramada;
@@ -34,6 +33,7 @@ public class VisitaProgramada {
         this.motivoVisita = motivoVisita;
     }
 
+    // Getters y setters
     public int getIdVisita() {
         return idVisita;
     }
@@ -46,7 +46,7 @@ public class VisitaProgramada {
         return idResidente;
     }
 
-    public void setIdResidente(Integer idResidente) {
+    public void setIdResidente(int idResidente) {
         this.idResidente = idResidente;
     }
 
@@ -74,13 +74,6 @@ public class VisitaProgramada {
         this.cedulaVisita = cedulaVisita;
     }
 
-    public String getTelefonoVisita() {
-        return telefonoVisita != null ? telefonoVisita : "N/A";
-    }
-
-    public void setTelefonoVisita(String telefonoVisita) {
-        this.telefonoVisita = telefonoVisita;
-    }
 
     public String getFechaProgramada() {
         return fechaProgramada;
@@ -98,8 +91,9 @@ public class VisitaProgramada {
         this.horaProgramada = horaProgramada;
     }
 
+
     public String getEstado() {
-        return estado != null ? estado : "PROGRAMADA";
+        return estado.toString();
     }
 
     public void setEstado(String estado) {
@@ -131,7 +125,7 @@ public class VisitaProgramada {
     }
 
     public String getPlaca() {
-        return placa != null ? placa : "N/A";
+        return placa;
     }
 
     public void setPlaca(String placa) {

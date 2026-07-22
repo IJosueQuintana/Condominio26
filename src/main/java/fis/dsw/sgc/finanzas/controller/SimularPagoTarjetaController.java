@@ -20,10 +20,6 @@ public class SimularPagoTarjetaController {
 
     private boolean aceptado;
     private boolean rechazado;
-    private String numeroTarjeta;
-    private String nombreTitular;
-    private java.time.LocalDate fechaVencimiento;
-    private Integer ccv;
 
     public void setIdDeuda(String idDeuda) {
         lblDeuda.setText("Deuda: " + (idDeuda == null ? "" : idDeuda));
@@ -35,22 +31,6 @@ public class SimularPagoTarjetaController {
 
     public boolean isPagoRechazado() {
         return rechazado;
-    }
-
-    public String getNumeroTarjeta() {
-        return numeroTarjeta;
-    }
-
-    public String getNombreTitular() {
-        return nombreTitular;
-    }
-
-    public java.time.LocalDate getFechaVencimiento() {
-        return fechaVencimiento;
-    }
-
-    public Integer getCcv() {
-        return ccv;
     }
 
     @FXML
@@ -77,19 +57,9 @@ public class SimularPagoTarjetaController {
             return;
         }
 
-        numeroTarjeta = num;
-        nombreTitular = tit;
-        fechaVencimiento = parseVencimiento(ven);
-        ccv = Integer.valueOf(cvv);
         aceptado = true;
         rechazado = false;
         cerrar(event);
-    }
-
-    private java.time.LocalDate parseVencimiento(String mmAA) {
-        int mes = Integer.parseInt(mmAA.substring(0, 2));
-        int anio = 2000 + Integer.parseInt(mmAA.substring(3, 5));
-        return java.time.LocalDate.of(anio, mes, 1).plusMonths(1).minusDays(1);
     }
 
     @FXML

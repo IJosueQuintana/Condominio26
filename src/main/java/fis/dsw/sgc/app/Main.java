@@ -10,16 +10,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Inyeccion de dependencias manual
-        //fis.dsw.sgc.finanzas.service.IDeudaService deudaService = new fis.dsw.sgc.finanzas.service.DeudaServiceImpl();
-        //fis.dsw.sgc.finanzas.service.IFachadaParaReservas fachada = new fis.dsw.sgc.finanzas.service.FachadaParaReservasImpl(deudaService);
-        //fis.dsw.sgc.reservas.service.ServicioReservasImpl.getInstancia().setFachadaFinanzas(fachada);
-
-        fis.dsw.sgc.inmuebles.dao.IInmuebleDAO inmuebleDAO = new fis.dsw.sgc.inmuebles.dao.InmuebleDAOMySQL();
-        fis.dsw.sgc.inmuebles.service.IInmueblesService servicioInmuebles = new fis.dsw.sgc.inmuebles.service.InmueblesServiceImpl(inmuebleDAO);
-        fis.dsw.sgc.reservas.service.ServicioReservasImpl.getInstancia().setServicioInmuebles(servicioInmuebles);
-
-        Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/dashboard.fxml"));
         Scene scene = new Scene(root);
         primaryStage.setTitle("Sistema de Gestión Para Condominio");
         primaryStage.setScene(scene);

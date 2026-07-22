@@ -1,8 +1,7 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.finanzas.dto.CuotaDTO;
-import fis.dsw.sgc.finanzas.exception.DeudaNoExisteException;
-import fis.dsw.sgc.finanzas.exception.NoSePuedeDiferirException;
+import fis.dsw.sgc.finanzas.service.DeudaServiceImpl;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,13 +24,8 @@ public class SolicitarPagoEnCuotasController {
     private static final int MESES_MINIMOS = 3;
     private static final int MESES_MAXIMOS = 11;
 
-    // Conexión Controller -> Service: el service llega inyectado por constructor (no se instancia aquí)
-    private final IDeudaService deudaService;
-
-    // Inyección de dependencias: quien cargue este controlador (FXMLLoader + setController) debe pasar el service
-    public SolicitarPagoEnCuotasController(IDeudaService deudaService) {
-        this.deudaService = deudaService;
-    }
+    // Conexión Controller -> Service: por aquí se accede a la lógica de negocio real (Service -> DAO)
+    private final IDeudaService deudaService = new DeudaServiceImpl();
 
     @FXML private TextField txtIdDeuda;
     @FXML private TextField txtNumeroMeses;
@@ -97,12 +91,8 @@ public class SolicitarPagoEnCuotasController {
             // El Service espera un id numérico; si el texto ingresado no lo es, se avisa al usuario
             setMensaje("El ID de la deuda ingresado no es válido, ingrese un número entero.", "message-error");
             return;
-        } catch (DeudaNoExisteException e) {
-            // El Service lanza esta excepción cuando el ID de deuda ingresado no existe
-            setMensaje(e.getMessage(), "message-error");
-            return;
-        } catch (NoSePuedeDiferirException e) {
-            // El Service lanza esta excepción cuando la deuda está en mora o el número de meses no cumple la regla de negocio
+        } catch (IllegalStateException e) {
+            // El Service lanza esta excepción cuando detecta que la deuda está en estado EN MORA
             setMensaje(e.getMessage(), "message-error");
             return;
         }

@@ -10,7 +10,6 @@ public interface IProgramVisitaService {
     boolean cancelarVisitaProgramada(Integer idVisita);
     boolean programarVisita(VisitaProgramada visitaProgramada);
     Map<String, Integer> obtenerResidentes();
-    Map<Integer, String> obtenerNombresResidentesPorId();
     boolean actualizarFechaHora(Integer idVisita, String nuevaFecha, String nuevaHora);
 }
 

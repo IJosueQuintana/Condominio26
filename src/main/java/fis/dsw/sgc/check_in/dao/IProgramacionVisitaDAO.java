@@ -11,11 +11,5 @@ public interface IProgramacionVisitaDAO {
     List<VisitaProgramada> obtenerVisitasProgramadas();
     boolean cancelarVisitaProgramada(Integer idVisita);
     List<Usuario_Checkin> obtenerResidentes();
-    /** Recupera una visita programada por su ID. Retorna null si no existe. */
-    VisitaProgramada obtenerVisitaPorId(int idVisita);
-    /** Marca una visita programada como REALIZADA. */
-    boolean marcarComoRealizada(int idVisita);
-    /** Obtiene el nombre del residente anfitrión y su departamento por id_usuario. */
-    String obtenerInfoResidentePorId(int idResidente);
 }
 

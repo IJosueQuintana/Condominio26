@@ -17,12 +17,5 @@ public class EstadoEliminada implements IEstadoDeuda {
     }
 
     @Override
-    public String getNombreEstadoBD() {
-        return "ANULADA";
-    }
-
-    @Override
-    public String getNombreEstadoUI() {
-        return "Eliminada";
-    }
+    public String getNombreEstado() { return "ELIMINADA"; }
 }

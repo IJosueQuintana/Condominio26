@@ -12,15 +12,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import fis.dsw.sgc.core.session.SesionUsuario;
-import fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl;
-import fis.dsw.sgc.administracion.service.IGestionUsuariosAPI;
+import fis.dsw.sgc.administracion.model.SesionUsuario;
 
 import java.io.IOException;
 
 public class loginController {
-
-    private final IGestionUsuariosAPI gestionUsuariosService = new GestionUsuariosServiceImpl();
 
     @FXML
     private TextField txtUsuario;
@@ -61,17 +57,16 @@ public class loginController {
 
     @FXML
     public void login(ActionEvent event) {
-        String correo = txtUsuario.getText();
+        String usuario = txtUsuario.getText();
         String contrasena = txtContrasena.getText();
 
         lblMensaje.setText("");
 
-        if (correo == null || correo.trim().isEmpty() || contrasena == null || contrasena.trim().isEmpty()) {
+        if (usuario == null || usuario.trim().isEmpty() || contrasena == null || contrasena.trim().isEmpty()) {
             lblMensaje.setText("Usuario o contraseña vacíos");
             lblMensaje.setStyle("-fx-text-fill: #ff5566;");
 
-        } else if (gestionUsuariosService.autenticar(correo, contrasena)) {
-            SesionUsuario.obtenerInstancia().setUsuarioActual(gestionUsuariosService.obtenerUsuarioPorCorreo(correo));
+        } else if ("admin".equals(usuario) && "1234".equals(contrasena)) {
             cargarDashboard(event);
 
         } else {

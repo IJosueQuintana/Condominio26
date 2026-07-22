@@ -12,10 +12,6 @@ public class ProgramVisitaService implements IProgramVisitaService {
     private final List<Usuario_Checkin> residentes;
 
 
-    public ProgramVisitaService() {
-        this(new fis.dsw.sgc.check_in.dao.ProgramacionVisitaDAO());
-    }
-
     public ProgramVisitaService(IProgramacionVisitaDAO programacionVisitaDAO) {
         this.programacionVisitaDAO = programacionVisitaDAO;
         this.residentes = programacionVisitaDAO.obtenerResidentes();
@@ -49,7 +45,6 @@ public class ProgramVisitaService implements IProgramVisitaService {
         return mapaResidentes;
     }
 
-    @Override
     public Map<Integer, String> obtenerNombresResidentesPorId() {
         Map<Integer, String> mapa = new HashMap<>();
         if (this.residentes != null) {

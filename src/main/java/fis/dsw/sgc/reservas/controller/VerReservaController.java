@@ -1,6 +1,6 @@
 package fis.dsw.sgc.reservas.controller;
 
-import fis.dsw.sgc.reservas.model.IEstadoReserva;
+import fis.dsw.sgc.reservas.model.EstadoReserva;
 import fis.dsw.sgc.reservas.model.Reserva;
 import fis.dsw.sgc.reservas.service.IServicioReservas;
 import fis.dsw.sgc.reservas.service.ServicioReservasImpl;
@@ -37,13 +37,8 @@ import java.util.Set;
  */
 public class VerReservaController {
 
-    private int obtenerIdUsuarioActual() {
-        fis.dsw.sgc.administracion.model.Usuario u = fis.dsw.sgc.administracion.model.SesionUsuario.obtenerInstancia().getUsuarioActual();
-        if (u != null && u.getCorreo() != null) {
-            return servicioReservas.obtenerIdUsuarioPorCorreo(u.getCorreo());
-        }
-        return -1;
-    }
+    // TODO(GRB): reemplazar por el id del usuario autenticado (SesionUsuario).
+    private static final int ID_RESIDENTE_ACTUAL = 2; // 'Carlos Residente' en seed.sql
 
     @FXML private VBox panelPrincipal;
     @FXML private VBox panelObservacion;
@@ -57,7 +52,7 @@ public class VerReservaController {
     @FXML private TableColumn<Reserva, String> colEstado;
     @FXML private TableColumn<Reserva, Void> colOpciones;
 
-    private final IServicioReservas servicioReservas = ServicioReservasImpl.getInstancia();
+    private final IServicioReservas servicioReservas = new ServicioReservasImpl();
 
     private Reserva reservaSeleccionadaParaObservacion = null;
     private final Set<Integer> reservasConObservacion = new HashSet<>();
@@ -71,7 +66,7 @@ public class VerReservaController {
         colHoraInicio.setCellValueFactory(new PropertyValueFactory<>("horaInicio"));
         colHoraFin.setCellValueFactory(new PropertyValueFactory<>("horaFin"));
         colEstado.setCellValueFactory(cd -> new SimpleStringProperty(
-                cd.getValue().getEstado() != null ? cd.getValue().getEstado().getNombreEstado() : ""));
+                cd.getValue().getEstado() != null ? cd.getValue().getEstado().name() : ""));
 
         configurarColumnaEstado();
         configurarColumnaOpciones();
@@ -83,7 +78,7 @@ public class VerReservaController {
 
     private void cargarReservas() {
         datos.clear();
-        List<Reserva> reservas = servicioReservas.listarReservasPorUsuario(obtenerIdUsuarioActual());
+        List<Reserva> reservas = servicioReservas.listarReservasPorUsuario(ID_RESIDENTE_ACTUAL);
         datos.addAll(reservas);
         // Marcar las que ya tienen observaciones para deshabilitar el boton.
         reservasConObservacion.clear();
@@ -137,15 +132,14 @@ public class VerReservaController {
                     return;
                 }
                 Reserva reserva = getTableView().getItems().get(getIndex());
-                IEstadoReserva estado = reserva.getEstado();
+                EstadoReserva estado = reserva.getEstado();
                 HBox box = new HBox(10);
                 box.setAlignment(Pos.CENTER);
                 btnAccion.setPrefWidth(150);
                 btnAccion.getStyleClass().removeAll("btn-accion-tabla", "btn-accion-cancelar", "btn-accion-observacion");
                 btnAccion.getStyleClass().add("btn-accion-tabla");
-                
-                // Boton rojo de "Cancelar" si el estado lo permite
-                if (estado != null && estado.puedeCancelar()) {
+
+                if (estado == EstadoReserva.ACTIVA) {
                     btnAccion.setText("Cancelar Reserva");
                     btnAccion.getStyleClass().add("btn-accion-cancelar");
                     btnAccion.setDisable(false);
@@ -153,22 +147,18 @@ public class VerReservaController {
                     btnAccion.setOnAction(e -> cancelarReserva(reserva));
                     box.getChildren().add(btnAccion);
                     setGraphic(box);
-                } else if (estado != null && estado.puedeAgregarObservacion()) {
-                    Button btn = new Button("Añadir Observación");
-                    int idUsuarioActual = obtenerIdUsuarioActual();
-                    boolean yaComento = reserva.getObservaciones().stream()
-                            .anyMatch(obs -> obs.getIdAutor() == idUsuarioActual);
-                    boolean limiteAlcanzado = reserva.getObservaciones().size() >= 2;
-
-                    if (yaComento || limiteAlcanzado) {
-                        btn.setDisable(true);
-                        btn.setStyle("-fx-background-color: #e5e7eb; -fx-text-fill: #9ca3af; -fx-opacity: 1; -fx-font-weight: bold;");
+                } else if (estado == EstadoReserva.FINALIZADA) {
+                    btnAccion.setText("Agregar Observación");
+                    btnAccion.getStyleClass().add("btn-accion-observacion");
+                    if (reservasConObservacion.contains(reserva.getId())) {
+                        btnAccion.setDisable(true);
+                        btnAccion.setStyle("-fx-background-color: #e5e7eb; -fx-text-fill: #9ca3af; -fx-opacity: 1;");
                     } else {
-                        btn.setDisable(false);
-                        btn.setStyle("-fx-background-color: #616161; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
-                        btn.setOnAction(e -> abrirPanelObservacion(reserva));
+                        btnAccion.setDisable(false);
+                        btnAccion.setStyle("");
+                        btnAccion.setOnAction(e -> abrirPanelObservacion(reserva));
                     }
-                    box.getChildren().add(btn);
+                    box.getChildren().add(btnAccion);
                     setGraphic(box);
                 } else {
                     setGraphic(null);
@@ -210,7 +200,7 @@ public class VerReservaController {
             // El autor de la observacion es el residente en sesion (ver nota de integracion).
             servicioReservas.registrarObservacion(
                     reservaSeleccionadaParaObservacion.getId(),
-                    obtenerIdUsuarioActual(),
+                    ID_RESIDENTE_ACTUAL,
                     texto);
             reservasConObservacion.add(reservaSeleccionadaParaObservacion.getId());
         }

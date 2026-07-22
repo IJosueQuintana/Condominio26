@@ -28,7 +28,7 @@ public class Reserva {
     private String horaInicio;          // hora_inicio    ("HH:MM[:SS]")
     private String horaFin;             // hora_fin
     private int costoAplicadoCentavos;  // costo_aplicado_centavos
-    private IEstadoReserva estado;       // estado (patrón State)
+    private EstadoReserva estado;       // estado (texto en BD)
     private String motivoCancelacion;   // motivo_cancelacion
     private String fechaCancelacion;    // fecha_cancelacion
 
@@ -46,7 +46,7 @@ public class Reserva {
     // Comportamiento (segun el diagrama de clases)
     // ==================================================================
 
-    public void cambiarEstado(IEstadoReserva nuevoEstado) {
+    public void cambiarEstado(EstadoReserva nuevoEstado) {
         this.estado = nuevoEstado;
     }
 
@@ -111,7 +111,7 @@ public class Reserva {
         dto.setHoraInicio(horaInicio);
         dto.setHoraFin(horaFin);
         dto.setCostoAplicadoCentavos(costoAplicadoCentavos);
-        dto.setEstado(estado != null ? estado.getNombreEstado() : null);
+        dto.setEstado(estado != null ? estado.name() : null);
         dto.setMotivoCancelacion(motivoCancelacion);
         dto.setFechaCancelacion(fechaCancelacion);
         dto.setNombreResidente(nombreResidente);
@@ -129,15 +129,17 @@ public class Reserva {
     }
 
     /**
-     * Convierte el texto de estado de la BD a la instancia del patrón State.
+     * Convierte el texto de estado de la BD al enum.
+     * La BD usa el CHECK ('ACTIVA','CANCELADA','FINALIZADA'), que coincide
+     * con EstadoReserva. Ante un valor desconocido se asume ACTIVA.
      */
-    private static IEstadoReserva parseEstado(String estado) {
-        if (estado == null) return new EstadoActiva();
+    private static EstadoReserva parseEstado(String estado) {
+        if (estado == null) return null;
         switch (estado.trim().toUpperCase()) {
-            case "CANCELADA":  return new EstadoCancelada();
-            case "FINALIZADA": return new EstadoFinalizada();
+            case "CANCELADA":  return EstadoReserva.CANCELADA;
+            case "FINALIZADA": return EstadoReserva.FINALIZADA;
             case "ACTIVA":
-            default:           return new EstadoActiva();
+            default:           return EstadoReserva.ACTIVA;
         }
     }
 
@@ -169,8 +171,8 @@ public class Reserva {
     public int getCostoAplicadoCentavos() { return costoAplicadoCentavos; }
     public void setCostoAplicadoCentavos(int c) { this.costoAplicadoCentavos = c; }
 
-    public IEstadoReserva getEstado() { return estado; }
-    public void setEstado(IEstadoReserva estado) { this.estado = estado; }
+    public EstadoReserva getEstado() { return estado; }
+    public void setEstado(EstadoReserva estado) { this.estado = estado; }
 
     public String getMotivoCancelacion() { return motivoCancelacion; }
     public void setMotivoCancelacion(String m) { this.motivoCancelacion = m; }

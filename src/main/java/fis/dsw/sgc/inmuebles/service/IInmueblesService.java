@@ -4,7 +4,6 @@ import java.util.List;
 
 import fis.dsw.sgc.inmuebles.dto.CasoFortuitoDTO;
 import fis.dsw.sgc.inmuebles.dto.DimensionesInmuebleDTO;
-import fis.dsw.sgc.inmuebles.dto.EspacioReservableDTO;
 import fis.dsw.sgc.inmuebles.dto.InmuebleResumenDTO;
 import fis.dsw.sgc.inmuebles.dto.OpcionComboDTO;
 import fis.dsw.sgc.inmuebles.model.Inmueble;
@@ -47,10 +46,4 @@ public interface IInmueblesService {
      * junto con el área del departamento indicado.
      */
     DimensionesInmuebleDTO obtenerDimensiones(int idInmueble);
-
-    /** Lista de espacios comunes disponibles para reservar. */
-    List<EspacioReservableDTO> listarEspaciosReservables();
-
-    /** Busca un espacio comun reservable por su id. */
-    EspacioReservableDTO buscarEspacioReservablePorId(int idEspacioComun);
 }

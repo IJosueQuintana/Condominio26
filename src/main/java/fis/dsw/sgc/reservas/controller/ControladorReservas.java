@@ -30,7 +30,7 @@ public class ControladorReservas {
     }
 
     /** Genera una nueva reserva delegando la validacion en el servicio. */
-    public String generarSolicitudReservaUI(int idUsuario, int idEspacioComun,
+    public boolean generarSolicitudReservaUI(int idUsuario, int idEspacioComun,
                                              String fecha, String horaInicio, String horaFin) {
         return servicioReservas.crearReserva(idUsuario, idEspacioComun, fecha, horaInicio, horaFin);
     }

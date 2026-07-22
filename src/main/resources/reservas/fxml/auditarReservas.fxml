@@ -66,8 +66,6 @@
                         
                         <Label text="Hasta:" styleClass="form-label"/>
                         <DatePicker fx:id="dpFechaFin" prefWidth="120.0" styleClass="date-picker" promptText="Fin" showWeekNumbers="false" />
-                        
-                        <Button mnemonicParsing="false" onAction="#limpiarFiltros" text="Limpiar Filtros" styleClass="secondary-button" />
                      </children>
                   </HBox>
                </children>

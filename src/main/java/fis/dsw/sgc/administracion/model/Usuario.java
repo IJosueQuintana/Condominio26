@@ -1,7 +1,9 @@
 package fis.dsw.sgc.administracion.model;
 
+import java.util.UUID;
+
 public class Usuario {
-    private int idUsuario;
+    private UUID idUsuario;
     private String nombre;
     private String apellido;
     private String correo;
@@ -9,8 +11,8 @@ public class Usuario {
     private Cuenta cuenta;
     private Perfil perfil;
 
-    public int getIdUsuario() { return idUsuario; }
-    public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
+    public UUID getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(UUID idUsuario) { this.idUsuario = idUsuario; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

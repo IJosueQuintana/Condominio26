@@ -1,19 +1,17 @@
 package fis.dsw.sgc.reservas.service;
 
 import fis.dsw.sgc.conexion_bd.DBConnection;
-import fis.dsw.sgc.finanzas.dto.NuevaDeudaDTO;
 import fis.dsw.sgc.finanzas.service.IFachadaParaReservas;
-import fis.dsw.sgc.inmuebles.service.IInmueblesService;
+import fis.dsw.sgc.reservas.dao.EspacioReservableDAOSQLite;
+import fis.dsw.sgc.reservas.dao.IEspacioReservableDAO;
 import fis.dsw.sgc.reservas.dao.IObservacionReservaDAO;
 import fis.dsw.sgc.reservas.dao.IReservaDAO;
 import fis.dsw.sgc.reservas.dao.ObservacionReservaDAOSQLite;
 import fis.dsw.sgc.reservas.dao.ReservaDAOSQLite;
-import fis.dsw.sgc.inmuebles.dto.EspacioReservableDTO;
+import fis.dsw.sgc.reservas.dto.EspacioReservableDTO;
 import fis.dsw.sgc.reservas.dto.ObservacionReservaDTO;
 import fis.dsw.sgc.reservas.dto.ReservaDTO;
-import fis.dsw.sgc.reservas.model.EstadoActiva;
-import fis.dsw.sgc.reservas.model.EstadoCancelada;
-import fis.dsw.sgc.reservas.model.EstadoFinalizada;
+import fis.dsw.sgc.reservas.model.EstadoReserva;
 import fis.dsw.sgc.reservas.model.Reserva;
 
 import java.sql.PreparedStatement;
@@ -36,40 +34,28 @@ public class ServicioReservasImpl implements IServicioReservas {
 
     private final IReservaDAO reservaDAO;
     private final IObservacionReservaDAO observacionDAO;
-    private IInmueblesService servicioInmuebles;
+    private final IEspacioReservableDAO espacioDAO;
 
     // Conexion con el modulo de Finanzas (opcional; inyectada desde Main).
     private IFachadaParaReservas fachadaFinanzas;
 
-    private static ServicioReservasImpl instancia;
-
-    public static ServicioReservasImpl getInstancia() {
-        if (instancia == null) {
-            instancia = new ServicioReservasImpl();
-        }
-        return instancia;
-    }
-
+    /** Constructor por defecto: cablea los DAO SQLite del modulo. */
     public ServicioReservasImpl() {
         this(new ReservaDAOSQLite(),
              new ObservacionReservaDAOSQLite(),
-             null,
+             new EspacioReservableDAOSQLite(),
              null);
     }
 
     /** Constructor completo para inyeccion de dependencias (tests / Main). */
     public ServicioReservasImpl(IReservaDAO reservaDAO,
                                 IObservacionReservaDAO observacionDAO,
-                                IInmueblesService servicioInmuebles,
+                                IEspacioReservableDAO espacioDAO,
                                 IFachadaParaReservas fachadaFinanzas) {
         this.reservaDAO = reservaDAO;
         this.observacionDAO = observacionDAO;
-        this.servicioInmuebles = servicioInmuebles;
+        this.espacioDAO = espacioDAO;
         this.fachadaFinanzas = fachadaFinanzas;
-    }
-
-    public void setServicioInmuebles(IInmueblesService servicioInmuebles) {
-        this.servicioInmuebles = servicioInmuebles;
     }
 
     /** Permite a Main inyectar la fachada de Finanzas despues de construir el servicio. */
@@ -82,40 +68,13 @@ public class ServicioReservasImpl implements IServicioReservas {
     // ==================================================================
 
     @Override
-    public int obtenerIdUsuarioPorCorreo(String correo) {
-        String sql = "SELECT id_usuario FROM usuario WHERE correo = ?";
-        try (PreparedStatement ps = DBConnection.getInstance().getConnection()
-                .prepareStatement(sql)) {
-            ps.setString(1, correo);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id_usuario");
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener id_usuario por correo: " + e.getMessage());
-        }
-        return -1; // No encontrado
-    }
-
-    @Override
     public List<Reserva> listarReservasPorUsuario(int idUsuario) {
-        List<Reserva> reservas = aModelo(reservaDAO.buscarPorUsuario(idUsuario));
-        for (Reserva r : reservas) {
-            cargarObservaciones(r);
-            r.getEstado().evaluarVencimiento(r, this);
-        }
-        return reservas;
+        return aModelo(reservaDAO.buscarPorUsuario(idUsuario));
     }
 
     @Override
     public List<Reserva> listarTodasLasReservas() {
-        List<Reserva> reservas = aModelo(reservaDAO.buscarTodas());
-        for (Reserva r : reservas) {
-            cargarObservaciones(r);
-            r.getEstado().evaluarVencimiento(r, this);
-        }
-        return reservas;
+        return aModelo(reservaDAO.buscarTodas());
     }
 
     @Override
@@ -123,32 +82,22 @@ public class ServicioReservasImpl implements IServicioReservas {
         ReservaDTO dto = reservaDAO.buscarPorId(idReserva);
         if (dto == null) return null;
         Reserva reserva = Reserva.desdeDTO(dto);
-        cargarObservaciones(reserva);
-        return reserva;
-    }
-
-    private void cargarObservaciones(Reserva reserva) {
-        for (ObservacionReservaDTO obsDto : observacionDAO.buscarPorReserva(reserva.getId())) {
+        // Carga (composicion) de las observaciones asociadas.
+        for (ObservacionReservaDTO obsDto : observacionDAO.buscarPorReserva(idReserva)) {
             reserva.agregarObservacion(
                     fis.dsw.sgc.reservas.model.Observacion.desdeDTO(obsDto));
         }
+        return reserva;
     }
 
     @Override
     public List<Reserva> listarReservasPorEspacioYFecha(int idEspacioComun, String fecha) {
-        List<Reserva> reservas = aModelo(reservaDAO.buscarPorEspacioYFecha(idEspacioComun, fecha));
-        for (Reserva r : reservas) {
-            r.getEstado().evaluarVencimiento(r, this);
-        }
-        return reservas;
+        return aModelo(reservaDAO.buscarPorEspacioYFecha(idEspacioComun, fecha));
     }
 
     @Override
     public List<EspacioReservableDTO> listarEspaciosDisponibles() {
-        if (servicioInmuebles != null) {
-            return servicioInmuebles.listarEspaciosReservables();
-        }
-        return new ArrayList<>();
+        return espacioDAO.listarDisponibles();
     }
 
     // ==================================================================
@@ -156,7 +105,7 @@ public class ServicioReservasImpl implements IServicioReservas {
     // ==================================================================
 
     @Override
-    public String crearReserva(int idUsuario, int idEspacioComun, String fecha,
+    public boolean crearReserva(int idUsuario, int idEspacioComun, String fecha,
                                 String horaInicio, String horaFin) {
 
         // 1) Verificacion de mora en Finanzas (patron Fachada).
@@ -166,15 +115,12 @@ public class ServicioReservasImpl implements IServicioReservas {
                 && fachadaFinanzas.tieneDeudasEnMora(cedula)) {
             System.out.println("[Reservas] Reserva rechazada: el residente " + cedula
                     + " tiene deudas en mora.");
-            return "No puedes hacer la reserva porque tienes una deuda pendiente. Por favor, paga tu deuda para continuar.";
+            return false;
         }
 
         // 2) Tarifa vigente del espacio (copia del costo al momento de reservar).
         int costoCentavos = 0;
-        EspacioReservableDTO espacio = null;
-        if (servicioInmuebles != null) {
-            espacio = servicioInmuebles.buscarEspacioReservablePorId(idEspacioComun);
-        }
+        EspacioReservableDTO espacio = espacioDAO.buscarPorId(idEspacioComun);
         if (espacio != null) {
             costoCentavos = espacio.getCostoReservaCentavos();
         }
@@ -187,14 +133,14 @@ public class ServicioReservasImpl implements IServicioReservas {
         nueva.setHoraInicio(horaInicio);
         nueva.setHoraFin(horaFin);
         nueva.setCostoAplicadoCentavos(costoCentavos);
-        nueva.setEstado(new EstadoActiva());
+        nueva.setEstado(EstadoReserva.ACTIVA);
 
         // 4) Validacion de solapamiento contra las reservas activas del dia.
         for (Reserva existente : listarReservasPorEspacioYFecha(idEspacioComun, fecha)) {
             if (nueva.seSuperponeCon(existente)) {
                 System.out.println("[Reservas] Reserva rechazada: el horario se "
                         + "superpone con una reserva activa existente.");
-                return "No puedes reservar en esta hora porque estás chocando con un horario donde ya se está ocupando el espacio.";
+                return false;
             }
         }
 
@@ -207,12 +153,11 @@ public class ServicioReservasImpl implements IServicioReservas {
             String descripcion = "Reserva de "
                     + (espacio != null ? espacio.getNombre() : "espacio comun")
                     + " (" + fecha + " " + horaInicio + "-" + horaFin + ")";
-            fachadaFinanzas.registrarDeuda(
-                    new NuevaDeudaDTO(cedula, "RESERVA", fechaMaximaPago,
-                            descripcion, costoCentavos / 100.0));
+            fachadaFinanzas.registrarDeuda(cedula, "RESERVA", fechaMaximaPago,
+                    descripcion, costoCentavos / 100.0);
         }
 
-        return null;
+        return true;
     }
 
     @Override
@@ -232,41 +177,7 @@ public class ServicioReservasImpl implements IServicioReservas {
             System.out.println("[Reservas] Observacion vacia, no se registra.");
             return;
         }
-        
-        Reserva reserva = buscarReserva(idReserva);
-        if (reserva != null) {
-            if (reserva.getObservaciones().size() >= 2) {
-                System.out.println("[Reservas] Límite de observaciones (2) alcanzado para la reserva " + idReserva);
-                return;
-            }
-            boolean yaComento = reserva.getObservaciones().stream()
-                    .anyMatch(obs -> obs.getIdAutor() == idAutor);
-            if (yaComento) {
-                System.out.println("[Reservas] El usuario " + idAutor + " ya realizó una observación para esta reserva.");
-                return;
-            }
-        }
-        
         observacionDAO.guardar(new ObservacionReservaDTO(idReserva, idAutor, texto));
-    }
-
-    @Override
-    public void solicitarMulta(int idReserva, String motivo) {
-        if (fachadaFinanzas != null) {
-            Reserva reserva = buscarReserva(idReserva);
-            if (reserva != null) {
-                String cedula = obtenerNumeroDocumento(reserva.getIdResidente());
-                if (cedula != null) {
-                    fachadaFinanzas.registrarDeuda(
-                        new NuevaDeudaDTO(cedula, "MULTA", LocalDate.now().plusDays(7),
-                                "Multa por reserva: " + motivo, 50.0)
-                    );
-                }
-            }
-        } else {
-            System.out.println("[Reservas] Solicitud de multa a Finanzas -> motivo: "
-                    + motivo + " (reserva " + idReserva + ") - FACHADA NULA");
-        }
     }
 
     @Override

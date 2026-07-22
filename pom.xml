@@ -59,11 +59,6 @@
             <version>3.53.2.0</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-        </dependency>
     </dependencies>
     <build>
         <!-- No se define <sourceDirectory>/<resources> a propósito:

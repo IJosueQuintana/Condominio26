@@ -2,10 +2,7 @@ package fis.dsw.sgc.administracion.dashboard;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.stream.Collectors;
 
-import fis.dsw.sgc.core.session.SesionUsuario;
-import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.core.util.NavigationUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -49,26 +46,12 @@ public class mainWindowController {
     @FXML
     public void initialize() {
         cargarAvatar();
-        cargarDatosUsuarioSesion();
         irAInicio(null);
     }
 
     public void setUsuario(String nombre, String rol) {
         lblNombreUsuario.setText(nombre);
         lblRolUsuario.setText(rol);
-    }
-
-    private void cargarDatosUsuarioSesion() {
-        Usuario usuario = SesionUsuario.obtenerInstancia().getUsuarioActual();
-        if (usuario == null) {
-            return;
-        }
-
-        String roles = usuario.getCuenta() == null ? "" : usuario.getCuenta().getRoles().stream()
-                .map(rol -> rol.getNombre().name())
-                .collect(Collectors.joining(", "));
-
-        setUsuario(usuario.getNombre(), roles);
     }
 
     // ==================== Avatar ====================

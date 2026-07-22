@@ -7,31 +7,23 @@ import fis.dsw.sgc.inmuebles.dao.ICasoFortuitoDAO;
 import fis.dsw.sgc.inmuebles.dao.IInmuebleDAO;
 import fis.dsw.sgc.inmuebles.dto.CasoFortuitoDTO;
 import fis.dsw.sgc.inmuebles.dto.DimensionesInmuebleDTO;
-import fis.dsw.sgc.inmuebles.dto.EspacioReservableDTO;
 import fis.dsw.sgc.inmuebles.dto.InmuebleResumenDTO;
 import fis.dsw.sgc.inmuebles.dto.OpcionComboDTO;
 import fis.dsw.sgc.inmuebles.model.CasoFortuito;
 import fis.dsw.sgc.inmuebles.model.Inmueble;
 
-
 public class InmueblesServiceImpl implements IInmueblesService {
 
     private final IInmuebleDAO inmuebleDAO;
     private final ICasoFortuitoDAO casoFortuitoDAO;
-    private final fis.dsw.sgc.inmuebles.dao.IEspacioReservableDAO espacioReservableDAO;
 
     public InmueblesServiceImpl(IInmuebleDAO inmuebleDAO) {
-        this(inmuebleDAO, new CasoFortuitoDAOMySQL(), new fis.dsw.sgc.inmuebles.dao.EspacioReservableDAO());
+        this(inmuebleDAO, new CasoFortuitoDAOMySQL());
     }
 
     public InmueblesServiceImpl(IInmuebleDAO inmuebleDAO, ICasoFortuitoDAO casoFortuitoDAO) {
-        this(inmuebleDAO, casoFortuitoDAO, new fis.dsw.sgc.inmuebles.dao.EspacioReservableDAO());
-    }
-
-    public InmueblesServiceImpl(IInmuebleDAO inmuebleDAO, ICasoFortuitoDAO casoFortuitoDAO, fis.dsw.sgc.inmuebles.dao.IEspacioReservableDAO espacioReservableDAO) {
         this.inmuebleDAO = inmuebleDAO;
         this.casoFortuitoDAO = casoFortuitoDAO;
-        this.espacioReservableDAO = espacioReservableDAO;
     }
 
     @Override
@@ -145,15 +137,5 @@ public class InmueblesServiceImpl implements IInmueblesService {
         double areaCondominio = inmuebleDAO.obtenerAreaTotalCondominio();
 
         return new DimensionesInmuebleDTO(areaCondominio, areaDepartamento);
-    }
-
-    @Override
-    public List<EspacioReservableDTO> listarEspaciosReservables() {
-        return espacioReservableDAO.listarDisponibles();
-    }
-
-    @Override
-    public EspacioReservableDTO buscarEspacioReservablePorId(int idEspacioComun) {
-        return espacioReservableDAO.buscarPorId(idEspacioComun);
     }
 }

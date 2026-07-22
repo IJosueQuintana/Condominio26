@@ -1,7 +1,7 @@
 package fis.dsw.sgc.administracion.controller;
 
 import fis.dsw.sgc.administracion.model.Usuario;
-import fis.dsw.sgc.core.session.SesionUsuario;
+import fis.dsw.sgc.administracion.model.SesionUsuario;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

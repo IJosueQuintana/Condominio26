@@ -116,8 +116,8 @@
                   <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
                </padding>
                <children>
-                  <Label fx:id="lblTituloError" styleClass="module-section-title" style="-fx-font-size: 18px; -fx-text-fill: #c62828;" text="Horario no disponible" />
-                  <Label fx:id="lblMensajeError" text="No puedes reservar en esta hora porque estás chocando con un horario donde ya se está ocupando el espacio." wrapText="true" style="-fx-font-size: 14px;" />
+                  <Label styleClass="module-section-title" style="-fx-font-size: 18px; -fx-text-fill: #c62828;" text="Horario no disponible" />
+                  <Label text="No puedes reservar en esta hora porque estás chocando con un horario donde ya se está ocupando el espacio." wrapText="true" style="-fx-font-size: 14px;" />
                   
                   <HBox alignment="CENTER_RIGHT" spacing="12.0">
                      <children>

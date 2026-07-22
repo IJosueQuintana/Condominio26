@@ -71,22 +71,6 @@ public class Deuda {
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
 
-    public Integer getIdInmueble() {
-        return idInmueble;
-    }
-
-    public void setIdInmueble(Integer idInmueble) {
-        this.idInmueble = idInmueble;
-    }
-
-    public Integer getIdReserva() {
-        return idReserva;
-    }
-
-    public void setIdReserva(Integer idReserva) {
-        this.idReserva = idReserva;
-    }
-
     public IEstadoDeuda getEstado() { return this.estado; }
     public void setEstado(IEstadoDeuda estado) { this.estado = estado; }
     public ITipoDeuda getTipoDeuda() { return this.tipoDeuda; }

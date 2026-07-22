@@ -50,8 +50,14 @@
                     </columnConstraints>
                     <children>
                         <Label styleClass="form-label" text="Identificación" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                        <TextField fx:id="txtIdentificacionVisitante" promptText="Cédula / pasaporte"
-                                   maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        <HBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <children>
+                                <TextField fx:id="txtIdentificacionVisitante" promptText="Cédula / pasaporte"
+                                           HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                <Button fx:id="btnBuscar" mnemonicParsing="false" onAction="#buscarVisita"
+                                        styleClass="secondary-button" text="Buscar"/>
+                            </children>
+                        </HBox>
 
                         <Label styleClass="form-label" text="Nombre del visitante" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                         <TextField fx:id="txtNombreVisitante" promptText="Nombre completo"
