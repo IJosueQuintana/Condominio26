@@ -1,5 +1,9 @@
 package fis.dsw.sgc.check_in.controller;
 
+import fis.dsw.sgc.check_in.dto.RegistroEntradaDTO;
+import fis.dsw.sgc.check_in.exception.CheckInException;
+import fis.dsw.sgc.check_in.service.ICheckInService;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,16 +18,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class RegistrarEntradaExternaController {
 
-    @FXML private TextField txtNombreVisitante;
     @FXML private TextField txtIdentificacionVisitante;
+    @FXML private TextField txtNombreVisitante;
     @FXML private TextField txtTelefono;
     @FXML private TextField txtDestino;
-    @FXML private TextField txtMotivo;
+    @FXML private TextField txtInfoAdicional;
     @FXML private CheckBox chkRequiereParqueadero;
     @FXML private VBox panelParqueadero;
     @FXML private TextField txtPlaca;
@@ -31,27 +34,63 @@ public class RegistrarEntradaExternaController {
     @FXML private Label lblMensaje;
     @FXML private Button btnRegistrar;
 
-    @FXML private TableView<IngresoExternoFila> tablaIngresos;
-    @FXML private TableColumn<IngresoExternoFila, String> colHora;
-    @FXML private TableColumn<IngresoExternoFila, String> colNombre;
-    @FXML private TableColumn<IngresoExternoFila, String> colDestino;
-    @FXML private TableColumn<IngresoExternoFila, String> colMotivo;
-    @FXML private TableColumn<IngresoExternoFila, String> colParqueadero;
+    @FXML private TableView<RegistroEntradaDTO> tablaIngresos;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colHora;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colNombre;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colDestino;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colInfoAdicional;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colParqueadero;
 
-    private final ObservableList<IngresoExternoFila> ingresos = FXCollections.observableArrayList();
-    private static final DateTimeFormatter HORA_FORMATO = DateTimeFormatter.ofPattern("HH:mm");
+    private ICheckInService checkInService;
+    private final ObservableList<RegistroEntradaDTO> ingresos = FXCollections.observableArrayList();
+
+    public RegistrarEntradaExternaController() {
+        this(new fis.dsw.sgc.check_in.service.CheckInServiceImpl());
+    }
+
+    public RegistrarEntradaExternaController(ICheckInService checkInService) {
+        this.checkInService = checkInService;
+    }
+
+    /** Setter para DI manual por mainWindowController tras FXMLLoader */
+    public void setCheckInService(ICheckInService checkInService) {
+        this.checkInService = checkInService;
+    }
+
+    public ICheckInService getCheckInService() {
+        return checkInService;
+    }
 
     @FXML
     public void initialize() {
-        cbParqueadero.setItems(FXCollections.observableArrayList("P-01", "P-02", "P-03", "P-04", "P-05"));
-
-        colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
-        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        colDestino.setCellValueFactory(new PropertyValueFactory<>("destino"));
-        colMotivo.setCellValueFactory(new PropertyValueFactory<>("motivo"));
-        colParqueadero.setCellValueFactory(new PropertyValueFactory<>("parqueadero"));
+        colHora.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getHora()));
+        colNombre.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getPersona()));
+        colDestino.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getDestino()));
+        colInfoAdicional.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getObservaciones()));
+        colParqueadero.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getParqueadero()));
         tablaIngresos.setItems(ingresos);
+
+        cargarParqueaderosDisponibles();
+        cargarTablaIngresos();
     }
+
+    private void cargarParqueaderosDisponibles() {
+        if (checkInService != null) {
+            List<String> libres = checkInService.obtenerParqueaderosDisponibles("VISITA");
+            if (libres.isEmpty()) {
+                libres = checkInService.obtenerParqueaderosDisponibles(null);
+            }
+            cbParqueadero.setItems(FXCollections.observableArrayList(libres));
+        }
+    }
+
+    private void cargarTablaIngresos() {
+        if (checkInService != null) {
+            List<RegistroEntradaDTO> lista = checkInService.obtenerHistorialDTO(null, "EXTERNA", null);
+            ingresos.setAll(lista);
+        }
+    }
+
 
     @FXML
     void toggleParqueadero(ActionEvent event) {
@@ -61,36 +100,39 @@ public class RegistrarEntradaExternaController {
         if (!requiere) {
             txtPlaca.clear();
             cbParqueadero.getSelectionModel().clearSelection();
+        } else {
+            cargarParqueaderosDisponibles();
         }
     }
 
     @FXML
     void registrarEntradaExterna(ActionEvent event) {
-        if (txtNombreVisitante.getText().isBlank() || txtIdentificacionVisitante.getText().isBlank()
-                || txtDestino.getText().isBlank() || txtMotivo.getText().isBlank()) {
-            mostrarError("Complete nombre, identificación, destino y motivo del visitante.");
+        String cedula = txtIdentificacionVisitante.getText() == null ? "" : txtIdentificacionVisitante.getText().trim();
+        String nombre = txtNombreVisitante.getText() == null ? "" : txtNombreVisitante.getText().trim();
+        String destino = txtDestino.getText() == null ? "" : txtDestino.getText().trim();
+        String info = txtInfoAdicional.getText() == null ? "" : txtInfoAdicional.getText().trim();
+        boolean parq = chkRequiereParqueadero.isSelected();
+        String placa = txtPlaca.getText() == null ? "" : txtPlaca.getText().trim();
+        String numParq = cbParqueadero.getValue();
+
+        if (nombre.isBlank() || cedula.isBlank() || destino.isBlank()) {
+            mostrarError("Nombre, identificación y destino/residente son campos obligatorios.");
             return;
         }
 
-        String parqueaderoAsignado = "-";
-        if (chkRequiereParqueadero.isSelected()) {
-            if (txtPlaca.getText().isBlank() || cbParqueadero.getValue() == null) {
-                mostrarError("Indique la placa y seleccione un parqueadero disponible.");
-                return;
-            }
-            parqueaderoAsignado = cbParqueadero.getValue() + " (" + txtPlaca.getText().trim() + ")";
+        if (parq && (placa.isBlank() || numParq == null)) {
+            mostrarError("Para asignar parqueadero debe indicar la placa del vehículo y seleccionar un puesto libre.");
+            return;
         }
 
-        ingresos.add(0, new IngresoExternoFila(
-                LocalTime.now().format(HORA_FORMATO),
-                txtNombreVisitante.getText().trim(),
-                txtDestino.getText().trim(),
-                txtMotivo.getText().trim(),
-                parqueaderoAsignado
-        ));
-
-        mostrarExito("Entrada externa registrada. Se notificó al residente relacionado.");
-        limpiarFormulario(null);
+        try {
+            checkInService.registrarEntradaExterna(nombre, "", cedula, destino, info, parq, placa, numParq);
+            mostrarExito("Entrada registrada correctamente. Se actualizó el historial.");
+            limpiarFormulario(null);
+            cargarTablaIngresos();
+        } catch (CheckInException e) {
+            mostrarError(e.getMessage());
+        }
     }
 
     @FXML
@@ -99,12 +141,17 @@ public class RegistrarEntradaExternaController {
         txtIdentificacionVisitante.clear();
         txtTelefono.clear();
         txtDestino.clear();
-        txtMotivo.clear();
+        txtInfoAdicional.clear();
         txtPlaca.clear();
         cbParqueadero.getSelectionModel().clearSelection();
         chkRequiereParqueadero.setSelected(false);
         panelParqueadero.setVisible(false);
         panelParqueadero.setManaged(false);
+    }
+
+    private void mostrarInfo(String mensaje) {
+        lblMensaje.setText(mensaje);
+        lblMensaje.getStyleClass().setAll("message-label", "message-info");
     }
 
     private void mostrarExito(String mensaje) {
@@ -115,27 +162,5 @@ public class RegistrarEntradaExternaController {
     private void mostrarError(String mensaje) {
         lblMensaje.setText(mensaje);
         lblMensaje.getStyleClass().setAll("message-label", "message-error");
-    }
-
-    public static class IngresoExternoFila {
-        private final String hora;
-        private final String nombre;
-        private final String destino;
-        private final String motivo;
-        private final String parqueadero;
-
-        public IngresoExternoFila(String hora, String nombre, String destino, String motivo, String parqueadero) {
-            this.hora = hora;
-            this.nombre = nombre;
-            this.destino = destino;
-            this.motivo = motivo;
-            this.parqueadero = parqueadero;
-        }
-
-        public String getHora() { return hora; }
-        public String getNombre() { return nombre; }
-        public String getDestino() { return destino; }
-        public String getMotivo() { return motivo; }
-        public String getParqueadero() { return parqueadero; }
     }
 }

@@ -47,7 +47,7 @@ import java.util.Set;
 public class AuditarReservasController {
 
     private int obtenerIdUsuarioActual() {
-        fis.dsw.sgc.administracion.model.Usuario u = fis.dsw.sgc.administracion.model.SesionUsuario.obtenerInstancia().getUsuarioActual();
+        fis.dsw.sgc.administracion.model.Usuario u = fis.dsw.sgc.core.session.SesionUsuario.obtenerInstancia().getUsuarioActual();
         if (u != null && u.getCorreo() != null) {
             return servicioReservas.obtenerIdUsuarioPorCorreo(u.getCorreo());
         }

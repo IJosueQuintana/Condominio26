@@ -68,10 +68,11 @@ package "Capa de Presentacion (Controladores JavaFX)" {
 
     class ControladorReservas {
         - servicioReservas: IServicioReservas
-        + consultarDisponibilidadUI(fecha: Date): void
-        + generarSolicitudReservaUI(): void
-        + cancelarReservaUI(reservaId: String): void
-        + adjudicarMultaUI(): void
+        + cancelarReserva(...): void
+        + abrirPanelObservacion(...): void
+        + filtrarReservas(...): void
+        + registrarObservacion(...): void
+        + generarSolicitudReservaUI(...): boolean
     }
 
     class ControladorGarita {
@@ -121,15 +122,18 @@ package "Capa de Logica de Negocio (Servicios)" {
     }
 
     interface IServicioReservas {
-        + crearReserva(idUsr: String, idEsp: String, f: Date, ini: Time, fin: Time): boolean
-        + cancelarReserva(idRes: String): boolean
-        + registrarObservacion(idRes: String, texto: String): void
-        + adjudicarMultaPorConflicto(idUsr: String, idRes: String, mot: String, monto: double): void
+        + crearReserva(...): boolean
+        + cancelarReserva(idReserva: int): boolean
+        + agregarObservacion(idReserva: int, autor: String, obs: String): void
+        + obtenerTodasReservas(): List<Reserva>
     }
 
     class ServicioReservasImpl {
         - reservaDAO: IReservaDAO
-        - servicioFinanzas: IServicioFinanzas
+        - observacionDAO: IObservacionReservaDAO
+        - servicioInmuebles: IInmueblesService
+        - fachadaFinanzas: IFachadaParaReservas
+        + getInstancia(): ServicioReservasImpl
     }
 
     interface IServicioSeguridad {

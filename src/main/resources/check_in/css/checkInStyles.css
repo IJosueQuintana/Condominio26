@@ -51,6 +51,7 @@
 }
 
 /* ChoiceBox / ComboBox moderno (igual que reservas/finanzas) */
+.module-card .text-field,
 .module-card .choice-box,
 .module-card .combo-box {
     -fx-background-color: transparent;
@@ -62,11 +63,13 @@
     -fx-text-fill: #374151;
 }
 
+.module-card .text-field:hover,
 .module-card .choice-box:hover,
 .module-card .combo-box:hover {
     -fx-border-color: #9ca3af;
 }
 
+.module-card .text-field:focused,
 .module-card .choice-box:focused,
 .module-card .combo-box:focused {
     -fx-border-color: #3b82f6;
@@ -216,6 +219,20 @@
 /* ========================================================
    BADGES ESPECÍFICOS DEL MÓDULO GRE
 ======================================================== */
+/* Estilo base para todos los estados */
+.badge-estado {
+    -fx-padding: 4px 12px;
+    -fx-background-radius: 12px;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-alignment: center;
+}
+
+
+
+.badge-programada { -fx-background-color: rgba(63, 152, 39, 0.75); }
+.badge-cancelada  { -fx-background-color: rgba(223, 39, 39, 0.75); }
+.badge-realizada { -fx-background-color: rgb(195, 156, 27); }
 
 .badge-estado {
     -fx-text-fill: white;
@@ -230,8 +247,7 @@
 .badge-tipo-externa   { -fx-background-color: rgba(245, 127, 23, 0.85); }
 
 /* Estado de visita programada */
-.badge-programada { -fx-background-color: rgba(63, 152, 39, 0.75); }
-.badge-cancelada  { -fx-background-color: rgba(223, 39, 39, 0.75); }
+
 
 /* Prioridad de alerta */
 .badge-baja     { -fx-background-color: rgba(107, 114, 128, 0.85); }

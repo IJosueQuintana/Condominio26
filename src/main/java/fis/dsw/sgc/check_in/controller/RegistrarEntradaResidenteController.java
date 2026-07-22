@@ -1,5 +1,10 @@
 package fis.dsw.sgc.check_in.controller;
 
+import fis.dsw.sgc.check_in.dto.RegistroEntradaDTO;
+import fis.dsw.sgc.check_in.exception.CheckInException;
+import fis.dsw.sgc.check_in.model.RegistroEntradaResidente;
+import fis.dsw.sgc.check_in.service.ICheckInService;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,43 +16,59 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class RegistrarEntradaResidenteController {
 
     @FXML private TextField txtIdentificacion;
     @FXML private TextField txtNombreResidente;
+    @FXML private TextField txtApellidoResidente;
     @FXML private TextField txtDepartamento;
-    @FXML private TextField txtMotivo;
     @FXML private Label lblMensaje;
     @FXML private Button btnBuscar;
     @FXML private Button btnRegistrar;
 
-    @FXML private TableView<IngresoResidenteFila> tablaIngresos;
-    @FXML private TableColumn<IngresoResidenteFila, String> colHora;
-    @FXML private TableColumn<IngresoResidenteFila, String> colNombre;
-    @FXML private TableColumn<IngresoResidenteFila, String> colDepto;
-    @FXML private TableColumn<IngresoResidenteFila, String> colMotivo;
+    @FXML private TableView<RegistroEntradaDTO> tablaIngresos;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colHora;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colNombre;
+    @FXML private TableColumn<RegistroEntradaDTO, String> colDepto;
 
-    private final ObservableList<IngresoResidenteFila> ingresos = FXCollections.observableArrayList();
-    private static final DateTimeFormatter HORA_FORMATO = DateTimeFormatter.ofPattern("HH:mm");
+    private ICheckInService checkInService;
+    private final ObservableList<RegistroEntradaDTO> ingresos = FXCollections.observableArrayList();
 
-    // Simula la validación contra el módulo GRA hasta que exista el servicio real.
-    private final Map<String, String[]> residentesDemo = new HashMap<>();
+    public RegistrarEntradaResidenteController() {
+        this(new fis.dsw.sgc.check_in.service.CheckInServiceImpl());
+    }
+
+    // Constructor para Inyección de Dependencias (Estilo Grupo A)
+    public RegistrarEntradaResidenteController(ICheckInService checkInService) {
+        this.checkInService = checkInService;
+    }
+
+    /** Setter para DI manual por mainWindowController tras FXMLLoader */
+    public void setCheckInService(ICheckInService checkInService) {
+        this.checkInService = checkInService;
+    }
+
+    public ICheckInService getCheckInService() {
+        return checkInService;
+    }
 
     @FXML
     public void initialize() {
-        residentesDemo.put("1712345678", new String[]{"María Fernanda Cárdenas", "Depto. 302"});
-        residentesDemo.put("1798765432", new String[]{"Jorge Andrés Salazar", "Depto. 101"});
-
-        colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
-        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        colDepto.setCellValueFactory(new PropertyValueFactory<>("departamento"));
-        colMotivo.setCellValueFactory(new PropertyValueFactory<>("motivo"));
+        colHora.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getHora()));
+        colNombre.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getPersona()));
+        colDepto.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getDestino()));
         tablaIngresos.setItems(ingresos);
+
+        cargarUltimosIngresos();
+    }
+
+    private void cargarUltimosIngresos() {
+        if (checkInService != null) {
+            List<RegistroEntradaDTO> lista = checkInService.obtenerHistorialDTO(null, "RESIDENTE", null);
+            ingresos.setAll(lista);
+        }
     }
 
     @FXML
@@ -58,47 +79,50 @@ public class RegistrarEntradaResidenteController {
             return;
         }
 
-        String[] datos = residentesDemo.get(identificacion);
+        if (checkInService == null) {
+            mostrarError("El servicio de Check-In no ha sido inyectado.");
+            return;
+        }
+
+        String[] datos = checkInService.buscarDatosResidentePorCedula(identificacion);
         if (datos == null) {
             txtNombreResidente.clear();
+            txtApellidoResidente.clear();
             txtDepartamento.clear();
-            mostrarError("No se encontró un residente registrado con esa identificación.");
+            mostrarError("No se encontró un residente activo registrado con la cédula " + identificacion);
             return;
         }
 
         txtNombreResidente.setText(datos[0]);
-        txtDepartamento.setText(datos[1]);
-        mostrarInfo("Residente encontrado. Verifique los datos antes de registrar el ingreso.");
+        txtApellidoResidente.setText(datos[1]);
+        txtDepartamento.setText(datos[2]);
+        mostrarInfo("Residente verificado. Haga clic en 'Registrar Entrada' para confirmar.");
     }
 
     @FXML
     void registrarEntrada(ActionEvent event) {
-        if (txtNombreResidente.getText().isEmpty() || txtDepartamento.getText().isEmpty()) {
-            mostrarError("Debe buscar y verificar un residente antes de registrar la entrada.");
+        String identificacion = txtIdentificacion.getText() == null ? "" : txtIdentificacion.getText().trim();
+        if (identificacion.isEmpty() || txtNombreResidente.getText().isEmpty()) {
+            mostrarError("Debe buscar y verificar un residente activo antes de registrar la entrada.");
             return;
         }
 
-        String motivo = txtMotivo.getText() == null || txtMotivo.getText().isBlank()
-                ? "Ingreso regular"
-                : txtMotivo.getText().trim();
-
-        ingresos.add(0, new IngresoResidenteFila(
-                LocalTime.now().format(HORA_FORMATO),
-                txtNombreResidente.getText(),
-                txtDepartamento.getText(),
-                motivo
-        ));
-
-        mostrarExito("Entrada registrada correctamente para " + txtNombreResidente.getText() + ".");
-        limpiarFormulario(null);
+        try {
+            RegistroEntradaResidente entrada = checkInService.registrarEntradaResidente(identificacion);
+            mostrarExito("Entrada registrada con éxito para " + entrada.getNombres() + " " + entrada.getApellidos() + ".");
+            limpiarFormulario(null);
+            cargarUltimosIngresos();
+        } catch (CheckInException e) {
+            mostrarError(e.getMessage());
+        }
     }
 
     @FXML
     void limpiarFormulario(ActionEvent event) {
         txtIdentificacion.clear();
         txtNombreResidente.clear();
+        txtApellidoResidente.clear();
         txtDepartamento.clear();
-        txtMotivo.clear();
     }
 
     private void mostrarInfo(String mensaje) {
@@ -114,24 +138,5 @@ public class RegistrarEntradaResidenteController {
     private void mostrarError(String mensaje) {
         lblMensaje.setText(mensaje);
         lblMensaje.getStyleClass().setAll("message-label", "message-error");
-    }
-
-    public static class IngresoResidenteFila {
-        private final String hora;
-        private final String nombre;
-        private final String departamento;
-        private final String motivo;
-
-        public IngresoResidenteFila(String hora, String nombre, String departamento, String motivo) {
-            this.hora = hora;
-            this.nombre = nombre;
-            this.departamento = departamento;
-            this.motivo = motivo;
-        }
-
-        public String getHora() { return hora; }
-        public String getNombre() { return nombre; }
-        public String getDepartamento() { return departamento; }
-        public String getMotivo() { return motivo; }
     }
 }

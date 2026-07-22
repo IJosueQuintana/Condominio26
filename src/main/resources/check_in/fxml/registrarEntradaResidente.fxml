@@ -37,7 +37,6 @@
             </children>
         </VBox>
 
-        <!-- FORMULARIO -->
         <VBox maxWidth="960.0" spacing="14.0" styleClass="module-card">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
@@ -65,15 +64,14 @@
                                    maxWidth="1.7976931348623157E308"
                                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                        <Label styleClass="form-label" text="Departamento / Unidad"
-                               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                        <TextField fx:id="txtDepartamento" editable="false" promptText="Se completa al buscar"
+                        <Label styleClass="form-label" text="Apellido" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtApellidoResidente" editable="false" promptText="Se completa al buscar"
                                    maxWidth="1.7976931348623157E308"
                                    GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                        <Label styleClass="form-label" text="Motivo (opcional)"
+                        <Label styleClass="form-label" text="Departamento / Unidad"
                                GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                        <TextField fx:id="txtMotivo" promptText="Ej. Regreso a casa"
+                        <TextField fx:id="txtDepartamento" editable="false" promptText="Se completa al buscar"
                                    maxWidth="1.7976931348623157E308"
                                    GridPane.columnIndex="1" GridPane.rowIndex="3"/>
                     </children>
@@ -92,7 +90,6 @@
             </children>
         </VBox>
 
-        <!-- REFUERZO INMEDIATO: ÚLTIMOS INGRESOS -->
         <VBox maxWidth="960.0" spacing="8.0" styleClass="table-card" VBox.vgrow="ALWAYS">
             <padding>
                 <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
@@ -101,10 +98,9 @@
                 <Label styleClass="module-section-title" text="Últimos Ingresos Registrados"/>
                 <TableView fx:id="tablaIngresos" prefHeight="220.0" maxWidth="Infinity">
                     <columns>
-                        <TableColumn fx:id="colHora" prefWidth="110.0" text="Hora"/>
-                        <TableColumn fx:id="colNombre" prefWidth="220.0" text="Residente"/>
-                        <TableColumn fx:id="colDepto" prefWidth="150.0" text="Departamento"/>
-                        <TableColumn fx:id="colMotivo" prefWidth="220.0" text="Motivo"/>
+                        <TableColumn fx:id="colHora" prefWidth="120.0" text="Hora"/>
+                        <TableColumn fx:id="colNombre" prefWidth="380.0" text="Residente"/>
+                        <TableColumn fx:id="colDepto" prefWidth="250.0" text="Departamento"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>

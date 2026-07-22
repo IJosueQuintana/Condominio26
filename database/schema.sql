@@ -493,65 +493,67 @@ CREATE TABLE IF NOT EXISTS alerta_seguridad (
 -- ============================================================
 -- GRF - COMUNICACIONES Y NOTIFICACIONES
 -- ============================================================
-
 CREATE TABLE IF NOT EXISTS mensaje (
-    id_mensaje              INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_emisor               INTEGER NOT NULL,
-    asunto                  TEXT NOT NULL,
-    contenido               TEXT NOT NULL,
-    tipo                    TEXT NOT NULL DEFAULT 'MENSAJE_GLOBAL'
-                            CHECK (tipo IN ('MENSAJE_RESIDENTES','COMUNICADO_TRABAJADORES','MENSAJE_GLOBAL','MENSAJE_URGENTE','ALERTA_EMERGENCIA','BOLETIN_INFORMATIVO')),
+                                       id_mensaje              INTEGER PRIMARY KEY AUTOINCREMENT,
+                                       id_emisor               INTEGER NOT NULL,
+
+                                       asunto                  TEXT NOT NULL,
+                                       contenido               TEXT NOT NULL,
+
+                                       tipo                    TEXT NOT NULL DEFAULT 'MENSAJE_GLOBAL'
+                                       CHECK (
+                                       tipo IN (
+                                       'MENSAJE_RESIDENTES',
+                                       'COMUNICADO_TRABAJADORES',
+                                       'MENSAJE_GLOBAL',
+                                       'MENSAJE_URGENTE',
+                                       'ALERTA_EMERGENCIA',
+                                       'BOLETIN_INFORMATIVO'
+)
+    ),
+
+    prioridad               TEXT NOT NULL DEFAULT 'NORMAL'
+    CHECK (
+              prioridad IN (
+              'BAJA',
+              'NORMAL',
+              'ALTA',
+              'URGENTE'
+                           )
+    ),
+
     fecha_creacion          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_envio             TEXT,
+
     estado                  TEXT NOT NULL DEFAULT 'BORRADOR'
-                            CHECK (estado IN ('BORRADOR','ENVIADO','CANCELADO')),
-    FOREIGN KEY (id_emisor) REFERENCES usuario(id_usuario) ON UPDATE CASCADE ON DELETE RESTRICT
-);
+    CHECK (
+              estado IN (
+              'BORRADOR',
+              'ENVIADO',
+              'CANCELADO'
+                        )
+    ),
 
-CREATE TABLE IF NOT EXISTS mensaje_destinatario (
-    id_mensaje              INTEGER NOT NULL,
-    id_usuario              INTEGER NOT NULL,
-    leido                   INTEGER NOT NULL DEFAULT 0 CHECK (leido IN (0, 1)),
-    fecha_lectura           TEXT,
-    PRIMARY KEY (id_mensaje, id_usuario),
-    FOREIGN KEY (id_mensaje) REFERENCES mensaje(id_mensaje) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS anuncio (
-    id_anuncio              INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_autor                INTEGER NOT NULL,
-    titulo                  TEXT NOT NULL,
-    contenido               TEXT NOT NULL,
-    fecha_publicacion       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_expiracion        TEXT,
-    prioridad               TEXT NOT NULL DEFAULT 'NORMAL' CHECK (prioridad IN ('BAJA','NORMAL','ALTA','URGENTE')),
-    estado                  TEXT NOT NULL DEFAULT 'PUBLICADO'
-                            CHECK (estado IN ('BORRADOR','PUBLICADO','EXPIRADO','CANCELADO')),
-    FOREIGN KEY (id_autor) REFERENCES usuario(id_usuario) ON UPDATE CASCADE ON DELETE RESTRICT
-);
-
-CREATE TABLE IF NOT EXISTS notificacion (
-    id_notificacion         INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_usuario              INTEGER NOT NULL,
-    id_mensaje              INTEGER,
-    id_anuncio              INTEGER,
-    tipo                    TEXT NOT NULL,
-    titulo                  TEXT NOT NULL,
-    contenido               TEXT NOT NULL,
-    fecha_creacion          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_envio             TEXT,
-    leida                   INTEGER NOT NULL DEFAULT 0 CHECK (leida IN (0, 1)),
-    fecha_lectura           TEXT,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (id_mensaje) REFERENCES mensaje(id_mensaje) ON UPDATE CASCADE ON DELETE SET NULL,
-    FOREIGN KEY (id_anuncio) REFERENCES anuncio(id_anuncio) ON UPDATE CASCADE ON DELETE SET NULL
-);
+    FOREIGN KEY (id_emisor)
+    REFERENCES usuario(id_usuario)
+    ON UPDATE CASCADE
+    ON DELETE RESTRICT
+    );
 
 -- ============================================================
 -- ÍNDICES
 -- ============================================================
 
+CREATE INDEX IF NOT EXISTS idx_mensaje_tipo
+    ON mensaje(tipo);
+
+CREATE INDEX IF NOT EXISTS idx_mensaje_estado
+    ON mensaje(estado);
+
+CREATE INDEX IF NOT EXISTS idx_mensaje_fecha_envio
+    ON mensaje(fecha_envio);
+CREATE INDEX IF NOT EXISTS idx_mensaje_destinatario_usuario
+    ON mensaje_destinatario(id_usuario);
 CREATE INDEX IF NOT EXISTS idx_usuario_estado ON usuario(estado);
 CREATE INDEX IF NOT EXISTS idx_usuario_rol_usuario ON usuario_rol(id_usuario);
 CREATE INDEX IF NOT EXISTS idx_usuario_rol_rol ON usuario_rol(id_rol);

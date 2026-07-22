@@ -243,12 +243,15 @@ GestorPlazas ..> Plaza : <<asigna/libera>>
 ' MÓDULOS GRD: RESERVAS
 ' ==========================================
 package "GRD - Reservas de Espacios" {
-    enum EstadoReserva {
-        PENDIENTE
-        CONFIRMADA
-        CANCELADA
-        FINALIZADA
+    interface IEstadoReserva <<State>> {
+        + puedeCancelar(): boolean
+        + puedeFinalizar(): boolean
+        + puedeAgregarObservacion(): boolean
     }
+
+    class EstadoActiva implements IEstadoReserva
+    class EstadoCancelada implements IEstadoReserva
+    class EstadoFinalizada implements IEstadoReserva
 
     class Reserva {
         - id: String

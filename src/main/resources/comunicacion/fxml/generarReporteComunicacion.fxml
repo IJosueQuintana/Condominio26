@@ -5,50 +5,96 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="fis.dsw.sgc.comunicacion.controller.GenerarReporteComunicacionController"
-            fitToWidth="true" fitToHeight="false" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-            pannable="true" styleClass="module-scroll-pane" stylesheets="@../css/comunicacionStyles.css">
+            fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+            pannable="true" styleClass="module-scroll-pane"
+            stylesheets="@../css/comunicacionStyles.css">
     <content>
-        <VBox alignment="TOP_CENTER" fillWidth="true" spacing="16" styleClass="module-content">
-            <padding><Insets top="32" right="32" bottom="40" left="32"/></padding>
-            <VBox alignment="CENTER" maxWidth="960" spacing="4">
-                <Label styleClass="module-title" text="Generar reporte de comunicación"/>
-                <Label maxWidth="760" styleClass="module-subtitle" text="Obtenga un resumen de la actividad del módulo y prepare su exportación." textAlignment="CENTER" wrapText="true"/>
+        <VBox alignment="TOP_CENTER" fillWidth="true" spacing="18" styleClass="module-content">
+            <padding><Insets top="32" right="32" bottom="42" left="32"/></padding>
+
+            <VBox alignment="CENTER" maxWidth="980" spacing="5">
+                <Label styleClass="module-eyebrow" text="ANÁLISIS Y REPORTES"/>
+                <Label styleClass="module-title" text="Reporte de comunicación"/>
+                <Label maxWidth="760" styleClass="module-subtitle"
+                       text="Consulte indicadores consolidados de mensajes, anuncios y notificaciones."
+                       textAlignment="CENTER" wrapText="true"/>
             </VBox>
 
-            <VBox maxWidth="960" spacing="16" styleClass="module-card">
+            <VBox maxWidth="980" spacing="16" styleClass="module-card">
                 <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-                <Label styleClass="module-section-title" text="Parámetros del reporte"/>
+                <HBox styleClass="section-header">
+                    <Label styleClass="section-badge" text="1"/>
+                    <VBox spacing="2">
+                        <Label styleClass="module-section-title" text="Parámetros del reporte"/>
+                        <Label styleClass="table-subtitle"
+                               text="Defina el periodo, categoría y formato de salida."/>
+                    </VBox>
+                </HBox>
+
                 <GridPane hgap="16" vgap="14">
-                    <columnConstraints><ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="25"/></columnConstraints>
-                    <VBox spacing="6" GridPane.columnIndex="0"><Label styleClass="form-label" text="Fecha inicio"/><DatePicker fx:id="dpFechaInicio" maxWidth="Infinity"/></VBox>
-                    <VBox spacing="6" GridPane.columnIndex="1"><Label styleClass="form-label" text="Fecha fin"/><DatePicker fx:id="dpFechaFin" maxWidth="Infinity"/></VBox>
-                    <VBox spacing="6" GridPane.columnIndex="2"><Label styleClass="form-label" text="Tipo"/><ComboBox fx:id="cmbTipo" maxWidth="Infinity"/></VBox>
-                    <VBox spacing="6" GridPane.columnIndex="3"><Label styleClass="form-label" text="Formato"/><ComboBox fx:id="cmbFormato" maxWidth="Infinity"/></VBox>
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                    </columnConstraints>
+                    <VBox spacing="6" GridPane.columnIndex="0">
+                        <Label styleClass="form-label" text="Fecha inicio"/>
+                        <DatePicker fx:id="dpFechaInicio" maxWidth="Infinity"/>
+                    </VBox>
+                    <VBox spacing="6" GridPane.columnIndex="1">
+                        <Label styleClass="form-label" text="Fecha fin"/>
+                        <DatePicker fx:id="dpFechaFin" maxWidth="Infinity"/>
+                    </VBox>
+                    <VBox spacing="6" GridPane.columnIndex="2">
+                        <Label styleClass="form-label" text="Tipo"/>
+                        <ComboBox fx:id="cmbTipo" maxWidth="Infinity"/>
+                    </VBox>
+                    <VBox spacing="6" GridPane.columnIndex="3">
+                        <Label styleClass="form-label" text="Formato"/>
+                        <ComboBox fx:id="cmbFormato" maxWidth="Infinity"/>
+                    </VBox>
                 </GridPane>
-                <Label fx:id="lblMensaje" minHeight="18" styleClass="message-label" wrapText="true"/>
+
+                <Label fx:id="lblMensaje" minHeight="18" maxWidth="Infinity"
+                       styleClass="message-label" wrapText="true"/>
                 <HBox alignment="CENTER_RIGHT" spacing="12">
                     <Button onAction="#limpiarFiltros" styleClass="secondary-button" text="Limpiar"/>
-                    <Button onAction="#generarVistaPrevia" styleClass="secondary-button" text="Vista previa"/>
-                    <Button onAction="#generarReporte" styleClass="primary-button" text="Generar reporte" defaultButton="true"/>
+                    <Button onAction="#generarVistaPrevia" styleClass="secondary-button" text="Actualizar vista"/>
+                    <Button onAction="#generarReporte" styleClass="primary-button"
+                            text="Generar reporte" defaultButton="true"/>
                 </HBox>
             </VBox>
 
-            <HBox maxWidth="960" spacing="16">
-                <VBox alignment="CENTER" spacing="5" styleClass="metric-card" HBox.hgrow="ALWAYS"><Label fx:id="lblTotalComunicaciones" styleClass="metric-value" text="0"/><Label styleClass="metric-label" text="Comunicaciones"/></VBox>
-                <VBox alignment="CENTER" spacing="5" styleClass="metric-card" HBox.hgrow="ALWAYS"><Label fx:id="lblTotalEnviadas" styleClass="metric-value" text="0"/><Label styleClass="metric-label" text="Enviadas"/></VBox>
-                <VBox alignment="CENTER" spacing="5" styleClass="metric-card" HBox.hgrow="ALWAYS"><Label fx:id="lblTotalFallidas" styleClass="metric-value" text="0"/><Label styleClass="metric-label" text="Fallidas"/></VBox>
+            <HBox maxWidth="980" spacing="16">
+                <VBox alignment="CENTER" spacing="5" styleClass="metric-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="lblTotalComunicaciones" styleClass="metric-value" text="0"/>
+                    <Label styleClass="metric-label" text="Comunicaciones"/>
+                </VBox>
+                <VBox alignment="CENTER" spacing="5" styleClass="metric-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="lblTotalEnviadas" styleClass="metric-value" text="0"/>
+                    <Label styleClass="metric-label" text="Enviadas o publicadas"/>
+                </VBox>
+                <VBox alignment="CENTER" spacing="5" styleClass="metric-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="lblTotalFallidas" styleClass="metric-value" text="0"/>
+                    <Label styleClass="metric-label" text="Fallidas o canceladas"/>
+                </VBox>
             </HBox>
 
-            <VBox maxWidth="960" minHeight="420" spacing="10" styleClass="table-card">
-                <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
-                <VBox spacing="3"><Label styleClass="module-section-title" text="Resumen del reporte"/><Label styleClass="table-subtitle" text="Consolidado por tipo de comunicación."/></VBox>
-                <TableView fx:id="tblResumen" minHeight="330" prefHeight="330" maxWidth="Infinity" VBox.vgrow="ALWAYS">
+            <VBox maxWidth="980" minHeight="430" spacing="12" styleClass="table-card">
+                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                <VBox spacing="3">
+                    <Label styleClass="module-section-title" text="Resumen consolidado"/>
+                    <Label styleClass="table-subtitle" text="Datos calculados directamente desde SQLite."/>
+                </VBox>
+                <TableView fx:id="tblResumen" minHeight="330" prefHeight="330"
+                           maxWidth="Infinity" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="250"/>
-                        <TableColumn fx:id="colCantidad" text="Cantidad" prefWidth="130"/>
-                        <TableColumn fx:id="colEnviadas" text="Enviadas" prefWidth="130"/>
-                        <TableColumn fx:id="colFallidas" text="Fallidas" prefWidth="130"/>
-                        <TableColumn fx:id="colTasaExito" text="Tasa de éxito" prefWidth="145"/>
+                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="270"/>
+                        <TableColumn fx:id="colCantidad" text="Cantidad" prefWidth="135"/>
+                        <TableColumn fx:id="colEnviadas" text="Enviadas" prefWidth="135"/>
+                        <TableColumn fx:id="colFallidas" text="Fallidas" prefWidth="135"/>
+                        <TableColumn fx:id="colTasaExito" text="Tasa de éxito" prefWidth="155"/>
                     </columns>
                     <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
                 </TableView>

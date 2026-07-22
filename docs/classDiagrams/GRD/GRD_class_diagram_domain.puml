@@ -17,12 +17,15 @@ skinparam enum {
 
 package "Entidades del Dominio - Módulo GRD" {
 
-    enum EstadoReserva {
-        PENDIENTE
-        CONFIRMADA
-        CANCELADA
-        FINALIZADA
+    interface IEstadoReserva <<State>> {
+        + puedeCancelar(): boolean
+        + puedeFinalizar(): boolean
+        + puedeAgregarObservacion(): boolean
     }
+
+    class EstadoActiva implements IEstadoReserva
+    class EstadoCancelada implements IEstadoReserva
+    class EstadoFinalizada implements IEstadoReserva
 
     class Reserva {
         - id: String
@@ -33,8 +36,8 @@ package "Entidades del Dominio - Módulo GRD" {
         - horaInicio: Time
         - horaFin: Time
         - costoAplicado: Double
-        - estado: EstadoReserva
-        + cambiarEstado(nuevoEstado: EstadoReserva): void
+        - estado: IEstadoReserva
+        + cambiarEstado(nuevoEstado: IEstadoReserva): void
         + agregarObservacion(obs: Observacion): void
         + seSuperponeCon(otra: Reserva): boolean
     }
@@ -47,7 +50,7 @@ package "Entidades del Dominio - Módulo GRD" {
     }
 
     Reserva "1" *-- "*" Observacion : "contiene"
-    Reserva .down.> EstadoReserva : "<<use>>"
+    Reserva .down.> IEstadoReserva : "<<use>>"
 
     note right of Reserva
       idResidente e idEspacio son
