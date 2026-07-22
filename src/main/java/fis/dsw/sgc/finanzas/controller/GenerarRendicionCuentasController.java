@@ -1,5 +1,10 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl;
+import fis.dsw.sgc.finanzas.dao.ReportesDAOImpl;
+import fis.dsw.sgc.finanzas.dto.ReporteRendicionDTO;
+import fis.dsw.sgc.finanzas.service.IReportesService;
+import fis.dsw.sgc.finanzas.service.ReportesServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,11 +17,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Locale;
 
-// Controlador de la vista Generar rendición de cuentas
 public class GenerarRendicionCuentasController {
 
     @FXML private DatePicker dpInicio;
@@ -31,10 +33,17 @@ public class GenerarRendicionCuentasController {
     @FXML private TableColumn<FilaMonto, String> colIngMonto;
     @FXML private Label lblTotales;
 
+    private final IReportesService reportesService;
     private final ObservableList<FilaMonto> gastos = FXCollections.observableArrayList();
     private final ObservableList<FilaMonto> ingresos = FXCollections.observableArrayList();
-    private final Set<String> periodosGenerados = new HashSet<>();
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE;
+
+    public GenerarRendicionCuentasController() {
+        this(new ReportesServiceImpl(new ReportesDAOImpl(), new GestionUsuariosServiceImpl()));
+    }
+
+    public GenerarRendicionCuentasController(IReportesService reportesService) {
+        this.reportesService = reportesService;
+    }
 
     @FXML
     public void initialize() {
@@ -63,7 +72,6 @@ public class GenerarRendicionCuentasController {
             setMensaje("La fecha de inicio y la fecha de fin son obligatorias.", "message-error");
             return;
         }
-        // CU actualizado: inicio < hoy, fin <= hoy, fin > inicio
         if (!ini.isBefore(hoy)) {
             setMensaje("La fecha de inicio tiene que ser menor que la fecha actual.", "message-error");
             return;
@@ -76,63 +84,24 @@ public class GenerarRendicionCuentasController {
             setMensaje("La fecha de fin tiene que ser menor o igual a la fecha actual.", "message-error");
             return;
         }
-
-        // Demo de periodo ya generado (enero 2026)
-        String clave = ini.format(FMT) + "|" + fin.format(FMT);
-        if (periodosGenerados.contains(clave)
-                || (ini.equals(LocalDate.of(2026, 1, 1)) && fin.equals(LocalDate.of(2026, 1, 31)))) {
-            setMensaje(
-                    "Ya se generó un reporte de rendición de cuentas para las fechas especificadas; puede consultarlo en cualquier momento.",
-                    "message-error");
+        if (obs.isEmpty()) {
+            setMensaje("Las observaciones son obligatorias.", "message-error");
             return;
         }
-
-        if (!obs.isEmpty() && !obs.matches("[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ .,;:!?\\-\\n\\r]+")) {
+        if (!obs.matches("[a-zA-Z0-9 áéíóúÁÉÍÓÚñÑ]+")) {
             setMensaje("Formato de observaciones no válido.", "message-error");
             return;
         }
 
-        double agua = 320.00;
-        double luz = 410.50;
-        double telefono = 80.00;
-        double internet = 95.00;
-        double sueldos = 1500.00;
-        double otros = 200.00;
-        double servBasicos = agua + luz + telefono + internet;
-        double totalGastos = servBasicos + sueldos + otros;
-
-        double multas = 120.00;
-        double alicuotas = 1800.00;
-        double reservas = 350.00;
-        double totalIngresos = multas + alicuotas + reservas;
-        double balance = totalIngresos - totalGastos;
-
-        gastos.setAll(
-                new FilaMonto("SERVICIOS BÁSICOS (Agua)", "$" + f(agua)),
-                new FilaMonto("SERVICIOS BÁSICOS (Luz)", "$" + f(luz)),
-                new FilaMonto("SERVICIOS BÁSICOS (Teléfono)", "$" + f(telefono)),
-                new FilaMonto("SERVICIOS BÁSICOS (Internet)", "$" + f(internet)),
-                new FilaMonto("SUELDOS", "$" + f(sueldos)),
-                new FilaMonto("OTROS", "$" + f(otros)),
-                new FilaMonto("TOTAL GASTOS", "$" + f(totalGastos))
-        );
-        ingresos.setAll(
-                new FilaMonto("MULTAS", "$" + f(multas)),
-                new FilaMonto("ALÍCUOTAS", "$" + f(alicuotas)),
-                new FilaMonto("RESERVAS", "$" + f(reservas)),
-                new FilaMonto("TOTAL INGRESOS", "$" + f(totalIngresos))
-        );
-
-        String obsLine = obs.isEmpty() ? "(sin observaciones)" : obs;
-        lblTotales.setText(
-                "Periodo: " + ini.format(FMT) + " a " + fin.format(FMT)
-                        + " | Balance (ingresos menos gastos): $" + f(balance)
-                        + " | Observaciones: " + obsLine);
-
-        periodosGenerados.add(clave);
-        setMensaje(
-                "Reporte de rendición de cuentas generado exitosamente, disponible para la consulta de los residentes.",
-                "message-success");
+        try {
+            ReporteRendicionDTO reporte = reportesService.generarReporteRendicionCuentas(ini, fin, obs);
+            mostrarReporte(reporte);
+            setMensaje(
+                    "Reporte de rendición de cuentas generado exitosamente, disponible para la consulta de los residentes.",
+                    "message-success");
+        } catch (RuntimeException ex) {
+            setMensaje(ex.getMessage(), "message-error");
+        }
     }
 
     @FXML
@@ -143,6 +112,29 @@ public class GenerarRendicionCuentasController {
         ingresos.clear();
         lblTotales.setText("Genere un reporte para ver totales y balance.");
         setMensaje("Formulario listo. Seleccione un nuevo periodo.", "message-info");
+    }
+
+    private void mostrarReporte(ReporteRendicionDTO reporte) {
+        gastos.setAll(
+                new FilaMonto("SERVICIOS BASICOS", f(reporte.totalServiciosBasicos)),
+                new FilaMonto("SUELDOS", f(reporte.totalSueldosGastos)),
+                new FilaMonto("OTROS", f(reporte.totalOtrosGastos)),
+                new FilaMonto("TOTAL GASTOS", f(reporte.totalGastosGeneral))
+        );
+        ingresos.setAll(
+                new FilaMonto("MULTAS", f(reporte.totalMultas)),
+                new FilaMonto("ALICUOTAS", f(reporte.totalAlicuotas)),
+                new FilaMonto("RESERVAS", f(reporte.totalReservas)),
+                new FilaMonto("TOTAL INGRESOS", f(reporte.totalIngresosGeneral))
+        );
+
+        String obs = reporte.observaciones == null || reporte.observaciones.isBlank()
+                ? "sin observaciones"
+                : reporte.observaciones;
+        lblTotales.setText(
+                "Periodo: " + reporte.fechaInicio + " a " + reporte.fechaFin
+                        + " | Balance ingresos menos gastos: " + f(reporte.balanceNeto)
+                        + " | Observaciones: " + obs);
     }
 
     private void ponerFechasPorDefecto() {
@@ -164,8 +156,8 @@ public class GenerarRendicionCuentasController {
         lblMensaje.setText(texto);
     }
 
-    private static String f(double v) {
-        return String.format(java.util.Locale.US, "%.2f", v);
+    private static String f(double valor) {
+        return String.format(Locale.US, "$%.2f", valor);
     }
 
     public static class FilaMonto {

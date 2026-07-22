@@ -1,6 +1,7 @@
 package fis.dsw.sgc.check_in.controller;
 
 import fis.dsw.sgc.check_in.dao.ProgramacionVisitaDAO;
+import fis.dsw.sgc.check_in.model.EstadoVisita;
 import fis.dsw.sgc.check_in.model.VisitaProgramada;
 import fis.dsw.sgc.check_in.service.IProgramVisitaService;
 import fis.dsw.sgc.check_in.service.ProgramVisitaService;
@@ -137,7 +138,7 @@ public class ProgramarVisitaController {
         visitaProgramada.setFechaProgramada(dpFecha.getValue().toString());
         visitaProgramada.setHoraProgramada(txtHora.getText().trim());
         visitaProgramada.setInformacionAdicional(txtInfoAdicional.getText().trim());
-        visitaProgramada.setEstado("PROGRAMADA");
+        visitaProgramada.setEstado(EstadoVisita.PROGRAMADA);
         String tipoVisita = cmbTipoVisita.getValue().equals("Visita Externa") ? "EXTERNA" : "A RESIDENTE";
         visitaProgramada.setTipoVisita(tipoVisita);
         String placa = txtPlaca.getText().trim();

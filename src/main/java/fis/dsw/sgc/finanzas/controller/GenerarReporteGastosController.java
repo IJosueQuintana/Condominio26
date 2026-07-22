@@ -1,8 +1,11 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl;
+import fis.dsw.sgc.finanzas.dao.ReportesDAOImpl;
 import fis.dsw.sgc.finanzas.dto.DetalleGastoDTO;
 import fis.dsw.sgc.finanzas.dto.ReporteGastosDTO;
 import fis.dsw.sgc.finanzas.service.IReportesService;
+import fis.dsw.sgc.finanzas.service.ReportesServiceImpl;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -22,12 +25,16 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class GenerarReporteGastosController implements Initializable {
 
-    // 5. Inyección de dependencias
     private final IReportesService reportesService;
+
+    public GenerarReporteGastosController() {
+        this(new ReportesServiceImpl(new ReportesDAOImpl(), new GestionUsuariosServiceImpl()));
+    }
 
     public GenerarReporteGastosController(IReportesService reportesService) {
         this.reportesService = reportesService;
@@ -36,16 +43,12 @@ public class GenerarReporteGastosController implements Initializable {
     @FXML private Button btnBuscar;
     @FXML private Button btnGuardar;
     @FXML private Button btnLimpiar;
-
-    // 1. Mapping de las 4 columnas de la tabla
     @FXML private TableColumn<DetalleGastoDTO, String> colMotivo;
     @FXML private TableColumn<DetalleGastoDTO, String> colDescripcion;
     @FXML private TableColumn<DetalleGastoDTO, LocalDate> colFecha;
     @FXML private TableColumn<DetalleGastoDTO, Double> colValor;
-
     @FXML private DatePicker dpFechaInicio;
     @FXML private DatePicker dpFechaFin;
-
     @FXML private Label lblIconoAgua;
     @FXML private Label lblIconoFechas;
     @FXML private Label lblIconoFechas1;
@@ -59,9 +62,7 @@ public class GenerarReporteGastosController implements Initializable {
     @FXML private Label lblTotalOtros;
     @FXML private Label lblTotalServiciosBasicos;
     @FXML private Label lblTotalSueldos;
-
     @FXML private TableView<DetalleGastoDTO> tbReporteGastos;
-
     @FXML private TextField txtTotalAgua;
     @FXML private TextField txtTotalGastos;
     @FXML private TextField txtTotalInternet;
@@ -76,66 +77,39 @@ public class GenerarReporteGastosController implements Initializable {
         LocalDate fechaInicio = dpFechaInicio.getValue();
         LocalDate fechaFin = dpFechaFin.getValue();
 
-        // Escenario Alterno 1: Validación de ingreso/existencia de fechas
         if (fechaInicio == null || fechaFin == null) {
-            mostrarAlerta("Formato de fechas incorrecto", "Formato de fechas incorrecto, ingrese la fecha en formato DD/MM/YYYY", Alert.AlertType.WARNING);
+            mostrarAlerta("Formato de fechas incorrecto", "Ingrese la fecha de inicio y la fecha de fin.", Alert.AlertType.WARNING);
             return;
         }
 
         LocalDate fechaActual = LocalDate.now();
 
-        // Escenario Alterno 2: La fecha de inicio tiene que ser menor que la fecha actual
         if (!fechaInicio.isBefore(fechaActual)) {
-            mostrarAlerta("Error en Fechas", "La fecha de inicio tiene que ser menor que la fecha actual", Alert.AlertType.WARNING);
+            mostrarAlerta("Error en fechas", "La fecha de inicio tiene que ser menor que la fecha actual.", Alert.AlertType.WARNING);
             return;
         }
 
-        // Escenario Alterno 3: La fecha de inicio debe ser menor que la fecha de fin
         if (!fechaInicio.isBefore(fechaFin)) {
-            mostrarAlerta("Error en Fechas", "La fecha de fin tiene que ser mayor que la fecha de inicio", Alert.AlertType.WARNING);
+            mostrarAlerta("Error en fechas", "La fecha de fin tiene que ser mayor que la fecha de inicio.", Alert.AlertType.WARNING);
             return;
         }
 
-        // Escenario Alterno 4: La fecha de fin debe ser menor o igual a la fecha actual
         if (fechaFin.isAfter(fechaActual)) {
-            mostrarAlerta("Error en Fechas", "La fecha de fin tiene que ser menor o igual a la fecha actual", Alert.AlertType.WARNING);
+            mostrarAlerta("Error en fechas", "La fecha de fin tiene que ser menor o igual a la fecha actual.", Alert.AlertType.WARNING);
             return;
         }
 
         try {
-            // 4. Ejecución del caso de uso desde el Service
             ReporteGastosDTO reporte = reportesService.generarReporteGastos(fechaInicio, fechaFin);
-
-            // 1. Poblado de los datos en la tabla (las 4 columnas)
-            if (reporte.detalles != null) {
-                tbReporteGastos.getItems().setAll(reporte.detalles);
-            }
-
-            // 2. Asignación de los datos entregados por el reporte en sus txtRespectivos
-            txtTotalAgua.setText(String.format("%.2f", reporte.totalAgua));
-            txtTotalLuz.setText(String.format("%.2f", reporte.totalLuz));
-            txtTotalTelefono.setText(String.format("%.2f", reporte.totalTelefono));
-            txtTotalInternet.setText(String.format("%.2f", reporte.totalInternet));
-            txtTotalSueldos.setText(String.format("%.2f", reporte.totalSueldos));
-            txtTotalOtros.setText(String.format("%.2f", reporte.totalOtros));
-
-            // Total de servicios básicos (Agua + Luz + Teléfono + Internet)
-            double totalServicios = reporte.totalAgua + reporte.totalLuz + reporte.totalTelefono + reporte.totalInternet;
-            txtTotalServiciosBasicos.setText(String.format("%.2f", totalServicios));
-
-            txtTotalGastos.setText(String.format("%.2f", reporte.totalGeneral));
-
-            // Escenario Básico: Mensaje final según el requisito
-            mostrarAlerta("Éxito", "Reporte generado correctamente", Alert.AlertType.INFORMATION);
-
-        } catch (Exception e) {
-            mostrarAlerta("Error al generar reporte", e.getMessage(), Alert.AlertType.ERROR);
+            mostrarReporte(reporte);
+            mostrarAlerta("Éxito", "Reporte generado correctamente.", Alert.AlertType.INFORMATION);
+        } catch (RuntimeException ex) {
+            mostrarAlerta("Error al generar reporte", ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     void descargarReporte(ActionEvent event) {
-        // 7. Descargar reporte en dos archivos CSV (detalles y resumen de totales)
         if (tbReporteGastos.getItems().isEmpty()) {
             mostrarAlerta("Sin datos", "No existen registros en la tabla para descargar.", Alert.AlertType.WARNING);
             return;
@@ -144,21 +118,19 @@ public class GenerarReporteGastosController implements Initializable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         try {
-            // Generación de CSV con los detalles (incluyendo Fecha)
             File archivoDetalles = new File("reporte_gastos_detalles.csv");
             try (PrintWriter writer = new PrintWriter(archivoDetalles)) {
                 writer.println("MOTIVO,DESCRIPCION,FECHA,VALOR");
                 for (DetalleGastoDTO detalle : tbReporteGastos.getItems()) {
-                    String fechaStr = (detalle.fecha != null) ? detalle.fecha.format(formatter) : "";
-                    writer.printf("%s,%s,%s,%.2f\n",
-                            detalle.motivo != null ? detalle.motivo : "",
-                            detalle.descripcion != null ? detalle.descripcion : "",
-                            fechaStr,
-                            detalle.valor != null ? detalle.valor : 0.0);
+                    String fecha = detalle.fecha == null ? "" : detalle.fecha.format(formatter);
+                    writer.printf(Locale.US, "%s,%s,%s,%.2f%n",
+                            textoSeguro(detalle.motivo),
+                            textoSeguro(detalle.descripcion),
+                            fecha,
+                            detalle.valor == null ? 0.0 : detalle.valor);
                 }
             }
 
-            // Generación de CSV con los totales consignados
             File archivoTotales = new File("reporte_gastos_totales.csv");
             try (PrintWriter writer = new PrintWriter(archivoTotales)) {
                 writer.println("CONCEPTO,VALOR");
@@ -173,17 +145,14 @@ public class GenerarReporteGastosController implements Initializable {
             }
 
             mostrarAlerta("Descarga completada", "Los archivos CSV fueron descargados con éxito.", Alert.AlertType.INFORMATION);
-
-        } catch (Exception e) {
-            mostrarAlerta("Error de exportación", "Error al crear los archivos de descarga: " + e.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception ex) {
+            mostrarAlerta("Error de exportación", "Error al crear los archivos de descarga: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     void limpiarReporte(ActionEvent event) {
-        // 8. Deja vacíos la tabla, los textfields y los filtros de fecha
         tbReporteGastos.getItems().clear();
-
         txtTotalAgua.clear();
         txtTotalLuz.clear();
         txtTotalTelefono.clear();
@@ -192,20 +161,17 @@ public class GenerarReporteGastosController implements Initializable {
         txtTotalSueldos.clear();
         txtTotalOtros.clear();
         txtTotalGastos.clear();
-
         dpFechaInicio.setValue(null);
         dpFechaFin.setValue(null);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // 1 y 3. Mapeo seguro directo hacia los atributos del DetalleGastoDTO
         colMotivo.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().motivo));
         colDescripcion.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().descripcion));
         colFecha.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().fecha));
         colValor.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().valor));
 
-        // 6. Carga y preservación de iconos de la interfaz
         FontIcon icon = new FontIcon("fa-external-link");
         icon.getStyleClass().add("titleIcon");
         lblIconoGastos.setGraphic(icon);
@@ -260,6 +226,44 @@ public class GenerarReporteGastosController implements Initializable {
         icon11.getStyleClass().add("totalsIcon");
         lblTotalGastos.setText(null);
         lblTotalGastos.setGraphic(icon11);
+
+        FontIcon icon12 = new FontIcon("fa-file-excel-o");
+        icon12.getStyleClass().add("optionsIcon");
+        lblIconoGuardar.setGraphic(icon12);
+        lblIconoGuardar.setText(null);
+
+        FontIcon icon13 = new FontIcon("fa-history");
+        icon13.getStyleClass().add("optionsIcon");
+        lblIconoLimpiar.setGraphic(icon13);
+        lblIconoLimpiar.setText(null);
+
+        FontIcon icon14 = new FontIcon("fa-search");
+        icon14.getStyleClass().add("optionsIcon");
+        icon14.getStyleClass().add("optionsIcon--white");
+        btnBuscar.setGraphic(icon14);
+    }
+
+    private void mostrarReporte(ReporteGastosDTO reporte) {
+        tbReporteGastos.getItems().clear();
+        if (reporte.detalles != null) {
+            tbReporteGastos.getItems().setAll(reporte.detalles);
+        }
+        txtTotalAgua.setText(formatoMoneda(reporte.totalAgua));
+        txtTotalLuz.setText(formatoMoneda(reporte.totalLuz));
+        txtTotalTelefono.setText(formatoMoneda(reporte.totalTelefono));
+        txtTotalInternet.setText(formatoMoneda(reporte.totalInternet));
+        txtTotalSueldos.setText(formatoMoneda(reporte.totalSueldos));
+        txtTotalOtros.setText(formatoMoneda(reporte.totalOtros));
+        txtTotalServiciosBasicos.setText(formatoMoneda(reporte.totalAgua + reporte.totalLuz + reporte.totalTelefono + reporte.totalInternet));
+        txtTotalGastos.setText(formatoMoneda(reporte.totalGeneral));
+    }
+
+    private static String formatoMoneda(double valor) {
+        return String.format(Locale.US, "%.2f", valor);
+    }
+
+    private static String textoSeguro(String texto) {
+        return texto == null ? "" : texto;
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {

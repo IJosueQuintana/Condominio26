@@ -65,4 +65,9 @@ public class ProgramVisitaService implements IProgramVisitaService {
     public boolean actualizarFechaHora(Integer idVisita, String nuevaFecha, String nuevaHora) {
         return programacionVisitaDAO.actualizarFechaHora(idVisita, nuevaFecha, nuevaHora);
     }
+
+    @Override
+    public boolean marcarVisitaProgRealizada(int idVisita) {
+        return programacionVisitaDAO.marcarComoRealizada(idVisita);
+    }
 }
