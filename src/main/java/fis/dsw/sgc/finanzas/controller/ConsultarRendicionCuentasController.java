@@ -1,37 +1,51 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl;
+import fis.dsw.sgc.finanzas.dao.ReportesDAOImpl;
+import fis.dsw.sgc.finanzas.dto.ReporteRendicionDTO;
+import fis.dsw.sgc.finanzas.service.IReportesService;
+import fis.dsw.sgc.finanzas.service.ReportesServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.Button;
-import java.time.LocalDate;
 import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.time.LocalDate;
+import java.util.Locale;
 
 public class ConsultarRendicionCuentasController {
 
     private static final String MSG_INICIAL = "Seleccione el periodo de inicio y fin y pulse Consultar.";
     private static final String PLACEHOLDER_VACIO = "Sin resultados. Seleccione un rango de fechas.";
 
+    private final IReportesService reportesService;
+
+    public ConsultarRendicionCuentasController() {
+        this(new ReportesServiceImpl(new ReportesDAOImpl(), new GestionUsuariosServiceImpl()));
+    }
+
+    public ConsultarRendicionCuentasController(IReportesService reportesService) {
+        this.reportesService = reportesService;
+    }
+
     @FXML private DatePicker dpInicio;
     @FXML private DatePicker dpFin;
     @FXML private Label lblMensaje;
-
     @FXML private TableView<RegistroFila> tablaResultados;
     @FXML private TableColumn<RegistroFila, String> colMotivo;
     @FXML private TableColumn<RegistroFila, String> colValor;
     @FXML private TableColumn<RegistroFila, String> colFecha;
     @FXML private TableColumn<RegistroFila, String> colEstado;
     @FXML private TableColumn<RegistroFila, String> colDescripcion;
-
-
     @FXML private HBox boxImprimir;
     @FXML private Label lblIconoImprimir;
     @FXML private Button btnImprimir;
@@ -41,7 +55,6 @@ public class ConsultarRendicionCuentasController {
 
     @FXML
     public void initialize() {
-        // Inicialización de columnas de la tabla
         colMotivo.setCellValueFactory(new PropertyValueFactory<>("motivo"));
         colValor.setCellValueFactory(new PropertyValueFactory<>("valor"));
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
@@ -51,14 +64,12 @@ public class ConsultarRendicionCuentasController {
         tablaResultados.setItems(filas);
         tablaResultados.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
-        // Placeholder para tabla vacía
         placeholderTabla = new Label(PLACEHOLDER_VACIO);
         placeholderTabla.getStyleClass().add("module-subtitle");
         placeholderTabla.setWrapText(true);
         placeholderTabla.setAlignment(Pos.CENTER);
         tablaResultados.setPlaceholder(placeholderTabla);
 
-        // Inicialización de fechas por defecto
         LocalDate hoy = LocalDate.now();
         dpInicio.setValue(hoy.withDayOfMonth(1));
         dpFin.setValue(hoy);
@@ -77,7 +88,6 @@ public class ConsultarRendicionCuentasController {
         LocalDate fin = dpFin.getValue();
         filas.clear();
 
-        // Validaciones de fecha
         if (ini == null || fin == null) {
             setMensaje("Fecha de inicio y fecha de fin son obligatorias.", "message-error");
             return;
@@ -87,20 +97,16 @@ public class ConsultarRendicionCuentasController {
             return;
         }
 
-        // --- VALORES QUEMADOS SEGÚN SOLICITUD ---
-        filas.addAll(
-                new RegistroFila("INGRESO", "$1800.00", "2026-07-05", "PAGADO", "Recaudación de alícuotas del mes"),
-                new RegistroFila("GASTO", "$320.00", "2026-07-10", "PROCESADO", "Pago de servicio de agua potable"),
-                new RegistroFila("INGRESO", "$120.00", "2026-07-12", "PAGADO", "Multas por retraso en asamblea"),
-                new RegistroFila("GASTO", "$410.50", "2026-07-15", "PROCESADO", "Pago de servicio de luz eléctrica"),
-                new RegistroFila("INGRESO", "$350.00", "2026-07-16", "PAGADO", "Reserva de áreas comunales (salón)")
-        );
-
-        setMensaje("Consulta generada exitosamente. Se encontraron " + filas.size() + " registros.", "message-success");
-
-        boxImprimir.setVisible(true);
-        boxImprimir.setManaged(true);
-
+        try {
+            ReporteRendicionDTO reporte = reportesService.consultarReporteRendicionCuentas(ini, fin);
+            cargarReporte(reporte);
+            setMensaje("Consulta generada exitosamente. Se encontraron " + filas.size() + " registros.", "message-success");
+            boxImprimir.setVisible(true);
+            boxImprimir.setManaged(true);
+        } catch (RuntimeException ex) {
+            setMensaje(ex.getMessage(), "message-error");
+            ocultarBotonImprimir();
+        }
     }
 
     @FXML
@@ -108,7 +114,6 @@ public class ConsultarRendicionCuentasController {
         LocalDate hoy = LocalDate.now();
         dpInicio.setValue(hoy.withDayOfMonth(1));
         dpFin.setValue(hoy);
-
         filas.clear();
         setMensaje(MSG_INICIAL, "message-info");
         ocultarBotonImprimir();
@@ -116,10 +121,23 @@ public class ConsultarRendicionCuentasController {
 
     @FXML
     void imprimirReporte(ActionEvent event) {
-        setMensaje("Imprimiendo reporte...", "message-success");
-
+        setMensaje("Reporte listo para descarga.", "message-success");
     }
 
+    private void cargarReporte(ReporteRendicionDTO reporte) {
+        String periodo = reporte.fechaInicio + " a " + reporte.fechaFin;
+        filas.addAll(
+                new RegistroFila("SERVICIOS BASICOS", f(reporte.totalServiciosBasicos), periodo, "GENERADO", "Total de gastos en servicios básicos"),
+                new RegistroFila("SUELDOS", f(reporte.totalSueldosGastos), periodo, "GENERADO", "Total de gastos en sueldos"),
+                new RegistroFila("OTROS GASTOS", f(reporte.totalOtrosGastos), periodo, "GENERADO", "Total de otros gastos"),
+                new RegistroFila("TOTAL GASTOS", f(reporte.totalGastosGeneral), periodo, "GENERADO", "Total general de gastos"),
+                new RegistroFila("MULTAS", f(reporte.totalMultas), periodo, "GENERADO", "Total de ingresos por multas"),
+                new RegistroFila("ALICUOTAS", f(reporte.totalAlicuotas), periodo, "GENERADO", "Total de ingresos por alícuotas"),
+                new RegistroFila("RESERVAS", f(reporte.totalReservas), periodo, "GENERADO", "Total de ingresos por reservas"),
+                new RegistroFila("TOTAL INGRESOS", f(reporte.totalIngresosGeneral), periodo, "GENERADO", "Total general de ingresos"),
+                new RegistroFila("BALANCE NETO", f(reporte.balanceNeto), periodo, "GENERADO", reporte.observaciones == null ? "" : reporte.observaciones)
+        );
+    }
 
     private void ocultarBotonImprimir() {
         boxImprimir.setVisible(false);
@@ -135,7 +153,10 @@ public class ConsultarRendicionCuentasController {
         lblMensaje.setText(texto);
     }
 
-    // Clase interna para manejar las filas de la tabla
+    private static String f(double valor) {
+        return String.format(Locale.US, "$%.2f", valor);
+    }
+
     public static class RegistroFila {
         private final String motivo;
         private final String valor;
@@ -151,10 +172,24 @@ public class ConsultarRendicionCuentasController {
             this.descripcion = descripcion;
         }
 
-        public String getMotivo() { return motivo; }
-        public String getValor() { return valor; }
-        public String getFecha() { return fecha; }
-        public String getEstado() { return estado; }
-        public String getDescripcion() { return descripcion; }
+        public String getMotivo() {
+            return motivo;
+        }
+
+        public String getValor() {
+            return valor;
+        }
+
+        public String getFecha() {
+            return fecha;
+        }
+
+        public String getEstado() {
+            return estado;
+        }
+
+        public String getDescripcion() {
+            return descripcion;
+        }
     }
 }
