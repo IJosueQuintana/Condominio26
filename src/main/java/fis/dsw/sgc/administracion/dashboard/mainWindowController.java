@@ -4,10 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Collectors;
 
+import fis.dsw.sgc.administracion.service.IGestionCuentasService;
+import fis.dsw.sgc.check_in.service.IAlertaSeguridadService;
+import fis.dsw.sgc.check_in.service.ICheckInService;
+import fis.dsw.sgc.check_in.service.IProgramVisitaService;
+import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import fis.dsw.sgc.core.session.SesionUsuario;
 import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.core.util.NavigationUtil;
 import fis.dsw.sgc.finanzas.controller.*;
+import fis.dsw.sgc.finanzas.service.IGastoService;
+import fis.dsw.sgc.finanzas.service.IPagoService;
+import fis.dsw.sgc.finanzas.service.IReportesService;
+import fis.dsw.sgc.reservas.service.IServicioReservas;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -60,11 +69,9 @@ public class mainWindowController {
     private final fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas;
     private final fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService;
     private final fis.dsw.sgc.administracion.service.IGestionUsuariosAPI usuariosService;
-    private final fis.dsw.sgc.reservas.service.IServicioReservas servicioReservasService;
+    private final fis.dsw.sgc.administracion.service.IGestionCuentasService gestionCuentasService;
 
-
-
-    public mainWindowController(fis.dsw.sgc.finanzas.service.IPagoService pagoService, fis.dsw.sgc.finanzas.service.IGastoService gastoService, fis.dsw.sgc.finanzas.service.IReportesService reportesService, fis.dsw.sgc.check_in.service.ICheckInService checkInService, fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService, fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService, fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas, fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService, fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService) {
+    public mainWindowController(fis.dsw.sgc.finanzas.service.IPagoService pagoService, fis.dsw.sgc.finanzas.service.IGastoService gastoService, fis.dsw.sgc.finanzas.service.IDeudaService deudaService, fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService financieraService, fis.dsw.sgc.finanzas.service.IReportesService reportesService, fis.dsw.sgc.check_in.service.ICheckInService checkInService, fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService, fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService, fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas, fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService, fis.dsw.sgc.administracion.service.IGestionUsuariosAPI usuariosService, fis.dsw.sgc.administracion.service.IGestionCuentasService gestionCuentasService) {
         this.pagoService = pagoService;
         this.gastoService = gastoService;
         this.deudaService = deudaService;
@@ -76,8 +83,7 @@ public class mainWindowController {
         this.servicioReservas = servicioReservas;
         this.comunicacionService = comunicacionService;
         this.usuariosService = usuariosService;
-        this.servicioReservasService = servicioReservasService;
-        this.cuentasService = cuentasService;
+        this.gestionCuentasService = gestionCuentasService;
     }
 
     // Constructor sin argumentos: red de seguridad si la inyección manual de
@@ -88,19 +94,23 @@ public class mainWindowController {
         this(construirConDependenciasPorDefecto());
     }
 
-    private mainWindowController(Object[] dependenciasPorDefecto) {
+    public mainWindowController(Object[] dependenciasPorDefecto) {
         this(
                 (fis.dsw.sgc.finanzas.service.IPagoService) dependenciasPorDefecto[0],
                 (fis.dsw.sgc.finanzas.service.IGastoService) dependenciasPorDefecto[1],
-                (fis.dsw.sgc.finanzas.service.IReportesService) dependenciasPorDefecto[2],
-                (fis.dsw.sgc.check_in.service.ICheckInService) dependenciasPorDefecto[3],
-                (fis.dsw.sgc.check_in.service.IAlertaSeguridadService) dependenciasPorDefecto[4],
-                (fis.dsw.sgc.check_in.service.IProgramVisitaService) dependenciasPorDefecto[5],
-                (fis.dsw.sgc.reservas.service.IServicioReservas) dependenciasPorDefecto[6],
-                (fis.dsw.sgc.comunicacion.service.IComunicacionService) dependenciasPorDefecto[7],
-                (fis.dsw.sgc.administracion.service.IGestionCuentasService) dependenciasPorDefecto[8]
+                (fis.dsw.sgc.finanzas.service.IDeudaService) dependenciasPorDefecto[2],
+                (fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService) dependenciasPorDefecto[3],
+                (fis.dsw.sgc.finanzas.service.IReportesService) dependenciasPorDefecto[4],
+                (fis.dsw.sgc.check_in.service.ICheckInService) dependenciasPorDefecto[5],
+                (fis.dsw.sgc.check_in.service.IAlertaSeguridadService) dependenciasPorDefecto[6],
+                (fis.dsw.sgc.check_in.service.IProgramVisitaService) dependenciasPorDefecto[7],
+                (fis.dsw.sgc.reservas.service.IServicioReservas) dependenciasPorDefecto[8],
+                (fis.dsw.sgc.comunicacion.service.IComunicacionService) dependenciasPorDefecto[9],
+                (fis.dsw.sgc.administracion.service.IGestionUsuariosAPI) dependenciasPorDefecto[10],
+                (fis.dsw.sgc.administracion.service.IGestionCuentasService) dependenciasPorDefecto[11]
         );
     }
+
 
     private static Object[] construirConDependenciasPorDefecto() {
         fis.dsw.sgc.finanzas.service.IDeudaFactory deudaFactory = new fis.dsw.sgc.finanzas.service.DeudaFactoryImpl();
@@ -158,6 +168,7 @@ public class mainWindowController {
                 comunicacionService, cuentasService
         };
     }
+
 
     @FXML
     public void initialize() {
@@ -271,34 +282,34 @@ public class mainWindowController {
         pagarDeudaController pagarDeudaController = new pagarDeudaController(pagoService);
         cargarVista("/finanzas/fxml/pagarDeuda.fxml",pagarDeudaController);    }
     @FXML void irAGenerarRendicionCuentas(ActionEvent event) {
-        cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml",
-                new fis.dsw.sgc.finanzas.controller.GenerarRendicionCuentasController(reportesService));
-    }
-    @FXML void irAConsultarDeudas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarDeudas.fxml");         }
-    @FXML void irARegistrarDeuda(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarDeuda.fxml");         }
-    @FXML void irAConfiguracionFinanciera(ActionEvent event) { cargarVista("/finanzas/fxml/configuracionFinanciera.fxml"); }
-    @FXML void irARegistrarPagoExterno(ActionEvent event) {
-        cargarVista("/finanzas/fxml/registrarPagoExterno.fxml",
-                new fis.dsw.sgc.finanzas.controller.RegistrarPagoExternoController(gastoService));
-    }
-    @FXML void irAGenerarReporteGastos(ActionEvent event) {
-        cargarVista("/finanzas/fxml/generarReporteGastos.fxml",
-                new fis.dsw.sgc.finanzas.controller.GenerarReporteGastosController(reportesService));
-    }
-    @FXML void irASolicitarPagoEnCuotas(ActionEvent event)         { cargarVista("/finanzas/fxml/solicitarPagoEnCuotas.fxml");         }
-  
-    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event) {
-        cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml",
-                new fis.dsw.sgc.finanzas.controller.ConsultarRendicionCuentasController(reportesService));
-    }
-    @FXML void irAGenerarReportePagosInternos(ActionEvent event) {
-        cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml",
-                new fis.dsw.sgc.finanzas.controller.GenerarReportePagosRealizadosController(reportesService));
-    }
-    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event) {
-        cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml",
-                new fis.dsw.sgc.finanzas.controller.GenerarCertificadoNoDeudorController(reportesService));
-    }
+        GenerarRendicionCuentasController generarRendicionCuentasController = new GenerarRendicionCuentasController(reportesService);
+        cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml",generarRendicionCuentasController);    }
+    @FXML void irAConsultarDeudas(ActionEvent event)         {
+        ConsultarDeudasController consultarDeudasController = new ConsultarDeudasController(deudaService);
+        cargarVista("/finanzas/fxml/consultarDeudas.fxml");         }
+    @FXML void irARegistrarDeuda(ActionEvent event)         {
+        RegistrarDeudaController registrarDeudaController = new RegistrarDeudaController(deudaService);
+        cargarVista("/finanzas/fxml/registrarDeuda.fxml",registrarDeudaController);         }
+    @FXML void irAConfiguracionFinanciera(ActionEvent event) {
+        ConfiguracionFinancieraController configuracionFinancieraController = new ConfiguracionFinancieraController(financieraService);
+        cargarVista("/finanzas/fxml/configuracionFinanciera.fxml",configuracionFinancieraController);    }
+    @FXML void irARegistrarPagoExterno(ActionEvent event)         {
+        RegistrarPagoExternoController registrarPagoExternoController = new RegistrarPagoExternoController(gastoService);
+        cargarVista("/finanzas/fxml/registrarPagoExterno.fxml", registrarPagoExternoController);         }
+    @FXML void irAGenerarReporteGastos(ActionEvent event)         {
+        GenerarReporteGastosController reporteGastosController = new GenerarReporteGastosController(reportesService);
+        cargarVista("/finanzas/fxml/generarReporteGastos.fxml", reporteGastosController);         }
+    @FXML void irASolicitarPagoEnCuotas(ActionEvent event)         {
+        SolicitarPagoEnCuotasController solicitarPagoEnCuotasController = new SolicitarPagoEnCuotasController(deudaService);
+        cargarVista("/finanzas/fxml/solicitarPagoEnCuotas.fxml", solicitarPagoEnCuotasController);         }
+
+    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event)         {
+        ConsultarRendicionCuentasController consultarRendicionCuentasController = new ConsultarRendicionCuentasController(reportesService);
+        cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml",consultarRendicionCuentasController);         }
+    @FXML void irAGenerarReportePagosInternos(ActionEvent event)     {
+        GenerarReportePagosRealizadosController generarReportePagosRealizadosController = new GenerarReportePagosRealizadosController(reportesService);
+        cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml", generarReportePagosRealizadosController);    }
+    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event)      { cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml");         }
 
     // ==================== Submenú Inmuebles ====================
 
@@ -386,7 +397,6 @@ public class mainWindowController {
 
     @FXML
     void logOut(ActionEvent event) throws IOException {
-        SesionUsuario.obtenerInstancia().cerrarSesion();
         String vista = "/administracion/fxml/login.fxml";
         Parent root = FXMLLoader.load(getClass().getResource(vista));
         NavigationUtil.changeScene(event, root);
@@ -396,44 +406,37 @@ public class mainWindowController {
 
     @FXML
     void irARegistrarCuenta(ActionEvent event) {
-        cargarVista("/administracion/fxml/registrarCuenta.fxml",
-                new fis.dsw.sgc.administracion.controller.RegistrarCuentaController(cuentasService));
+        cargarVista("/administracion/fxml/registrarCuenta.fxml");
     }
 
     @FXML
     void irAActualizarPerfil(ActionEvent event) {
-        cargarVista("/administracion/fxml/actualizarPerfil.fxml",
-                new fis.dsw.sgc.administracion.controller.ActualizarPerfilController(cuentasService));
+        cargarVista("/administracion/fxml/actualizarPerfil.fxml");
     }
 
     @FXML
     void irAActualizarInformacionCuenta(ActionEvent event) {
-        cargarVista("/administracion/fxml/actualizarInformacionDeCuenta.fxml",
-                new fis.dsw.sgc.administracion.controller.ActualizarInformacionDeCuentaController(cuentasService));
+        cargarVista("/administracion/fxml/actualizarInformacionDeCuenta.fxml");
     }
 
     @FXML
     void irADesactivarCuenta(ActionEvent event) {
-        cargarVista("/administracion/fxml/desactivarCuenta.fxml",
-                new fis.dsw.sgc.administracion.controller.DesactivarCuentaController(cuentasService));
+        cargarVista("/administracion/fxml/desactivarCuenta.fxml");
     }
 
     @FXML
     void irAAsignarRol(ActionEvent event) {
-        cargarVista("/administracion/fxml/asignarRol.fxml",
-                new fis.dsw.sgc.administracion.controller.AsignarRolController(cuentasService));
+        cargarVista("/administracion/fxml/asignarRol.fxml");
     }
 
     @FXML
     void irADefinirPermisos(ActionEvent event) {
-        cargarVista("/administracion/fxml/definirPermisos.fxml",
-                new fis.dsw.sgc.administracion.controller.DefinirPermisosController(cuentasService));
+        cargarVista("/administracion/fxml/definirPermisos.fxml");
     }
 
     @FXML
     void irARecuperarContrasena(ActionEvent event) {
-        cargarVista("/administracion/fxml/recuperarContrasena.fxml",
-                new fis.dsw.sgc.administracion.controller.RecuperarContrasenaController(cuentasService));
+        cargarVista("/administracion/fxml/recuperarContrasena.fxml");
     }
 
 }

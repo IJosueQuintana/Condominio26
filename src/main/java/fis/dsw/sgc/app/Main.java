@@ -1,5 +1,6 @@
 package fis.dsw.sgc.app;
 
+import fis.dsw.sgc.administracion.controller.loginController;
 import fis.dsw.sgc.finanzas.service.FachadaParaReservasImpl;
 import fis.dsw.sgc.inmuebles.service.InmueblesServiceImpl;
 import javafx.application.Application;
@@ -43,7 +44,7 @@ public class Main extends Application {
         fis.dsw.sgc.administracion.dao.IPermisoDAO permisoDAO = new fis.dsw.sgc.administracion.dao.PermisoDAOMySQL();
         fis.dsw.sgc.administracion.dao.IRolDAO rolDAO = new fis.dsw.sgc.administracion.dao.RolDAOMySQL();
         fis.dsw.sgc.administracion.dao.IUsuarioDAO usuarioDAO = new fis.dsw.sgc.administracion.dao.UsuarioDAOMySQL();
-
+        fis.dsw.sgc.administracion.dao.ITokenRecuperacionDAO tokenDAO = new fis.dsw.sgc.administracion.dao.TokenRecuperacionDAOMySQL();
         fis.dsw.sgc.comunicacion.dao.IComunicacionDAO comunicacionDAO = new  fis.dsw.sgc.comunicacion.dao.ComunicacionDAOSQLite();
 
         // FACHADAS Y SERVICE PARA FACHADAS
@@ -57,18 +58,52 @@ public class Main extends Application {
         fis.dsw.sgc.finanzas.service.IPagoService pagoService = new fis.dsw.sgc.finanzas.service.PagoServiceImpl(pagoFactory,pagoDAO,deudaDAO);
         fis.dsw.sgc.finanzas.service.IGastoService gastoService  = new fis.dsw.sgc.finanzas.service.GastoServiceImpl(gastoDAO);
         fis.dsw.sgc.finanzas.service.IReportesService reportesService = new fis.dsw.sgc.finanzas.service.ReportesServiceImpl(reportesDAO,usuariosService);
+        fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService financieraService = new fis.dsw.sgc.finanzas.service.ConfiguracionFinancieraService();
         fis.dsw.sgc.check_in.service.ICheckInService checkInService = new fis.dsw.sgc.check_in.service.CheckInServiceImpl(registroEntradaDAO,programacionVisitaDAO);
         fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService = new fis.dsw.sgc.check_in.service.AlertaSeguridadServiceImpl(alertaSeguridadDAO);
         fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService = new fis.dsw.sgc.check_in.service.ProgramVisitaService(programacionVisitaDAO);
         fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas = new fis.dsw.sgc.reservas.service.ServicioReservasImpl(reservaDAO,observacionReservaDAO,inmueblesService,fachaReservas);
         fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService = new fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl(comunicacionDAO);
+        fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService = new fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl(usuarioDAO,cuentaDAO,rolDAO,permisoDAO,tokenDAO);
+// 1. Empaquetamos las dependencias en el orden exacto que espera mainWindowController
+        // 1. Empaquetamos EXACTAMENTE las 12 dependencias requeridas
+        Object[] paqueteDependencias = new Object[] {
+                pagoService,            // 0
+                gastoService,           // 1
+                deudaService,           // 2
+                financieraService,                   // 3 (financieraService no está en Main aún)
+                reportesService,        // 4
+                checkInService,         // 5
+                alertaSeguridadService, // 6
+                programVisitaService,   // 7
+                servicioReservas,       // 8
+                comunicacionService,    // 9
+                usuariosService,        // 10
+                cuentasService          // 11
+        };
 
+        // 2. Instanciamos el loader para la vista de Login
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/administracion/fxml/login.fxml"));
 
-        Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/login.fxml"));
+        // 3. Inyectamos los servicios al loginController
+        loader.setControllerFactory(clazz -> {
+            if (clazz == loginController.class) {
+                // Le pasamos su API y el paquete que debe llevarle al Dashboard
+                return new loginController(usuariosService, paqueteDependencias);
+            }
+            try {
+                return clazz.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // 4. Cargamos el root
+        Parent root = loader.load();
+
         Scene scene = new Scene(root);
         primaryStage.setTitle("Sistema de Gestión Para Condominio");
         primaryStage.setScene(scene);
-        // Permite abrir la interfaz en pantalla completa
         primaryStage.setMaximized(true);
         primaryStage.show();
     }
