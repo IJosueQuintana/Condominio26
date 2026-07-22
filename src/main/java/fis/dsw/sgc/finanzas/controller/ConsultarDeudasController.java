@@ -2,7 +2,6 @@ package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.core.util.NavigationUtil;
 import fis.dsw.sgc.finanzas.dto.DeudaConsultadaDTO;
-import fis.dsw.sgc.finanzas.service.DeudaServiceImpl;
 import fis.dsw.sgc.finanzas.service.IDeudaService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -50,7 +49,11 @@ public class ConsultarDeudasController {
 
     private final ObservableList<DeudaFila> filas = FXCollections.observableArrayList();
     private Label placeholderTabla;
-    private final IDeudaService deudaService = new DeudaServiceImpl();
+    private final IDeudaService deudaService;
+
+    public ConsultarDeudasController(IDeudaService deudaService) {
+        this.deudaService = deudaService;
+    }
 
     @FXML
     public void initialize() {
@@ -121,8 +124,9 @@ public class ConsultarDeudasController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/finanzas/fxml/detalleDeuda.fxml"));
+            DetalleDeudaController ctrl = new DetalleDeudaController(deudaService);
+            loader.setController(ctrl);
             Parent root = loader.load();
-            DetalleDeudaController ctrl = loader.getController();
             ctrl.setDeuda(fila, () -> {
                 if ("ELIMINADA".equals(ctrl.getResultadoAccion())) {
                     filas.remove(fila);
@@ -167,7 +171,7 @@ public class ConsultarDeudasController {
                 filas.add(aFila(dto));
             }
             setMensaje("Deudas del residente.", "message-success");
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
             setMensaje(ex.getMessage(), "message-error");
         }
     }

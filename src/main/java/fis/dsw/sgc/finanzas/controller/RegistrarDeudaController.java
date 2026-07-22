@@ -1,7 +1,6 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.finanzas.dto.NuevaDeudaDTO;
-import fis.dsw.sgc.finanzas.service.DeudaServiceImpl;
 import fis.dsw.sgc.finanzas.service.IDeudaService;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -24,7 +23,11 @@ public class RegistrarDeudaController {
     @FXML private TextArea txtDescripcion;
     @FXML private Label lblMensaje;
 
-    private final IDeudaService deudaService = new DeudaServiceImpl();
+    private final IDeudaService deudaService;
+
+    public RegistrarDeudaController(IDeudaService deudaService) {
+        this.deudaService = deudaService;
+    }
 
     @FXML
     public void initialize() {

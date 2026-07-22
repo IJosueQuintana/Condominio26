@@ -1,6 +1,5 @@
 package fis.dsw.sgc.finanzas.controller;
 
-import fis.dsw.sgc.finanzas.service.DeudaServiceImpl;
 import fis.dsw.sgc.finanzas.service.IDeudaService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -33,7 +32,11 @@ public class DetalleDeudaController {
     private String resultadoAccion = "";
     private String estadoActualizado;
     private String fechaActualizada;
-    private final IDeudaService deudaService = new DeudaServiceImpl();
+    private final IDeudaService deudaService;
+
+    public DetalleDeudaController(IDeudaService deudaService) {
+        this.deudaService = deudaService;
+    }
 
     private Integer idDeudaNumerico() {
         if (deuda == null || deuda.getIdDeuda() == null) {

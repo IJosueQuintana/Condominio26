@@ -1,7 +1,6 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.finanzas.dto.EntidadBancariaDTO;
-import fis.dsw.sgc.finanzas.service.ConfiguracionFinancieraService;
 import fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -51,9 +50,14 @@ public class ConfiguracionFinancieraController {
 
     private final ObservableList<EntidadBancariaDTO> entidades = FXCollections.observableArrayList();
 
-    // Conexión Controller -> Service: por aquí se accede a la lógica de negocio real (Service -> DAO)
-    private final IConfiguracionFinancieraService configuracionFinancieraService = new ConfiguracionFinancieraService();
-    private double valorActualAlicuota = 45.00;
+    // Conexión Controller -> Service: el service llega inyectado por constructor (no se instancia aquí)
+    private final IConfiguracionFinancieraService configuracionFinancieraService;
+    private double valorActualAlicuota;
+
+    // Inyección de dependencias: quien cargue este controlador (FXMLLoader + setController) debe pasar el service
+    public ConfiguracionFinancieraController(IConfiguracionFinancieraService configuracionFinancieraService) {
+        this.configuracionFinancieraService = configuracionFinancieraService;
+    }
 
     @FXML
     public void initialize() {
@@ -74,7 +78,10 @@ public class ConfiguracionFinancieraController {
         placeholder.setMaxWidth(420);
         tablaEntidades.setPlaceholder(placeholder);
 
+        // Carga inicial: se trae del Service el valor de alícuotas y las entidades ya registradas
+        valorActualAlicuota = configuracionFinancieraService.consultarValorMensualDeAlicuotas();
         actualizarValorActual();
+        entidades.setAll(configuracionFinancieraService.listarEntidadesBancarias());
     }
 
     // ==================== Valor mensual de alícuotas ====================
