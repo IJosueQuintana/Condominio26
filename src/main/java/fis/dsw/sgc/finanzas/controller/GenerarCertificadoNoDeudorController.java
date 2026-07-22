@@ -1,21 +1,30 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.finanzas.service.IReportesService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-// Controlador de la vista Generar Certificado de No Deudor
-
 public class GenerarCertificadoNoDeudorController {
 
+    // 5. Inyección de dependencias
+    private final IReportesService reportesService;
+
+    public GenerarCertificadoNoDeudorController(IReportesService reportesService) {
+        this.reportesService = reportesService;
+    }
+
+    // 1. Opciones de interfaz mapeadas desde la vista FXML
     @FXML private DatePicker dpInicio;
     @FXML private DatePicker dpFin;
     @FXML private TextArea txtObservaciones;
@@ -26,8 +35,9 @@ public class GenerarCertificadoNoDeudorController {
     @FXML private Label lblIconoImprimir;
     @FXML private Button btnImprimir;
 
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter FMT_DDMMYYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    // 6. Mantiene el initialize cargando iconos y estado inicial
     @FXML
     public void initialize() {
         LocalDate hoy = LocalDate.now();
@@ -43,85 +53,129 @@ public class GenerarCertificadoNoDeudorController {
         lblIconoImprimir.setText(null);
     }
 
-
-    @FXML
-    void descargarReporte(ActionEvent event) {
-        setMensaje("Imprimiendo certificado...", "message-success");
-        // Lógica de impresión
-    }
-
+    // 4. Ejecución del caso de uso "generarCertificadoDeNoDeudor"
     @FXML
     void generar(ActionEvent event) {
-        LocalDate ini = dpInicio.getValue();
-        LocalDate fin = dpFin.getValue();
+        LocalDate fechaInicio = dpInicio.getValue();
+        LocalDate fechaFin = dpFin.getValue();
+        LocalDate fechaActual = LocalDate.now();
+
+        // Validaciones del Caso de Uso según la especificación
+        if (fechaInicio == null || fechaFin == null) {
+            setMensaje("Fechas con formato invalido. Ambas fechas deben tener el formato \"DD/MM/YYYY\"", "message-error");
+            return;
+        }
+
+        // Escenario Alterno 2: La fecha de inicio debe ser menor que la fecha actual
+        if (!fechaInicio.isBefore(fechaActual)) {
+            setMensaje("La fecha de inicio tiene que ser menor que la fecha actual", "message-error");
+            return;
+        }
+
+        // Escenario Alterno 3: La fecha de inicio debe ser menor que la fecha de fin
+        if (!fechaInicio.isBefore(fechaFin)) {
+            setMensaje("La fecha de fin tiene que ser mayor que la fecha de inicio", "message-error");
+            return;
+        }
+
+        // Escenario Alterno 4: La fecha de fin debe ser menor o igual a la fecha actual
+        if (fechaFin.isAfter(fechaActual)) {
+            setMensaje("La fecha de fin tiene que ser menor o igual a la fecha actual.", "message-error");
+            return;
+        }
+
+        try {
+            // Nota: En caso de no existir un DTO específico en la interfaz, el Service procesa/valida los datos.
+            // Para la verificación de deudas/pagos, se consulta al servicio:
+            reportesService.generarReportedePagosRealizados(fechaInicio, fechaFin);
+
+            String strInicio = fechaInicio.format(FMT_DDMMYYYY);
+            String strFin = fechaFin.format(FMT_DDMMYYYY);
+
+            // 7. Texto formal asignado al resumen del certificado
+            String textoCertificado = String.format(
+                    "El sistema de gestión del condominio [Nombre del Condominio] certifica que el residente [Nombre y apellido] con cédula [0123456789] no presenta deudas pendientes entre las fechas %s y %s.",
+                    strInicio,
+                    strFin
+            );
+
+            // 2. Colocar datos en sus labels / txt Respectivos
+            lblResumen.setText(textoCertificado);
+
+            setMensaje("Certificado generado exitosamente", "message-success");
+
+            if (boxImprimir != null) {
+                boxImprimir.setVisible(true);
+                boxImprimir.setManaged(true);
+            }
+
+        } catch (Exception e) {
+            // Escenario Alternativo 5 o excepciones personalizadas producidas por el Service
+            setMensaje("El Residente no se encuentra al día o ocurrió un inconveniente: " + e.getMessage(), "message-error");
+        }
+    }
+
+    // 7. Generación de archivos CSV con detalles y resumen/totales
+    @FXML
+    void descargarReporte(ActionEvent event) {
+        if (dpInicio.getValue() == null || dpFin.getValue() == null) {
+            setMensaje("No se ha generado ningún certificado para descargar.", "message-error");
+            return;
+        }
+
+        String strInicio = dpInicio.getValue().format(FMT_DDMMYYYY);
+        String strFin = dpFin.getValue().format(FMT_DDMMYYYY);
         String obs = txtObservaciones.getText() == null ? "" : txtObservaciones.getText().trim();
 
-        if (ini == null || fin == null) {
-            setMensaje("Fecha de inicio y fecha de fin son obligatorias.", "message-error");
-            return;
+        try {
+            // Archivo CSV con los Detalles / Certificación
+            File archivoDetalles = new File("certificado_no_deudor_detalles.csv");
+            try (PrintWriter writer = new PrintWriter(archivoDetalles)) {
+                writer.println("CONDOMINIO,RESIDENTE,CEDULA,FECHA_INICIO,FECHA_FIN,ESTADO");
+                writer.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                        "Nombre del Condominio",
+                        "Nombre y apellido",
+                        "0123456789",
+                        strInicio,
+                        strFin,
+                        "SIN DEUDAS PENDIENTES");
+            }
+
+            // Archivo CSV con los Totales y Observaciones
+            File archivoTotales = new File("certificado_no_deudor_totales.csv");
+            try (PrintWriter writer = new PrintWriter(archivoTotales)) {
+                writer.println("CONCEPTO,VALOR");
+                writer.println("Total Deudas Pendientes,0.00");
+                writer.println("Total En Mora,0.00");
+                writer.println("Observaciones,\"" + obs.replace("\"", "\"\"") + "\"");
+                writer.println("Estado General,AL DIA");
+            }
+
+            setMensaje("Certificado descargado exitosamente en archivos CSV.", "message-success");
+
+        } catch (Exception e) {
+            setMensaje("Error al descargar el certificado: " + e.getMessage(), "message-error");
         }
-        if (fin.isBefore(ini)) {
-            setMensaje("La fecha fin debe ser mayor o igual a la fecha inicio.", "message-error");
-            return;
-        }
-
-        // Valores de ejemplo hasta conectar con el estado del residente
-        double agua = 320.00;
-        double luz = 410.50;
-        double telefono = 80.00;
-        double internet = 95.00;
-        double sueldos = 1500.00;
-        double otros = 200.00;
-        double totalGastos = agua + luz + telefono + internet + sueldos + otros;
-
-        double multas = 120.00;
-        double alicuotas = 1800.00;
-        double reservas = 350.00;
-        double totalIngresos = multas + alicuotas + reservas;
-        double balance = totalIngresos - totalGastos;
-
-        String periodo = ini.format(FMT) + " → " + fin.format(FMT);
-        String obsLine = obs.isEmpty() ? "(sin observaciones)" : obs;
-
-        lblResumen.setText(
-                "Periodo: " + periodo + "\n"
-                        + "Observaciones: " + obsLine + "\n\n"
-                        + "GASTOS\n"
-                        + "  Agua: $" + f(agua) + " | Luz: $" + f(luz)
-                        + " | Teléfono: $" + f(telefono) + " | Internet: $" + f(internet) + "\n"
-                        + "  Sueldos: $" + f(sueldos) + " | Otros: $" + f(otros) + "\n"
-                        + "  TOTAL GASTOS: $" + f(totalGastos) + "\n\n"
-                        + "INGRESOS\n"
-                        + "  Multas: $" + f(multas) + " | Alícuotas: $" + f(alicuotas)
-                        + " | Reservas: $" + f(reservas) + "\n"
-                        + "  TOTAL INGRESOS: $" + f(totalIngresos) + "\n\n"
-                        + "BALANCE (ingresos − gastos): $" + f(balance)
-        );
-
-        setMensaje(
-                "Certificado de No Deudor generado exitosamente. Disponible para consulta del residente.",
-                "message-success"
-        );
-        boxImprimir.setVisible(true);
-        boxImprimir.setManaged(true);
     }
 
+    // 8. Limpiar solo deja vacía la tabla/resumen y los textfields/fieles de entrada
     @FXML
     void limpiar(ActionEvent event) {
-        LocalDate hoy = LocalDate.now();
-        dpInicio.setValue(hoy.withDayOfMonth(1));
-        dpFin.setValue(hoy);
+        dpInicio.setValue(null);
+        dpFin.setValue(null);
         txtObservaciones.clear();
-        lblResumen.setText("el sistema de gestión del condominio [Nombre del Condominio] certifica que el residente [Nombre y apellido] con cédula [0123456789] no presenta deudas pendientes entre las fechas [inicio] [fin]. ");
-        setMensaje("Certificado listo. Seleccione un nuevo periodo.", "message-info");
+        lblResumen.setText("el sistema de gestión del condominio [Nombre del Condominio] certifica que el residente [Nombre y apellido] con cédula [0123456789] no presenta deudas pendientes entre las fechas [inicio] [fin].");
+        setMensaje("Seleccione el periodo y pulse Generar certificado.", "message-info");
         ocultarBotonImprimir();
     }
+
     private void ocultarBotonImprimir() {
         if (boxImprimir != null) {
             boxImprimir.setVisible(false);
             boxImprimir.setManaged(false);
         }
     }
+
     private void setMensaje(String texto, String estilo) {
         lblMensaje.getStyleClass().removeAll("message-info", "message-success", "message-error");
         if (!lblMensaje.getStyleClass().contains("message-label")) {
@@ -129,9 +183,5 @@ public class GenerarCertificadoNoDeudorController {
         }
         lblMensaje.getStyleClass().add(estilo);
         lblMensaje.setText(texto);
-    }
-
-    private static String f(double v) {
-        return String.format(java.util.Locale.US, "%.2f", v);
     }
 }
