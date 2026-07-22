@@ -12,13 +12,25 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AlertaSeguridadDAO implements IAlertaSeguridadDAO {
 
-    // Constructor explícito requerido para instanciación manual desde Main (DI manual del jefe de proyecto)
-    public AlertaSeguridadDAO() {}
+    private Connection conn;
+
+    // Constructor por defecto: usa la conexión del Singleton (respaldo si no hay inyección)
+    public AlertaSeguridadDAO() {
+        this.conn = DBConnection.getInstance().getConnection();
+    }
+
+    // Constructor con DI: recibe la conexión inyectada
+    public AlertaSeguridadDAO(Connection conn) {
+        this.conn = conn;
+    }
 
     @Override
     public boolean guardar(AlertaSeguridad alerta) {

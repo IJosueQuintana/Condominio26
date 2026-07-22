@@ -18,7 +18,7 @@ import java.util.List;
 
 public class RegistroEntradaDAO implements IRegistroEntradaDAO {
 
-    // Constructor explícito requerido para instanciación manual desde Main (DI manual del jefe de proyecto)
+    // Constructor explícito requerido para instanciación manual desde Main 
     public RegistroEntradaDAO() {}
 
     @Override
