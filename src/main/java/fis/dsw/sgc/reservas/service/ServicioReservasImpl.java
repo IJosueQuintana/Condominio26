@@ -278,7 +278,11 @@ public class ServicioReservasImpl implements IServicioReservas {
             if (reserva != null) {
                 String cedula = obtenerNumeroDocumento(reserva.getIdResidente());
                 if (cedula != null) {
-                    NuevaDeudaDTO nuevaDeuda = new NuevaDeudaDTO(cedula, "MULTA", LocalDate.now().plusDays(7), "Multa por reserva: " + motivo, 20.0);
+                    double monto = 500.0;
+                    if (motivo != null && motivo.toLowerCase().contains("no show")) {
+                        monto = 20.0;
+                    }
+                    NuevaDeudaDTO nuevaDeuda = new NuevaDeudaDTO(cedula, "MULTA", LocalDate.now().plusDays(7), "Multa por reserva: " + motivo, monto);
                     fachadaFinanzas.registrarDeuda(nuevaDeuda);
                 }
             }
