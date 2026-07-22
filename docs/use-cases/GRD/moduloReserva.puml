@@ -8,28 +8,51 @@ skinparam linetype orthogonal
 
 actor Residente
 actor Administrador
+actor Sistema
+actor "Módulo Finanzas\n(GRA)" as Finanzas
 
-rectangle "Módulo\n de Reservas de Espacios Comunes" {
+rectangle "Módulo de Reservas de Espacios Comunes (GRD)" {
 
-    usecase "reservarAreaComun" as UC1
-    usecase "reservarSalonDeEventos" as UC2
-    usecase "reservarAreaRecreacional" as UC3
-    usecase "visualizarDisponibilidadDeEspacios" as UC4
-    usecase "cancelarReserva" as UC5
-    usecase "agregarObservacionesDeReserva" as UC6
+    usecase "reservarEspacioComun" as UC1
+    usecase "consultarDisponibilidadDeEspacios" as UC2
+    usecase "verMisReservas" as UC3
+    usecase "cancelarReserva" as UC4
+    usecase "agregarObservacionDeReserva" as UC5
+    usecase "auditarReservas" as UC6
+    usecase "solicitarMultaPorInfraccion" as UC7
+    usecase "finalizarReservasVencidas" as UC8
+    usecase "verificarMoraDelResidente" as UC9
+    usecase "registrarDeudaPorReserva" as UC10
 
-    ' Definimos las herencias (las flechas irán limpias hacia la izquierda)
-    UC2 -up-|> UC1
-    UC3 -down-|> UC1
+    ' Reservar un espacio consulta disponibilidad y valida/factura con Finanzas
+    UC1 .right.> UC2 : <<include>>
+    UC1 .down.> UC9 : <<include>>
+    UC1 .down.> UC10 : <<include>>
 
-    ' El include se despliega hacia la derecha de forma lineal
-    UC1 .right.> UC4 : <<include>>
+    ' Auditar reservas reutiliza cancelar y agregar observación
+    UC6 .down.> UC4 : <<extend>>
+    UC6 .down.> UC5 : <<extend>>
+
+    ' Solicitar multa se aplica junto a una observación y factura en Finanzas
+    UC7 .up.> UC5 : <<extend>>
+    UC7 .down.> UC10 : <<include>>
 }
 
-' El actor se conecta de forma limpia a las opciones principales
+' Residente: reserva, consulta sus reservas, cancela y observa
 Residente --> UC1
+Residente --> UC3
+Residente --> UC4
 Residente --> UC5
-Residente --> UC6
+
+' Administrador: audita todas las reservas, cancela, observa y multa
 Administrador --> UC6
+Administrador --> UC4
+Administrador --> UC5
+Administrador --> UC7
+
+' Actores secundarios (procesos/integraciones)
+Sistema --> UC8
+Finanzas --> UC9
+Finanzas --> UC10
 
 @enduml
