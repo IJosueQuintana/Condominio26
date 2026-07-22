@@ -1,7 +1,8 @@
 package fis.dsw.sgc.finanzas.service;
 
+import fis.dsw.sgc.administracion.exception.ResidenteNoExisteException;
 import fis.dsw.sgc.administracion.service.IGestionUsuariosAPI;
-import fis.dsw.sgc.administracion.dto.ResidenteFachadaDTO;
+import fis.dsw.sgc.usuarios.dto.ResidenteFachadaDTO;
 import fis.dsw.sgc.finanzas.dao.IReportesDAO;
 import fis.dsw.sgc.finanzas.dto.*;
 import fis.dsw.sgc.finanzas.exception.FechasInvalidasException;
@@ -39,25 +40,18 @@ public class ReportesServiceImpl implements IReportesService {
     }
 
     @Override
-    public ReportePagosDTO consultarPagosEfectuados(LocalDate fechaInicio, LocalDate fechaFin, String cedula) {
+    public ReportePagosDTO generarReportedePagosRealizados(LocalDate fechaInicio, LocalDate fechaFin) {
 
         if(fechaInicio.isAfter(fechaFin) || fechaInicio.isAfter(LocalDate.now()) || fechaFin.isAfter(LocalDate.now())){
             throw new FechasInvalidasException("Las fechas no cumplen un formato válido");
         }
 
-        // DECLARAMOS LA VARIABLE FUERA DEL TRY PARA QUE EXISTA EN TODO EL MÉTODO
-        ResidenteFachadaDTO residente = null;
-        try{
-            residente = gestionUsuariosAPI.obtenerResidentePorCedula(cedula);
-        }catch (ResidenteNoExisteException e){
-            throw new RuntimeException(e.getMessage());
-        }
+        // Buscamos los pagos de TODOS los usuarios en el rango[cite: 24]
+        List<DetallePagoDTO> pagosBD = reportesDAO.buscarPagosPorRangoFechas(fechaInicio, fechaFin);
 
-        // AHORA SÍ PODEMOS USAR 'residente' SIN ERROR DE COMPILACIÓN
-        List<DetallePagoDTO> pagosBD = reportesDAO.buscarPagosPorRangoFechasYUsuario(fechaInicio, fechaFin, residente.getIdUsuario());
-
+        // Validamos el escenario alterno 5[cite: 24]
         if (pagosBD.isEmpty()) {
-            throw new NoExistenPagosException("No existen Pagos asociados para el Residente " + residente.getNombreCompleto() + " durante fechaInicio y fechaFin");
+            throw new NoExistenPagosException("No existen Pagos entre el fechaInicio y el fechaFin");
         }
 
         ReportePagos reporte = new ReportePagos(fechaInicio, fechaFin, pagosBD);
@@ -73,12 +67,16 @@ public class ReportesServiceImpl implements IReportesService {
         if(fechaInicio.isAfter(fechaFin) || fechaInicio.isAfter(LocalDate.now()) || fechaFin.isAfter(LocalDate.now())){
             throw new FechasInvalidasException("Las fechas no cumplen un formato válido");
         }
+
+        // DECLARAMOS LA VARIABLE FUERA DEL TRY PARA QUE EXISTA EN TODO EL MÉTODO[cite: 31]
+        ResidenteFachadaDTO residente = null;
         try{
-            ResidenteFachadaDTO residente = gestionUsuariosAPI.obtenerResidentePorCedula(cedula);
+            residente = gestionUsuariosAPI.obtenerResidentePorCedula(cedula);
         }catch (ResidenteNoExisteException e){
             throw new RuntimeException(e.getMessage());
         }
 
+        // AHORA SÍ PODEMOS USAR 'residente' SIN ERROR DE COMPILACIÓN[cite: 31]
         List<DetallePagoDTO> pagosBD = reportesDAO.buscarPagosPorRangoFechasYUsuario(fechaInicio, fechaFin, residente.getIdUsuario());
 
         if (pagosBD.isEmpty()) {
@@ -107,7 +105,8 @@ public class ReportesServiceImpl implements IReportesService {
         ReportePagosDTO pagosCalculados;
         try {
             pagosCalculados = generarReportedePagosRealizados(fechaInicio, fechaFin);
-        } catch (IllegalStateException e) {
+        } catch (NoExistenPagosException e) {
+            // ¡Corregido el tipo de excepción para que atrape la que acabamos de usar!
             pagosCalculados = new ReportePagosDTO(); // DTO vacío si no hay ingresos
         }
 
