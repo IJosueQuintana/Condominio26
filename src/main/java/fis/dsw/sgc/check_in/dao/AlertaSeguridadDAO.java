@@ -27,7 +27,7 @@ public class AlertaSeguridadDAO implements IAlertaSeguridadDAO {
         this.conn = DBConnection.getInstance().getConnection();
     }
 
-    // Constructor con DI: recibe la conexión inyectada por el líder del proyecto
+    // Constructor con DI: recibe la conexión inyectada
     public AlertaSeguridadDAO(Connection conn) {
         this.conn = conn;
     }
