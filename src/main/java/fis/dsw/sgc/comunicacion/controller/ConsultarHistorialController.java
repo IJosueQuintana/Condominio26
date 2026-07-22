@@ -2,13 +2,13 @@ package fis.dsw.sgc.comunicacion.controller;
 
 import fis.dsw.sgc.comunicacion.dto.HistorialDTO;
 import fis.dsw.sgc.comunicacion.exception.ComunicacionException;
-import fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl;
 import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.util.Objects;
 
 import java.time.LocalDate;
 
@@ -44,12 +44,17 @@ public class ConsultarHistorialController {
         tblHistorial.getSelectionModel().selectedItemProperty()
                 .addListener((o,a,n)->detalle(n));
 
-        try {
-            service=new ComunicacionServiceImpl();
-            cargarHistorial();
-        } catch (ComunicacionException e) { mensaje(e.getMessage(),"message-error"); }
     }
+    public void setComunicacionService(
+            IComunicacionService service
+    ) {
+        this.service = Objects.requireNonNull(
+                service,
+                "El servicio de Comunicación no puede ser nulo."
+        );
 
+        cargarHistorial();
+    }
     @FXML private void buscar() {
         if (!fechas()) return;
         cargarHistorial();

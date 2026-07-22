@@ -3,7 +3,6 @@ package fis.dsw.sgc.comunicacion.controller;
 import fis.dsw.sgc.comunicacion.dto.EnviarComunicacionDTO;
 import fis.dsw.sgc.comunicacion.dto.MensajeResumenDTO;
 import fis.dsw.sgc.comunicacion.exception.ComunicacionException;
-import fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl;
 import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import fis.dsw.sgc.comunicacion.util.ComunicacionCatalogos;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -11,9 +10,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-
+import java.util.Objects;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 
 public class EnviarMensajeController {
     private static final int LIMITE_ASUNTO=120, LIMITE_CONTENIDO=2000;
@@ -64,15 +64,17 @@ public class EnviarMensajeController {
         actualizarDestinatarios();
         actualizarContadores();
 
-        try {
-            service=new ComunicacionServiceImpl();
-            cargarMensajes();
-        } catch (ComunicacionException e) {
-            btnEnviar.setDisable(true);
-            mensaje(e.getMessage(),"message-error");
-        }
     }
+    public void setComunicacionService(
+            IComunicacionService service
+    ) {
+        this.service = Objects.requireNonNull(
+                service,
+                "El servicio de Comunicación no puede ser nulo."
+        );
 
+        cargarMensajes();
+    }
     @FXML private void enviarMensaje() {
         if (!validar()||service==null) return;
         btnEnviar.setDisable(true);

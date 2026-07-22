@@ -2,13 +2,13 @@ package fis.dsw.sgc.comunicacion.controller;
 
 import fis.dsw.sgc.comunicacion.dto.NotificacionDTO;
 import fis.dsw.sgc.comunicacion.exception.ComunicacionException;
-import fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl;
 import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.util.Objects;
 
 public class GestionarNotificacionesController {
     @FXML private ComboBox<String> cmbTipo,cmbEstado;
@@ -37,14 +37,16 @@ public class GestionarNotificacionesController {
         tblNotificaciones.setItems(datos);
         tblNotificaciones.setPlaceholder(new Label("No existen notificaciones."));
 
-        try {
-            service=new ComunicacionServiceImpl();
-            cargarNotificaciones();
-        } catch (ComunicacionException e) {
-            btnMarcarLeida.setDisable(true);
-            btnEliminar.setDisable(true);
-            mensaje(e.getMessage(),"message-error");
-        }
+    }
+    public void setComunicacionService(
+            IComunicacionService service
+    ) {
+        this.service = Objects.requireNonNull(
+                service,
+                "El servicio de Comunicación no puede ser nulo."
+        );
+
+        cargarNotificaciones();
     }
 
     @FXML private void aplicarFiltros() {

@@ -12,9 +12,22 @@ import java.util.Locale;
 
 public class ComunicacionDAOSQLite implements IComunicacionDAO {
 
+    /**
+     * Constructor público para crear el DAO
+     * desde la composición manual de dependencias en Main.
+     */
+    public ComunicacionDAOSQLite() {
+    }
+
     private Connection conexion() throws SQLException {
         Connection c = DBConnection.getInstance().getConnection();
-        if (c == null || c.isClosed()) throw new SQLException("No existe una conexión activa con SQLite.");
+
+        if (c == null || c.isClosed()) {
+            throw new SQLException(
+                    "No existe una conexión activa con SQLite."
+            );
+        }
+
         return c;
     }
 

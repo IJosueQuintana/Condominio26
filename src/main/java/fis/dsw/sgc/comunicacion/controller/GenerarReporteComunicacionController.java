@@ -2,13 +2,13 @@ package fis.dsw.sgc.comunicacion.controller;
 
 import fis.dsw.sgc.comunicacion.dto.ResumenReporteDTO;
 import fis.dsw.sgc.comunicacion.exception.ComunicacionException;
-import fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl;
 import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.util.Objects;
 
 import java.time.LocalDate;
 
@@ -40,11 +40,16 @@ public class GenerarReporteComunicacionController {
         tblResumen.setItems(datos);
         tblResumen.setPlaceholder(new Label("No existen datos para el rango seleccionado."));
         indicadores();
+    }
+    public void setComunicacionService(
+            IComunicacionService service
+    ) {
+        this.service = Objects.requireNonNull(
+                service,
+                "El servicio de Comunicación no puede ser nulo."
+        );
 
-        try {
-            service=new ComunicacionServiceImpl();
-            generarVistaPrevia();
-        } catch (ComunicacionException e) { mensaje(e.getMessage(),"message-error"); }
+        generarVistaPrevia();
     }
 
     @FXML private void generarVistaPrevia() {

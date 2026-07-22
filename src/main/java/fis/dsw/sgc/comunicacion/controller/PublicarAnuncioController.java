@@ -3,7 +3,6 @@ package fis.dsw.sgc.comunicacion.controller;
 import fis.dsw.sgc.comunicacion.dto.AnuncioResumenDTO;
 import fis.dsw.sgc.comunicacion.dto.PublicarAnuncioDTO;
 import fis.dsw.sgc.comunicacion.exception.ComunicacionException;
-import fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl;
 import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import fis.dsw.sgc.comunicacion.util.ComunicacionCatalogos;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -11,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.util.Objects;
 
 import java.time.LocalDate;
 
@@ -55,13 +55,16 @@ public class PublicarAnuncioController {
         tblAnunciosRecientes.setPlaceholder(new Label("No existen anuncios recientes."));
         contadores();
 
-        try {
-            service=new ComunicacionServiceImpl();
-            cargarAnuncios();
-        } catch (ComunicacionException e) {
-            btnPublicar.setDisable(true);
-            mensaje(e.getMessage(),"message-error");
-        }
+    }
+    public void setComunicacionService(
+            IComunicacionService service
+    ) {
+        this.service = Objects.requireNonNull(
+                service,
+                "El servicio de Comunicación no puede ser nulo."
+        );
+
+        cargarAnuncios();
     }
 
     @FXML private void publicarAnuncio() {

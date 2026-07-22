@@ -1,6 +1,6 @@
 package fis.dsw.sgc.comunicacion.service;
 
-import fis.dsw.sgc.comunicacion.dao.ComunicacionDAOSQLite;
+
 import fis.dsw.sgc.comunicacion.dao.ComunicacionSchemaInitializer;
 import fis.dsw.sgc.comunicacion.dao.IComunicacionDAO;
 import fis.dsw.sgc.comunicacion.dto.AnuncioResumenDTO;
@@ -23,12 +23,11 @@ public class ComunicacionServiceImpl
 
     private final IComunicacionDAO dao;
 
-    public ComunicacionServiceImpl() {
-        this(new ComunicacionDAOSQLite());
-    }
-
     public ComunicacionServiceImpl(IComunicacionDAO dao) {
-        this.dao = dao;
+        this.dao = Objects.requireNonNull(
+                dao,
+                "El DAO de Comunicación no puede ser nulo."
+        );
 
         try {
             ComunicacionSchemaInitializer.inicializar();
