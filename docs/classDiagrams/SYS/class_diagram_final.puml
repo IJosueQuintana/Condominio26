@@ -481,10 +481,12 @@ package "GRE - Check-in y Seguridad" {
     RegistroEntradaFactory ..> RegistroEntrada : <<instancia>>
 }
 
+
 ' ==========================================
-' MÓDULO GRF: COMUNICACIONES (Transversal)
+' MÓDULO GRF: COMUNICACIONES
 ' ==========================================
 package "GRF - Comunicaciones" {
+
     enum TipoComunicacion {
         MENSAJE_RESIDENTES
         COMUNICADO_TRABAJADORES
@@ -495,67 +497,114 @@ package "GRF - Comunicaciones" {
         BOLETIN_INFORMATIVO
     }
 
-    class Destinatario {
-        - idUsuario: String
-        - nombre: String
-        - rol: String
+    enum EstadoComunicacion {
+        CREADA
+        ENVIADA
+        FALLIDA
+        ELIMINADA
     }
 
-    abstract class Comunicacion {
-        # idComunicacion: String
-        # asunto: String
-        # contenido: String
-        # fechaCreacion: Date
-        # fechaEnvio: Date
-        + validarContenido(): boolean
-        + marcarComoEnviada(): void
-        # notificarMediator(evento: EventoComunicacion): void
-    }
-
-    class MensajeResidentes extends Comunicacion
-    class ComunicadoTrabajadores extends Comunicacion
-    class MensajeGlobal extends Comunicacion
-    class AnuncioGeneral extends Comunicacion
-    class MensajeUrgente extends Comunicacion
-    class AlertaEmergencia extends Comunicacion
-    class BoletinInformativo extends Comunicacion
-
-    class EventoComunicacion <<ValueObject>> {
-        - tipoEvento: AccionHistorial
-        - idEmisor: String
-        - timestamp: Date
-    }
-
-    interface IComunicacionMediator <<Mediator>> {
-        + notificar(evento: EventoComunicacion): void
-        + registrarObservador(obs: IComunicacionObserver): void
-    }
-    class ComunicacionMediatorImpl implements IComunicacionMediator
-
-    interface IComunicacionObserver <<Observer>> {
-        + actualizar(evento: EventoComunicacion): void
-    }
-
-    class Notificacion implements IComunicacionObserver {
-        - idNotificacion: String
+    class Mensaje {
+        - idMensaje: Long
+        - asunto: String
+        - contenido: String
+        - tipo: TipoComunicacion
+        - prioridad: String
+        - fechaCreacion: Date
         - fechaEnvio: Date
-        + generar(evento: EventoComunicacion): void
+        - estado: EstadoComunicacion
+        + validarContenido(): boolean
+        + enviar(): void
+        + marcarComoEnviado(): void
     }
 
-    class HistorialComunicacion implements IComunicacionObserver {
-        - accion: AccionHistorial
+    class MensajeDestinatario {
+        - leido: boolean
+        - fechaLectura: Date
+        + marcarComoLeido(): void
+        + estaLeido(): boolean
+    }
+
+    class Anuncio {
+        - idAnuncio: Long
+        - titulo: String
+        - contenido: String
+        - tipo: TipoComunicacion
+        - prioridad: String
+        - fechaPublicacion: Date
+        - fechaExpiracion: Date
+        - estado: EstadoComunicacion
+        + validarContenido(): boolean
+        + publicar(): void
+        + verificarVigencia(): boolean
+    }
+
+    class Notificacion {
+        - idNotificacion: Long
+        - tipo: String
+        - asunto: String
+        - fechaEnvio: Date
+        - leida: boolean
+        + generar(): void
+        + marcarComoLeida(): void
+        + eliminar(): void
+    }
+
+    class HistorialComunicacion {
+        - idHistorial: Long
+        - tipo: String
+        - asunto: String
+        - estado: String
         - detalle: String
+        - fechaRegistro: Date
+        + registrarAccion(): void
     }
 
-    class ReporteComunicacion implements IComunicacionObserver {
-        - fechaGeneracion: Date
+    class ReporteComunicacion {
+        - fechaInicio: Date
+        - fechaFin: Date
+        - totalComunicaciones: int
+        - totalEnviadas: int
+        - totalFallidas: int
+        - tasaExito: double
+        + generarResumen(): void
+        + calcularTasaExito(): double
     }
 
-    Comunicacion "1" --> "1..*" Destinatario : dirigido a
-    Comunicacion --> IComunicacionMediator : delega eventos
-    ComunicacionMediatorImpl "1" o-- "0..*" IComunicacionObserver : administra
-    Notificacion "1" --> "1" Destinatario : enviada a
+    interface IComunicacionStrategy <<Strategy>> {
+        + soporta(tipo: String): boolean
+        + validar(mensaje: Mensaje): void
+    }
+
+    class ComunicacionSegmentadaStrategy implements IComunicacionStrategy
+    class ComunicacionGlobalStrategy implements IComunicacionStrategy
+    class ComunicacionUrgenteStrategy implements IComunicacionStrategy
+
+    class ComunicacionStrategyResolver {
+        - estrategias: List<IComunicacionStrategy>
+        + obtener(tipo: String): IComunicacionStrategy
+    }
+
+    Mensaje "*" --> "1" Usuario : enviado por
+    Anuncio "*" --> "1" Usuario : publicado por
+    Notificacion "*" --> "1" Usuario : pertenece a
+
+    Mensaje "1" *-- "1..*" MensajeDestinatario : posee
+    MensajeDestinatario "*" --> "1" Usuario : corresponde a
+
+    Mensaje "1" --> "0..*" Notificacion : genera
+    Anuncio "1" --> "0..*" Notificacion : genera
+
+    Mensaje "1" --> "0..*" HistorialComunicacion : registra
+    Anuncio "1" --> "0..*" HistorialComunicacion : registra
+
+    ReporteComunicacion --> HistorialComunicacion : consulta
+
+
+
+    ComunicacionStrategyResolver "1" o-- "1..*" IComunicacionStrategy : administra
 }
+
 ' ==========================================
 ' INTEGRACIONES CRUZADAS (LLAVES FORÁNEAS / RELACIONES MACRO)
 ' ==========================================
@@ -578,23 +627,10 @@ Observacion "*" --> "1" Usuario : <<escrita por>>
 RegistroEntradaVisitante "*" --> "1" Usuario : <<autorizado por (Residente)>>
 RegistroEntrada "*" --> "1" Usuario : <<registrado por (Personal Seguridad)>>
 
-' GRF -> GRB (El destinatario es un puente hacia el Usuario real)
-Destinatario "*" --> "1" Usuario : representa
+
 
 ' GRA -> GRB (Auditoría de quién registró el gasto)
 Gasto "*" --> "1" Usuario : <<registrado por (Presidente)>>
 
-' ==========================================
-' TRANSVERSALIDAD DE COMUNICACIONES (Event-Driven)
-' ==========================================
-' Los módulos operativos disparan Eventos que el Mediador de GRF procesa
-
-RegistroEntrada ..> EventoComunicacion : <<genera>>
-Visita ..> EventoComunicacion : <<genera>>
-Deuda ..> EventoComunicacion : <<genera>>
-Pago ..> EventoComunicacion : <<genera>>
-Reserva ..> EventoComunicacion : <<genera>>
-
-EventoComunicacion ..> IComunicacionMediator : <<es procesado por>>
 
 @enduml
