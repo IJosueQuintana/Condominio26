@@ -1,0 +1,161 @@
+
+GRA
+Estas son las indicaciones que me mandaron mis compañeros
+
+En teoria, ya  se mapearon las clases del diagrama entonces no se deberían (en principio) agregar más
+
+Les explico el flujo de una funcionalidad para que pues, la IA haga el trabajo de programar y ciertas consideraciones.
+
+
+Como tal, desde los controladores deberan llamar al service para ejecutar el o los casos de uso. Deben crear los DTO que necesiten que les devuelva el Service o que deben enviar Al Service para que los procese.
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+EJEMPLO DE COMO SERIA EL FLUJO: 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Desde registrarDeudaController , genera una NuevaDeudaDTO que se la envia a Service así:
+
+	NuevaDeudaDTO nuevaDeuda = new NuevaDeudaDTO()
+
+A esa nuevaDeuda se le llena con todo lo del formulario y se envia a Service:
+
+	deudaService.registrarNuevaDeuda(nuevaDeuda)
+
+El service que debe hacer:
+
+* Recibe el DTO, lo desenvuelve y Crea una Deuda.
+* Aplica Toda la lógica necesaria para poder obtener la Deuda que va a la base de Datos
+* Delega al model y a los patrones ciertas actividades (state y strategy)
+* Llamada al DAO para guardar la deuda
+
+
+El DAO que debe hacer:
+
+* Recibe algo para insertarlo en la base de datos.
+
+Desde consultarDeudas:
+
+- El consultarDeudasController captura la cédula del cliente desde el textField
+
+- El controlador le envía la cedula al service de cualquier manera ejemplo:
+	- deudasService.consultarDeudas(txtCedula.getText()) 
+
+	O
+	- String cedula = txtCedula.getText())
+
+	- deudasService.consultarDeudas(txtCedula.getText())
+
+
+El service que hace:
+* Recibe la cédula y llama al DAO
+* El DAO le devuelve una lista de las deudas que cumplan las condiciones
+* El service delega a DeudaFactory, a los patrones State y Strategy y al model la creación de las clases respectivas
+* El service genera un DTO que le entrega al controlador
+
+El controlador recibe las listas de DeudaConsultaDTO
+
+Les muestra y asi
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Más indicaciones
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+- Utilizara el modelo rico
+
+- Las interfaces designadas deben estar 100% funcionales con datos quemados (fxml, css, controller y que las validaciones deben ser simples "validaciones A nivel de interfaz" como el tamaño mínimo o máximo del dato y asi) con las clases DTO que se necesiten (el DTO es un mapeo un envoltorio que envuelve datos).
+
+- Por ejemplo desde la interfaz de registrar deuda (el ejemplo anterior) va a haber una linea que va a estar comentadad que es deudaService.crearDeuda esa lineal se va comentar (linea que llama al service que ejecuta la lógica verdadera) y el controlador va ha simular el comportamiento como si ya se hubiera insertado como un dato de prueba, cuando el service este completamente implementado simplemente se va a descomentar esa línea y se borra lo de los datos de prueba. (lo mas importante es que este comentado eso que llama al service)
+- Se debe realizar le mapeo de las clases designadas DTO porque ya están mapeadas las clases pero no están 100% completas
+- Ver si falta algo en model con respecto a las  casos de uso designados
+
+OJO (esta te la doy a conocer)
+- Mi compañero va a programar los services donde va a dejar comentada la linea que consulta al DAO y solo se usara valores quemados para realizar pruebas (esto se hara cuando llegue el momento de probar los services hechos por mi compañéro)
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Nuevas indicaciones de la inyeccion de datos
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[6:39 p. m., 21/7/2026] Erick: veranse el video que mande al grupo porfis
+[6:39 p. m., 21/7/2026] Erick: lo de eliminar el fx:controller a los fxml ya lo voy a hacer yo
+[6:39 p. m., 21/7/2026] Erick: para la inyeccion de los service a sus controladores
+[6:39 p. m., 21/7/2026] Erick: pero veanlo porfis para que sepan que hacer con sus controladores
+
+[8:16 p. m., 21/7/2026] Erick: verán, ahora si un 99% confirmado que ya están todo los service, y los fxml ya no tienen lo de fx controller
+[8:16 p. m., 21/7/2026] Erick: además, ya están los DAO y todo funciona bien
+[8:17 p. m., 21/7/2026] Erick: ahora, lo que les queda a ustedes es revisar que sus controladores se adapten de forma perfecta, ya lanzamos excepciones personalizadas en plan FechasInvalidasException, entonces el controlador es inteligente para detectar esa excepcion y pues, mostrar una alerta o escribir en un label el mensaje de la exception jeje
+[8:17 p. m., 21/7/2026] Erick: OJO: No ejecuten que no va a funcionar hasta que el módulo de Usuarios nos ponga lo que se necesita
+
+[8:18 p. m., 21/7/2026] Erick: todo está en feature/modelServiceGRA
+[8:18 p. m., 21/7/2026] Erick: por favor , bajense los cambios de ahí y saquen la versión definitiva de los controladores
+[8:19 p. m., 21/7/2026] Erick: y no ejecuten la app porque pues, les va a dar error porque no hay la fachada de Usuarios
+[8:19 p. m., 21/7/2026] Erick: por eso no le subo a main, se queda solo en nuestra rama feauture/modelServiceGRA
+[8:20 p. m., 21/7/2026] Erick: bajense los cambios de ahí, adapten sus controladores con su constructor respectivo que reciba el o los service que necesiten, vean que cumplan con los casos de uso, y si algo yo tengo que cambiar me avisan, pero para que ya puedan hacer su parte sin tener que re-hacerla, ya voy a dejar ahí jaja, solo quedo a la espera del módulo de Usuarios, de lo que ustedes hagan y abran el PR a esa rama
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Transcripcion del video sobre la inyeccion de datos
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Chicos, verán, hago este video super rapidito, simplemente para que entiendan lo que es la gestión de dependencias.
+0:055 segundosAquí en gestión de usuarios se va a aplicar eh inyección de dependencias, por lo que veo, porque no están haciendo un new de usuario DO ni de cuenta DO. Lo
+0:1313 segundosque van a hacer es un constructor de gestión usuario Service Implementation y a ese constructor le van a pasar como parámetros estos D. Similar a lo que ya
+0:2121 segundosestá implementado en el módulo de inmuebles. Módulo de inmuebles. Ustedes pueden observar de que no hacen nunca en
+0:2828 segundosningún punto del del de la implementación un new a estos dos dados, sino que simplemente en el
+0:3535 segundosconstructor se los va a inyectar. Este constructor pues estaría creo que de más. Simplemente vamos a hacer con la inyección. Ya. Lo mismo tienen que hacer con las fachadas, con los factory y con
+0:4444 segundosesas cosas. Y ya les voy a explicar por qué y les voy a explicar con el deuda service, ¿ya? Porque por ejemplo aquí, como ven, yo tengo un debuda factory, pero no hago un new debuda factory desde
+0:5353 segundosaquí, sino que se lo inyecto en el constructor. Tengo la fachera de inmuebles y yo no la instancio, sino que simplemente voy a recibirla ya
+1:011 minuto y 1 segundoinyectada. Y también tengo que hacer lo mismo con gestión usuarios API para consultarlo de los residentes y todas esas cosas. Va a ir aquí en el constructor. Esto, ¿por qué? Con eso
+1:101 minuto y 10 segundosreducimos el acoplamiento. Si es que yo si yo, ¿cómo es que se llama?
+1:141 minuto y 14 segundoseh implemento una deuda factory que quizás simplemente me devuelva datos basura para hacer pruebas, yo lo puedo hacer. Instancio el deuda service y le
+1:221 minuto y 22 segundosinyecto ese deuda factory. Si después ya quiero, ya veo que ha funcionado bien mi service, entonces le voy a pasar el factory real. Simplemente es como en los videos de diseño de software, saco un
+1:311 minuto y 31 segundosLego, pongo otro Lego. Ya. Entonces eso es lo que permite la inyección de dependencias. Así lo vamos a hacer dentro de su service. Tienen que hacer eso con sus factories, con su con las
+1:401 minuto y 40 segundosfachadas de los módulos que vayan a utilizar y con los D, que como ven, aquí está aquí están comentados. Entonces, tengo que tenemos que hacer eso con los D. A nivel de controlador, ¿cómo se hace
+1:491 minuto y 49 segundosla inyección a nivel de controlador? De la misma manera. Por ejemplo, ¿qué no es inyección de dependencias? Repito, ¿qué no es inyección de dependencias? Eh, de
+1:571 minuto y 57 segundospaso, si ustedes pueden implementar esta función y implementan la interface initializable en sus controladores, lo que van a tener que hacer es hacer un
+2:042 minutos y 4 segundosoverride de este metodo initialize. ¿Qué es el metodo initialize? El metodo initialize es simplemente decirle justo cuando esta ventana carga, haz algo,
+2:132 minutos y 13 segundos¿ya? Para, por ejemplo, reemplazar alguna alguna información. Quizás, por ejemplo, tengan una ventana emergente, entonces quieran pasarle un dato de su
+2:212 minutos y 21 segundosventana original a la ventana emergente y quieren que está presente, quieren que esté presente desde el inicio, usarían el inicial y si eso les permite hacer eso por si acaso, ¿no? Entonces, ¿qué no
+2:302 minutos y 30 segundoses inyección de dependencias? Eh, por ejemplo, yo aquí tengo el pago service para este controlador y lo que estoy haciendo es hacerle un pago service new pago service implementation. Eso no es
+2:392 minutos y 39 segundosinyección de dependencias. ¿Ya? ¿Cómo sería inyección de dependencias? La inyección de dependencia sería que yo me
+2:462 minutos y 46 segundoscree un constructor, que me cree un constructor para generar reporte de pagos. Entonces, yo lo que hago es
+2:522 minutos y 52 segundosnetamente aquí me genero un constructor y voy a recibir pues la el service.
+3:033 minutos y 3 segundosYa.
+3:063 minutos y 6 segundosListo. Entonces, cuando yo quiera operar con este service, con las operaciones que me ofrece este service, ocupo este que no está instanciado dentro del controlador, sino que lo estoy
+3:143 minutos y 14 segundosinyectando. ¿Listo? ¿Qué cambios tienen que hacer en sus FXML, en sus hojas de formularios? Por ejemplo, yo tengo aquí el de pagar deuda. Yo tengo aquí el de
+3:233 minutos y 23 segundospagar deuda y como ven, tengo esta línea que dice FX controller fisvc la ruta del controlador. Esta de aquí yo
+3:323 minutos y 32 segundosla tengo que eliminar. Tengo que eliminarle para h que porque si es que esa línea se deja, ¿qué es lo que hace esta línea? Esta línea lo que hace es
+3:393 minutos y 39 segundosinstanciar un controlador. Instancia un controlador el que usando el constructor vacío para que esta este archivo de
+3:483 minutos y 48 segundospagar deuda, esta ventana de pagar deuda utilice ese controlador. No queremos eso. Nosotros queremos pasarle un controlador que tenga algo ya inyectado, porque si se instancia con un
+3:563 minutos y 56 segundoscontrolador desde cero, no va a tener nunca el service. Entonces, tendríamos que eliminar esta línea. Eliminamos esta línea de los controladores y en dónde se
+4:054 minutos y 5 segundosvan a hacer todas las inyecciones de todo el sistema. Todas las inyecciones de todo el sistema se van a hacer aquí, justo aquí. Antes de cargar todas las
+4:144 minutos y 14 segundoscosas, aquí comenzamos a hacer las instanciaciones. Por ejemplo, aquí hacemos un eh inmueble service. Inmueble service, new igual, new service
+4:224 minutos y 22 segundosimplementation. Esto qué necesita. Esto necesita los DAO, me parece. Entonces, tenemos que hacer aquí un eh
+4:304 minutos y 30 segundosinmuebles D. No sé cómo se llamarán sus clases, perdón, los voy a revisar rapidito.
+4:344 minutos y 34 segundosSe llaman eh eso caso furtuito da inmueble da eh sería y inmueble da
+4:454 minutos y 45 segundosmueble dado. Igual ni un mueble dado.
+4:514 minutos y 51 segundosYa. Y esto de acá se lo vamos a pasar aquí al service. Se lo pasamos aquí al service y luego este de acá se lo pasaríamos a al service de las deudas.
+5:005 minutosEn este caso, ejemplo, eh de los pagos era que les mostré el ejemplo, ¿no? Y pago service. Pago service implementation y pago service.
+5:105 minutos y 10 segundosEh, tiene que recibir el ah, no, sí, las deudas era, perdón.
+5:195 minutos y 19 segundosy le inyecto el la lo que necesito y también necesito eh tengo que tener para esto el factory, ¿no? Entonces, tengo aquí instanciar el
+5:275 minutos y 27 segundosfactory. Entonces, aquí en en el start vamos a hacer todos los new new y simplemente los vamos inyectando.
+5:335 minutos y 33 segundosObviamente tenemos que instanciar todas las que necesitan. Por ejemplo, para instanciar inmueble service, tengo que tener un inmueble dado y un caso fortito
+5:415 minutos y 41 segundosdado. Instancio las dos y les paso. Para deuda service tengo que tener instanciado un deuda factory, un inmueble service, eh, un inmueble
+5:475 minutos y 47 segundosservice y un y gestión usuarios API. Les hago el new y se les paso y así hacemos eso con todos los service. Con todos
+5:565 minutos y 56 segundostodos los service. Y para los controladores, ¿qué es lo que se hace?
+5:595 minutos y 59 segundosPara los controladores se hace es un poquito más engorroso en realidad. Voy a copiarme un ejemplo que tengo aquí.
+6:066 minutos y 6 segundosLo que se hace es esto, o sea, instancio por ejemplo el pago service, cargo con esta función de fisader, el
+6:136 minutos y 13 segundosrecurso al que quiero apuntar. Este es un ejemplo que hice con inteligencia artificial para explicarles, ¿no? Por eso no están las rutas bien. Cargo la la
+6:216 minutos y 21 segundosvista a la que le quiero inyectar el recurso y hago con esta misma clase set controller porque este lader es el que
+6:286 minutos y 28 segundosguarda la ventana. Le hago un set controller y hago el del controlador y al controlador le paso el service.
+6:356 minutos y 35 segundosEntonces, aquí sería netamente el de, bueno, no es pago, bueno, el controlador. A los controladores ponen el controlador y le inyectan el service.
+6:426 minutos y 42 segundosY con eso eh ya le están le están diciendo que esta ventana tiene que ocupar este controlador que tiene este service y hacemos la inyección.
+6:516 minutos y 51 segundosEntonces, así funcionaría la inyección de dependencias. Aquí en el main tendríamos que configurar absolutamente todo. Y ya vieron cómo tienen que hacer
+6:586 minutos y 58 segundossus cómo tienen que ser sus service con la inyección. Ya quedo atento a cualquier novedad, por favor revísenlo y trabajemos de esa manera.
+

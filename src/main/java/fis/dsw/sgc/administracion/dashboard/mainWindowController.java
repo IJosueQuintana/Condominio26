@@ -297,7 +297,7 @@ public class mainWindowController {
     // ==================== Submenú Finanzas ====================
 
     @FXML void irAPagarDeuda(ActionEvent event)    {
-        pagarDeudaController pagarDeudaController = new pagarDeudaController(pagoService);
+        pagarDeudaController pagarDeudaController = new pagarDeudaController(pagoService, deudaService);
         cargarVista("/finanzas/fxml/pagarDeuda.fxml",pagarDeudaController);    }
     @FXML void irAGenerarRendicionCuentas(ActionEvent event) {
         GenerarRendicionCuentasController generarRendicionCuentasController = new GenerarRendicionCuentasController(reportesService);
