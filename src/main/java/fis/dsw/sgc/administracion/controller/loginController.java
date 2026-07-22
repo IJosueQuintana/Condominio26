@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import fis.dsw.sgc.administracion.model.SesionUsuario;
+import fis.dsw.sgc.core.session.SesionUsuario;
 import fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl;
 import fis.dsw.sgc.administracion.service.IGestionUsuariosAPI;
 

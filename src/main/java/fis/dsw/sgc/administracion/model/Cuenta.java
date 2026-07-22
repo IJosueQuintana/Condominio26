@@ -3,10 +3,9 @@ package fis.dsw.sgc.administracion.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class Cuenta {
-    private UUID idCuenta;
+    private int idCuenta;
     private String contrasena;
     private EstadoCuenta estado;
     private Date fechaCreacion;
@@ -14,8 +13,8 @@ public class Cuenta {
 
     private List<Rol> roles = new ArrayList<>();
 
-    public UUID getIdCuenta() { return idCuenta; }
-    public void setIdCuenta(UUID idCuenta) { this.idCuenta = idCuenta; }
+    public int getIdCuenta() { return idCuenta; }
+    public void setIdCuenta(int idCuenta) { this.idCuenta = idCuenta; }
 
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }

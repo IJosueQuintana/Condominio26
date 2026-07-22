@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Collectors;
 
-import fis.dsw.sgc.administracion.model.SesionUsuario;
+import fis.dsw.sgc.core.session.SesionUsuario;
 import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.core.util.NavigationUtil;
 import javafx.event.ActionEvent;

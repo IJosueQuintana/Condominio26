@@ -1,4 +1,6 @@
-package fis.dsw.sgc.administracion.model;
+package fis.dsw.sgc.core.session;
+
+import fis.dsw.sgc.administracion.model.Usuario;
 
 public class SesionUsuario {
 
