@@ -12,7 +12,7 @@ public class VisitaProgramada {
 
     private String fechaProgramada;
     private String horaProgramada;
-    private String estado;
+    private EstadoVisita estado;
     private String motivoVisita;
     private String tipoVisita;
     private String informacionAdicional;
@@ -22,7 +22,7 @@ public class VisitaProgramada {
 
     public VisitaProgramada(int idVisita, int idResidente, String nombresVisita,
                             String apellidosVisita, String cedulaVisita, String fechaProgramada,
-                            String horaProgramada, String estado, String motivoVisita) {
+                            String horaProgramada, EstadoVisita estado, String motivoVisita) {
         this.idVisita = idVisita;
         this.idResidente = idResidente;
         this.nombresVisita = nombresVisita;
@@ -99,10 +99,16 @@ public class VisitaProgramada {
     }
 
     public String getEstado() {
-        return estado != null ? estado : "PROGRAMADA";
+//        return estado != null ? estado : "PROGRAMADA";
+        if (estado == null) return "PROGRAMADA";
+        return estado.toString();
     }
 
-    public void setEstado(String estado) {
+    public EstadoVisita getEstadoEnum() {
+        return estado;
+    }
+
+    public void setEstado(EstadoVisita estado) {
         this.estado = estado;
     }
 

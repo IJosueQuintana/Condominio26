@@ -1,5 +1,6 @@
 package fis.dsw.sgc.check_in.dao;
 
+import fis.dsw.sgc.check_in.model.EstadoVisita;
 import fis.dsw.sgc.check_in.model.Usuario_Checkin;
 import fis.dsw.sgc.check_in.model.VisitaProgramada;
 import fis.dsw.sgc.conexion_bd.DBConnection;
@@ -23,21 +24,21 @@ public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
     public boolean programarVisita(VisitaProgramada visita) {
         String sql = "INSERT INTO visitas_programadas (" +
                      "id_residente, nombres_visita, apellidos_visita, cedula_visita, " +
-                     "telefono_visita, fecha_programada, hora_programada, placa_vehiculo, estado, motivo_visita) " +
+                     "tipo_visita, fecha_programada, hora_programada, placa_vehiculo, estado, motivo_visita) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         Connection conn = getConn();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            if (visita.getIdResidente() != null && visita.getIdResidente() > 0) {
-                ps.setInt(1, visita.getIdResidente());
-            } else {
-                ps.setInt(1, 1);
-            }
-
+//            if (visita.getIdResidente() != null && visita.getIdResidente() > 0) {
+//                ps.setInt(1, visita.getIdResidente());
+//            } else {
+//                ps.setInt(1, 1);
+//            }
+            ps.setObject(1, visita.getIdResidente(), java.sql.Types.INTEGER);
             ps.setString(2, visita.getNombresVisita() != null ? visita.getNombresVisita() : "");
             ps.setString(3, visita.getApellidosVisita() != null ? visita.getApellidosVisita() : "");
             ps.setString(4, visita.getCedulaVisita() != null ? visita.getCedulaVisita() : "");
-            ps.setString(5, visita.getTelefonoVisita());
+            ps.setString(5, visita.getTipoVisita() != null ? visita.getTipoVisita() : "");
             ps.setString(6, visita.getFechaProgramada() != null ? visita.getFechaProgramada() : "");
             ps.setString(7, visita.getHoraProgramada() != null ? visita.getHoraProgramada() : "");
             ps.setString(8, visita.getPlaca() != null ? visita.getPlaca() : "N/A");
@@ -89,8 +90,10 @@ public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
                 visita.setFechaProgramada(rs.getString("fecha_programada"));
                 visita.setHoraProgramada(rs.getString("hora_programada"));
                 visita.setPlaca(rs.getString("placa_vehiculo"));
-                visita.setEstado(rs.getString("estado"));
+                String estadoStr = rs.getString("estado");
+                visita.setEstado(estadoStr != null ? EstadoVisita.valueOf(estadoStr.toUpperCase()) : EstadoVisita.PROGRAMADA);
                 visita.setMotivoVisita(rs.getString("motivo_visita"));
+                visita.setTipoVisita(rs.getString("tipo_visita"));
                 visitas.add(visita);
             }
         } catch (SQLException e) {
@@ -164,7 +167,8 @@ public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
                     v.setNombresVisita(rs.getString("nombres_visita"));
                     v.setApellidosVisita(rs.getString("apellidos_visita"));
                     v.setCedulaVisita(rs.getString("cedula_visita"));
-                    v.setEstado(rs.getString("estado"));
+                    String estadoStr = rs.getString("estado");
+                    v.setEstado(estadoStr != null ? EstadoVisita.valueOf(estadoStr.toUpperCase()) : EstadoVisita.PROGRAMADA);
                     v.setMotivoVisita(rs.getString("motivo_visita"));
                     return v;
                 }
