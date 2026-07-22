@@ -46,8 +46,13 @@ import java.util.Set;
  */
 public class AuditarReservasController {
 
-    // TODO(GRB): reemplazar por el id del usuario auditor autenticado.
-    private static final int ID_AUDITOR_ACTUAL = 1; // 'Andrea Administradora' en seed.sql
+    private int obtenerIdUsuarioActual() {
+        fis.dsw.sgc.administracion.model.Usuario u = fis.dsw.sgc.administracion.model.SesionUsuario.obtenerInstancia().getUsuarioActual();
+        if (u != null && u.getCorreo() != null) {
+            return servicioReservas.obtenerIdUsuarioPorCorreo(u.getCorreo());
+        }
+        return -1;
+    }
 
     @FXML private VBox panelPrincipal;
     @FXML private VBox panelObservacion;
@@ -69,7 +74,7 @@ public class AuditarReservasController {
     @FXML private Button btnAnadirMulta;
     @FXML private ChoiceBox<String> cbMotivoMulta;
 
-    private final IServicioReservas servicioReservas = new ServicioReservasImpl();
+    private final IServicioReservas servicioReservas = ServicioReservasImpl.getInstancia();
 
     private boolean aplicandoMulta = false;
     private Reserva reservaSeleccionadaParaObservacion = null;
@@ -314,18 +319,12 @@ public class AuditarReservasController {
             String texto = txtObservacion.getText();
             servicioReservas.registrarObservacion(
                     reservaSeleccionadaParaObservacion.getId(),
-                    ID_AUDITOR_ACTUAL,
+                    obtenerIdUsuarioActual(),
                     texto);
             reservasConObservacion.add(reservaSeleccionadaParaObservacion.getId());
 
-            // Solicitud de multa a Finanzas (GRA). La creacion de la multa es
-            // responsabilidad del modulo de Finanzas; aqui solo se deja la
-            // intencion cableada. Cuando Main inyecte la fachada, este bloque
-            // deberia delegar en IFachadaParaReservas.registrarDeuda(...).
             if (aplicandoMulta && cbMotivoMulta.getValue() != null) {
-                System.out.println("[Reservas] Solicitud de multa a Finanzas -> motivo: "
-                        + cbMotivoMulta.getValue()
-                        + " (reserva " + reservaSeleccionadaParaObservacion.getId() + ")");
+                servicioReservas.solicitarMulta(reservaSeleccionadaParaObservacion.getId(), cbMotivoMulta.getValue());
             }
         }
         cancelarObservacion(event);

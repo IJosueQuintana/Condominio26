@@ -21,6 +21,8 @@ import java.util.List;
 public interface IServicioReservas {
 
     // -------- Consultas --------
+    int obtenerIdUsuarioPorCorreo(String correo);
+
     List<Reserva> listarReservasPorUsuario(int idUsuario);
 
     List<Reserva> listarTodasLasReservas();
@@ -45,6 +47,8 @@ public interface IServicioReservas {
     boolean cancelarReserva(int idReserva, String motivo);
 
     void registrarObservacion(int idReserva, int idAutor, String texto);
+
+    void solicitarMulta(int idReserva, String motivo);
 
     void finalizarReservasVencidas();
 }

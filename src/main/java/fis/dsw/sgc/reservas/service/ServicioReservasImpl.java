@@ -40,6 +40,15 @@ public class ServicioReservasImpl implements IServicioReservas {
     // Conexion con el modulo de Finanzas (opcional; inyectada desde Main).
     private IFachadaParaReservas fachadaFinanzas;
 
+    private static ServicioReservasImpl instancia;
+
+    public static ServicioReservasImpl getInstancia() {
+        if (instancia == null) {
+            instancia = new ServicioReservasImpl();
+        }
+        return instancia;
+    }
+
     /** Constructor por defecto: cablea los DAO SQLite del modulo. */
     public ServicioReservasImpl() {
         this(new ReservaDAOSQLite(),
@@ -67,6 +76,23 @@ public class ServicioReservasImpl implements IServicioReservas {
     // ==================================================================
     // Consultas
     // ==================================================================
+
+    @Override
+    public int obtenerIdUsuarioPorCorreo(String correo) {
+        String sql = "SELECT id_usuario FROM usuario WHERE correo = ?";
+        try (PreparedStatement ps = DBConnection.getInstance().getConnection()
+                .prepareStatement(sql)) {
+            ps.setString(1, correo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_usuario");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener id_usuario por correo: " + e.getMessage());
+        }
+        return -1; // No encontrado
+    }
 
     @Override
     public List<Reserva> listarReservasPorUsuario(int idUsuario) {
@@ -180,6 +206,25 @@ public class ServicioReservasImpl implements IServicioReservas {
             return;
         }
         observacionDAO.guardar(new ObservacionReservaDTO(idReserva, idAutor, texto));
+    }
+
+    @Override
+    public void solicitarMulta(int idReserva, String motivo) {
+        if (fachadaFinanzas != null) {
+            Reserva reserva = buscarReserva(idReserva);
+            if (reserva != null) {
+                String cedula = obtenerNumeroDocumento(reserva.getIdResidente());
+                if (cedula != null) {
+                    fachadaFinanzas.registrarDeuda(
+                        new NuevaDeudaDTO(cedula, "MULTA", LocalDate.now().plusDays(7),
+                                "Multa por reserva: " + motivo, 50.0)
+                    );
+                }
+            }
+        } else {
+            System.out.println("[Reservas] Solicitud de multa a Finanzas -> motivo: "
+                    + motivo + " (reserva " + idReserva + ") - FACHADA NULA");
+        }
     }
 
     @Override

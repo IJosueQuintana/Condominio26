@@ -37,8 +37,13 @@ import java.util.Set;
  */
 public class VerReservaController {
 
-    // TODO(GRB): reemplazar por el id del usuario autenticado (SesionUsuario).
-    private static final int ID_RESIDENTE_ACTUAL = 2; // 'Carlos Residente' en seed.sql
+    private int obtenerIdUsuarioActual() {
+        fis.dsw.sgc.administracion.model.Usuario u = fis.dsw.sgc.administracion.model.SesionUsuario.obtenerInstancia().getUsuarioActual();
+        if (u != null && u.getCorreo() != null) {
+            return servicioReservas.obtenerIdUsuarioPorCorreo(u.getCorreo());
+        }
+        return -1;
+    }
 
     @FXML private VBox panelPrincipal;
     @FXML private VBox panelObservacion;
@@ -52,7 +57,7 @@ public class VerReservaController {
     @FXML private TableColumn<Reserva, String> colEstado;
     @FXML private TableColumn<Reserva, Void> colOpciones;
 
-    private final IServicioReservas servicioReservas = new ServicioReservasImpl();
+    private final IServicioReservas servicioReservas = ServicioReservasImpl.getInstancia();
 
     private Reserva reservaSeleccionadaParaObservacion = null;
     private final Set<Integer> reservasConObservacion = new HashSet<>();
@@ -78,7 +83,7 @@ public class VerReservaController {
 
     private void cargarReservas() {
         datos.clear();
-        List<Reserva> reservas = servicioReservas.listarReservasPorUsuario(ID_RESIDENTE_ACTUAL);
+        List<Reserva> reservas = servicioReservas.listarReservasPorUsuario(obtenerIdUsuarioActual());
         datos.addAll(reservas);
         // Marcar las que ya tienen observaciones para deshabilitar el boton.
         reservasConObservacion.clear();
@@ -200,7 +205,7 @@ public class VerReservaController {
             // El autor de la observacion es el residente en sesion (ver nota de integracion).
             servicioReservas.registrarObservacion(
                     reservaSeleccionadaParaObservacion.getId(),
-                    ID_RESIDENTE_ACTUAL,
+                    obtenerIdUsuarioActual(),
                     texto);
             reservasConObservacion.add(reservaSeleccionadaParaObservacion.getId());
         }

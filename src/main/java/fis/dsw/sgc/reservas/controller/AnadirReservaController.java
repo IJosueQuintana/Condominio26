@@ -27,10 +27,15 @@ import java.util.Map;
 
 public class AnadirReservaController {
 
-    // TODO(GRB): reemplazar por el id del usuario autenticado (SesionUsuario).
-    private static final int ID_RESIDENTE_ACTUAL = 2; // 'Carlos Residente' en seed.sql
+    private int obtenerIdUsuarioActual() {
+        fis.dsw.sgc.administracion.model.Usuario u = fis.dsw.sgc.administracion.model.SesionUsuario.obtenerInstancia().getUsuarioActual();
+        if (u != null && u.getCorreo() != null) {
+            return servicioReservas.obtenerIdUsuarioPorCorreo(u.getCorreo());
+        }
+        return -1;
+    }
 
-    private final IServicioReservas servicioReservas = new ServicioReservasImpl();
+    private final IServicioReservas servicioReservas = ServicioReservasImpl.getInstancia();
 
     // Mapa nombre-espacio -> datos del espacio (para obtener id, costo, etc.)
     private final Map<String, EspacioReservableDTO> espaciosPorNombre = new LinkedHashMap<>();
@@ -438,7 +443,7 @@ public class AnadirReservaController {
             return;
         }
 
-        boolean ok = servicioReservas.crearReserva(ID_RESIDENTE_ACTUAL,
+        boolean ok = servicioReservas.crearReserva(obtenerIdUsuarioActual(),
                 espacio.getIdEspacioComun(), fecha, horaInicio, horaFin);
 
         if (ok) {

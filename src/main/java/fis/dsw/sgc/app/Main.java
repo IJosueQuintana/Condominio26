@@ -10,6 +10,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Inyeccion de dependencias manual
+        fis.dsw.sgc.finanzas.service.IDeudaService deudaService = new fis.dsw.sgc.finanzas.service.DeudaServiceImpl();
+        fis.dsw.sgc.finanzas.service.IFachadaParaReservas fachada = new fis.dsw.sgc.finanzas.service.FachadaParaReservasImpl(deudaService);
+        fis.dsw.sgc.reservas.service.ServicioReservasImpl.getInstancia().setFachadaFinanzas(fachada);
+
         Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/login.fxml"));
         Scene scene = new Scene(root);
         primaryStage.setTitle("Sistema de Gestión Para Condominio");
