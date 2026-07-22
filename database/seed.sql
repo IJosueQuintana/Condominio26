@@ -87,6 +87,14 @@ FROM permiso WHERE nombre IN (
     'FINANZAS_BTN_PAGAR_DEUDA','FINANZAS_BTN_SOLICITAR_CUOTAS','FINANZAS_BTN_GENERAR_CERTIFICADO'
 );
 
+-- PROPIETARIO: mismos permisos que RESIDENTE (confirmado por el módulo de Finanzas)
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PROPIETARIO'), id_permiso
+FROM permiso WHERE nombre IN (
+    'FINANZAS_VER_DEUDAS','FINANZAS_VER_PAGOS','FINANZAS_VER_RENDICION_CUENTAS',
+    'FINANZAS_BTN_PAGAR_DEUDA','FINANZAS_BTN_SOLICITAR_CUOTAS','FINANZAS_BTN_GENERAR_CERTIFICADO'
+);
+
 INSERT OR IGNORE INTO usuario
 (id_usuario, numero_documento, nombres, apellidos, correo, telefono, estado, fecha_registro)
 VALUES
