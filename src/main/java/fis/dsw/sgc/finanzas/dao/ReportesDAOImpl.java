@@ -13,6 +13,34 @@ import java.util.List;
 public class ReportesDAOImpl implements IReportesDAO {
 
     @Override
+    public List<DetalleGastoDTO> buscarGastosPorRangoFechas(LocalDate inicio, LocalDate fin) {
+        List<DetalleGastoDTO> lista = new ArrayList<>();
+        // Agregamos fecha_gasto a la consulta SQL
+        String sql = "SELECT tipo_gasto, descripcion, valor_centavos, fecha_gasto FROM gasto " +
+                "WHERE fecha_gasto BETWEEN ? AND ? AND estado = 'REGISTRADO'";
+
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, inicio.toString());
+            pstmt.setString(2, fin.toString());
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String motivo = rs.getString("tipo_gasto");
+                String desc = rs.getString("descripcion");
+                double valor = rs.getInt("valor_centavos") / 100.0;
+                LocalDate fecha = LocalDate.parse(rs.getString("fecha_gasto")); // Capturamos la fecha
+
+                lista.add(new DetalleGastoDTO(motivo, desc, valor, fecha));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al consultar gastos para el reporte.", e);
+        }
+        return lista;
+    }
+
+    @Override
     public List<DetallePagoDTO> buscarPagosPorRangoFechas(LocalDate inicio, LocalDate fin) {
         return ejecutarConsultaPagos(inicio, fin, null);
     }
@@ -25,10 +53,9 @@ public class ReportesDAOImpl implements IReportesDAO {
     private List<DetallePagoDTO> ejecutarConsultaPagos(LocalDate inicio, LocalDate fin, Integer idUsuario) {
         List<DetallePagoDTO> lista = new ArrayList<>();
 
-        // Hacemos el JOIN directo en BD para evitar llamar a la API de Usuarios por cada fila del reporte (N+1 Problem)
-        // Nota: Asumimos que la tabla de Sebas ('usuario') tiene una columna 'numero_cedula' o 'identificacion'.
+        // Agregamos p.fecha_pago a la consulta SQL
         StringBuilder sql = new StringBuilder(
-                "SELECT u.numero_cedula as cedula, td.codigo as motivo, p.valor_pagado_centavos as valor " +
+                "SELECT u.numero_cedula as cedula, td.codigo as motivo, p.valor_pagado_centavos as valor, p.fecha_pago as fecha " +
                         "FROM pago p " +
                         "JOIN deuda d ON p.id_deuda = d.id_deuda " +
                         "JOIN usuario u ON d.id_usuario = u.id_usuario " +
@@ -55,7 +82,12 @@ public class ReportesDAOImpl implements IReportesDAO {
                 String cedula = rs.getString("cedula");
                 String motivo = rs.getString("motivo");
                 double valor = rs.getInt("valor") / 100.0;
-                lista.add(new DetallePagoDTO(cedula, motivo, valor));
+
+                // La fecha de pago es TIMESTAMP en tu BD, así que extraemos solo la parte de la fecha (YYYY-MM-DD)
+                String fechaCompleta = rs.getString("fecha");
+                LocalDate fecha = LocalDate.parse(fechaCompleta.split(" ")[0]);
+
+                lista.add(new DetallePagoDTO(cedula, motivo, valor, fecha));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al consultar pagos para el reporte.", e);
@@ -139,31 +171,5 @@ public class ReportesDAOImpl implements IReportesDAO {
         }
     }
 
-    // ... (métodos de pagos y rendición ocultos por brevedad, quedan idénticos) ...
 
-    @Override
-    public List<DetalleGastoDTO> buscarGastosPorRangoFechas(LocalDate inicio, LocalDate fin) {
-        List<DetalleGastoDTO> lista = new ArrayList<>();
-        String sql = "SELECT tipo_gasto, descripcion, valor_centavos FROM gasto " +
-                "WHERE fecha_gasto BETWEEN ? AND ? AND estado = 'REGISTRADO'";
-
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, inicio.toString());
-            pstmt.setString(2, fin.toString());
-
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                String motivo = rs.getString("tipo_gasto");
-                String desc = rs.getString("descripcion");
-                double valor = rs.getInt("valor_centavos") / 100.0; // Volvemos a double para el DTO
-
-                lista.add(new DetalleGastoDTO(motivo, desc, valor));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al consultar gastos para el reporte.", e);
-        }
-        return lista;
-    }
 }
