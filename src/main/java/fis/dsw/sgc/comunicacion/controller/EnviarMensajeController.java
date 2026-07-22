@@ -81,6 +81,7 @@ public class EnviarMensajeController {
         try {
             long id=service.enviarMensaje(new EnviarComunicacionDTO(
                     service.obtenerIdEmisorActual(),
+                    null,
                     ComunicacionCatalogos.codigoTipoMensaje(cmbTipoMensaje.getValue()),
                     ComunicacionCatalogos.codigoPrioridad(cmbPrioridad.getValue()),
                     txtAsunto.getText().trim(),

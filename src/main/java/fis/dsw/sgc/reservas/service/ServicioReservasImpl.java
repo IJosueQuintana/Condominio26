@@ -1,7 +1,6 @@
 package fis.dsw.sgc.reservas.service;
 
 import fis.dsw.sgc.conexion_bd.DBConnection;
-import fis.dsw.sgc.finanzas.dto.NuevaDeudaDTO;
 import fis.dsw.sgc.finanzas.service.IFachadaParaReservas;
 import fis.dsw.sgc.inmuebles.service.IInmueblesService;
 import fis.dsw.sgc.reservas.dao.IObservacionReservaDAO;
@@ -15,6 +14,8 @@ import fis.dsw.sgc.reservas.model.EstadoActiva;
 import fis.dsw.sgc.reservas.model.EstadoCancelada;
 import fis.dsw.sgc.reservas.model.EstadoFinalizada;
 import fis.dsw.sgc.reservas.model.Reserva;
+import fis.dsw.sgc.administracion.service.IGestionUsuariosAPI;
+import fis.dsw.sgc.administracion.model.Usuario;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,6 +41,9 @@ public class ServicioReservasImpl implements IServicioReservas {
 
     // Conexion con el modulo de Finanzas (opcional; inyectada desde Main).
     private IFachadaParaReservas fachadaFinanzas;
+
+    // Conexion con el modulo de Usuarios (inyectada desde Main).
+    private IGestionUsuariosAPI gestionUsuariosAPI;
 
     private static ServicioReservasImpl instancia;
 
@@ -68,8 +72,12 @@ public class ServicioReservasImpl implements IServicioReservas {
         this.fachadaFinanzas = fachadaFinanzas;
     }
 
-    public void setServicioInmuebles(IInmueblesService servicioInmuebles) {
-        this.servicioInmuebles = servicioInmuebles;
+    public void setServicioInmuebles(IInmueblesService s) {
+        this.servicioInmuebles = s;
+    }
+
+    public void setGestionUsuariosAPI(IGestionUsuariosAPI api) {
+        this.gestionUsuariosAPI = api;
     }
 
     /** Permite a Main inyectar la fachada de Finanzas despues de construir el servicio. */
@@ -208,8 +216,8 @@ public class ServicioReservasImpl implements IServicioReservas {
                     + (espacio != null ? espacio.getNombre() : "espacio comun")
                     + " (" + fecha + " " + horaInicio + "-" + horaFin + ")";
             fachadaFinanzas.registrarDeuda(
-                    new NuevaDeudaDTO(cedula, "RESERVA", fechaMaximaPago,
-                            descripcion, costoCentavos / 100.0));
+                    cedula, "RESERVA", fechaMaximaPago,
+                    descripcion, costoCentavos / 100.0);
         }
 
         return null;
@@ -223,6 +231,19 @@ public class ServicioReservasImpl implements IServicioReservas {
             return false;
         }
         reservaDAO.cancelar(idReserva, motivo);
+        
+        // Enviar notificacion de cancelacion al residente
+        try {
+            fis.dsw.sgc.comunicacion.service.IComunicacionService comm = new fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl(new fis.dsw.sgc.comunicacion.dao.ComunicacionDAOSQLite());
+            long emisor = comm.obtenerIdEmisorActual();
+            String titulo = "Reserva Cancelada";
+            String contenido = "Su reserva del espacio " + dto.getNombreEspacio() + " para la fecha " + dto.getFechaReserva() + " ha sido cancelada.\nMotivo: " + motivo;
+            fis.dsw.sgc.comunicacion.dto.EnviarComunicacionDTO dtoCom = new fis.dsw.sgc.comunicacion.dto.EnviarComunicacionDTO(emisor, (long) dto.getIdUsuario(), "MENSAJE_RESIDENTES", "NORMAL", titulo, contenido);
+            comm.enviarMensaje(dtoCom);
+        } catch (Exception e) {
+            System.err.println("Error al enviar notificacion de cancelacion: " + e.getMessage());
+        }
+        
         return true;
     }
 
@@ -258,8 +279,8 @@ public class ServicioReservasImpl implements IServicioReservas {
                 String cedula = obtenerNumeroDocumento(reserva.getIdResidente());
                 if (cedula != null) {
                     fachadaFinanzas.registrarDeuda(
-                        new NuevaDeudaDTO(cedula, "MULTA", LocalDate.now().plusDays(7),
-                                "Multa por reserva: " + motivo, 50.0)
+                        cedula, "MULTA", LocalDate.now().plusDays(7),
+                        "Multa por reserva: " + motivo, 50.0
                     );
                 }
             }
@@ -295,18 +316,12 @@ public class ServicioReservasImpl implements IServicioReservas {
      * relacion mediante su propia API, esta consulta deberia reemplazarse.
      */
     private String obtenerNumeroDocumento(int idUsuario) {
-        String sql = "SELECT numero_documento FROM usuario WHERE id_usuario = ?";
-        try (PreparedStatement ps = DBConnection.getInstance().getConnection()
-                .prepareStatement(sql)) {
-            ps.setInt(1, idUsuario);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("numero_documento");
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener numero de documento: " + e.getMessage());
+        if (gestionUsuariosAPI != null) {
+            Usuario u = gestionUsuariosAPI.obtenerUsuarioPorId(idUsuario);
+            return u != null ? u.getCedula() : null;
+        } else {
+            System.err.println("[Reservas] API de Gestión de Usuarios no inyectada");
+            return null;
         }
-        return null;
     }
 }

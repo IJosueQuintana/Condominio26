@@ -3,7 +3,6 @@ package fis.dsw.sgc.administracion.dao;
 import fis.dsw.sgc.administracion.model.Rol;
 import java.sql.Connection;
 import java.util.List;
-import java.util.UUID;
 
 public class RolDAOMySQL implements IRolDAO {
     private Connection dbConn;
@@ -20,5 +19,5 @@ public class RolDAOMySQL implements IRolDAO {
     }
 
     @Override
-    public void asignarRolAUsuario(UUID idUsuario, UUID idRol) {}
+    public void asignarRolAUsuario(int idUsuario, int idRol) {}
 }

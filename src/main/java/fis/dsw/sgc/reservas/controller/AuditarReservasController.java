@@ -324,8 +324,23 @@ public class AuditarReservasController {
                     texto);
             reservasConObservacion.add(reservaSeleccionadaParaObservacion.getId());
 
-            if (aplicandoMulta && cbMotivoMulta.getValue() != null) {
+            boolean tieneMulta = aplicandoMulta && cbMotivoMulta.getValue() != null;
+            if (tieneMulta) {
                 servicioReservas.solicitarMulta(reservaSeleccionadaParaObservacion.getId(), cbMotivoMulta.getValue());
+            }
+
+            // Enviar notificacion de la observacion y multa al residente
+            try {
+                fis.dsw.sgc.comunicacion.service.IComunicacionService comm = new fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl(new fis.dsw.sgc.comunicacion.dao.ComunicacionDAOSQLite());
+                long emisor = comm.obtenerIdEmisorActual();
+                String contenido = "Se ha añadido una observación a su reserva (ID: " + reservaSeleccionadaParaObservacion.getId() + "): " + texto;
+                if (tieneMulta) {
+                    contenido += "\n\nAdicionalmente, se le ha impuesto una multa por infracción. Motivo: " + cbMotivoMulta.getValue();
+                }
+                fis.dsw.sgc.comunicacion.dto.EnviarComunicacionDTO dtoCom = new fis.dsw.sgc.comunicacion.dto.EnviarComunicacionDTO(emisor, (long) reservaSeleccionadaParaObservacion.getIdResidente(), "MENSAJE_RESIDENTES", "NORMAL", "Observación en su reserva", contenido);
+                comm.enviarMensaje(dtoCom);
+            } catch (Exception e) {
+                System.err.println("Error al enviar notificacion de observacion: " + e.getMessage());
             }
         }
         cancelarObservacion(event);

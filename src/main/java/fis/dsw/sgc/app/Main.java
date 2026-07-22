@@ -23,6 +23,7 @@ public class Main extends Application {
                 deudaFactory, deudaDAO, servicioInmuebles, gestionUsuariosAPI);
         fis.dsw.sgc.finanzas.service.IFachadaParaReservas fachada = new fis.dsw.sgc.finanzas.service.FachadaParaReservasImpl(deudaService);
         fis.dsw.sgc.reservas.service.ServicioReservasImpl.getInstancia().setFachadaFinanzas(fachada);
+        fis.dsw.sgc.reservas.service.ServicioReservasImpl.getInstancia().setGestionUsuariosAPI(gestionUsuariosAPI);
 
         Parent root = FXMLLoader.load(getClass().getResource("/administracion/fxml/login.fxml"));
         Scene scene = new Scene(root);

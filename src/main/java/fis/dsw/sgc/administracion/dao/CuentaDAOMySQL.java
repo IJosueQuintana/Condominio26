@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class CuentaDAOMySQL implements ICuentaDAO {
     private Connection dbConn;
@@ -25,7 +24,7 @@ public class CuentaDAOMySQL implements ICuentaDAO {
     public void actualizar(Cuenta cuenta) {}
 
     @Override
-    public Cuenta buscarPorIdUsuario(UUID idUsuario) {
+    public Cuenta buscarPorIdUsuario(int idUsuario) {
         return null;
     }
 

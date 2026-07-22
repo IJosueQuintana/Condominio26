@@ -67,7 +67,7 @@
                         <Label text="Hasta:" styleClass="form-label"/>
                         <DatePicker fx:id="dpFechaFin" prefWidth="120.0" styleClass="date-picker" promptText="Fin" showWeekNumbers="false" />
                         
-                        <Button mnemonicParsing="false" onAction="#limpiarFiltros" text="Limpiar Filtros" styleClass="secondary-button" />
+                        <Button mnemonicParsing="false" onAction="#limpiarFiltros" text="X" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 5 10 5 10; -fx-background-radius: 4; -fx-cursor: hand;" />
                      </children>
                   </HBox>
                </children>

@@ -3,6 +3,7 @@ package fis.dsw.sgc.administracion.service;
 import fis.dsw.sgc.administracion.model.NombreRol;
 import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.usuarios.dto.ResidenteFachadaDTO;
+import fis.dsw.sgc.usuarios.dto.UsuarioFachadaDTO;
 
 import java.util.List;
 
@@ -19,28 +20,8 @@ public interface IGestionUsuariosAPI {
 
     Usuario obtenerUsuarioPorId(int idUsuario);
 
-    /**
-     * Indica si la cuenta tiene concedido el permiso indicado.
-     *
-     * Flujo de uso desde otro módulo:
-     *   1. Usuario u = SesionUsuario.obtenerInstancia().getUsuarioActual();
-     *   2. int idCuenta = u.getCuenta().getIdCuenta();
-     *   3. boolean puede = api.validarPermiso(idCuenta, "NOMBRE_PERMISO");
-     *
-     * El chequeo es por igualdad exacta contra permiso.nombre: se recorren los
-     * roles de la cuenta (usuario_rol -> rol_permiso -> permiso) y se devuelve
-     * true si alguno concede un permiso con ese nombre. GRB solo verifica
-     * existencia; cada módulo define y envía sus propios nombres de permiso.
-     *
-     * @param idCuenta id_cuenta de la sesión actual
-     * @param nombrePermiso nombre único del permiso (p. ej. "RESERVAS_BTN_CANCELAR")
-     * @return true si la cuenta tiene el permiso, false en caso contrario
-     */
     boolean validarPermiso(int idCuenta, String nombrePermiso);
 
-    /**
-     * Lista los nombres de todos los permisos concedidos a la cuenta (por sus roles).
-     */
     List<String> obtenerPermisosPorCuenta(int idCuenta);
 
     List<Usuario> listarUsuariosPorRol(NombreRol rol);
@@ -48,4 +29,15 @@ public interface IGestionUsuariosAPI {
     void iniciarRecuperacionContrasena(String correo);
 
     ResidenteFachadaDTO obtenerResidentePorCedula(String cedula);
+
+    /**
+     * Devuelve el id numérico y la cédula del usuario asociado a un correo.
+     * Pensado para módulos externos (Finanzas, Reservas, etc.) que solo
+     * tienen el correo disponible desde SesionUsuario y necesitan el
+     * identificador real para facturar u operar sobre otras tablas.
+     *
+     * @param correo correo del usuario logueado
+     * @return DTO con idUsuario y cedula, o null si no existe
+     */
+    UsuarioFachadaDTO obtenerUsuarioFachadaPorCorreo(String correo);
 }

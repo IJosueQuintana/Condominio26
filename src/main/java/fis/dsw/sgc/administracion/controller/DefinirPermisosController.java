@@ -8,8 +8,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
-import java.util.UUID;
-
 public class DefinirPermisosController {
 
     @FXML private ComboBox<NombreRol> cmbRoles;
@@ -35,7 +33,6 @@ public class DefinirPermisosController {
         }
 
         Permiso nuevoPermiso = new Permiso();
-        nuevoPermiso.setIdPermiso(UUID.randomUUID());
         nuevoPermiso.setNombre(nombrePermiso);
         nuevoPermiso.setRecurso(recurso);
 

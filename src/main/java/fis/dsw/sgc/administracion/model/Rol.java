@@ -2,17 +2,16 @@ package fis.dsw.sgc.administracion.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Rol {
-    private UUID idRol;
+    private int idRol;
     private NombreRol nombre;
     private String descripcion;
 
     private List<Permiso> permisos = new ArrayList<>();
 
-    public UUID getIdRol() { return idRol; }
-    public void setIdRol(UUID idRol) { this.idRol = idRol; }
+    public int getIdRol() { return idRol; }
+    public void setIdRol(int idRol) { this.idRol = idRol; }
 
     public NombreRol getNombre() { return nombre; }
     public void setNombre(NombreRol nombre) { this.nombre = nombre; }

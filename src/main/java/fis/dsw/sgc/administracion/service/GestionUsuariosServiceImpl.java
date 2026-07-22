@@ -10,6 +10,7 @@ import fis.dsw.sgc.administracion.exception.ResidenteNoExisteException;
 import fis.dsw.sgc.administracion.model.NombreRol;
 import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.usuarios.dto.ResidenteFachadaDTO;
+import fis.dsw.sgc.usuarios.dto.UsuarioFachadaDTO;
 
 import java.util.List;
 
@@ -64,5 +65,14 @@ public class GestionUsuariosServiceImpl implements IGestionUsuariosAPI {
             throw new ResidenteNoExisteException(cedula);
         }
         return residente;
+    }
+
+    @Override
+    public UsuarioFachadaDTO obtenerUsuarioFachadaPorCorreo(String correo) {
+        Usuario u = usuarioDAO.buscarPorCorreo(correo);
+        if (u == null) {
+            return null;
+        }
+        return new UsuarioFachadaDTO(u.getIdUsuario(), u.getCedula());
     }
 }

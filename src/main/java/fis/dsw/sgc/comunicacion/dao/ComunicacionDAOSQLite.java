@@ -80,7 +80,9 @@ public class ComunicacionDAOSQLite implements IComunicacionDAO {
                 idMensaje = idGenerado(ps, "mensaje");
             }
 
-            List<Long> usuarios = destinatarios(c, dto.tipo(), dto.idEmisor());
+            List<Long> usuarios = (dto.idReceptor() != null) ?
+                java.util.Collections.singletonList(dto.idReceptor()) :
+                destinatarios(c, dto.tipo(), dto.idEmisor());
             for (long idUsuario : usuarios) {
                 try (PreparedStatement ps = c.prepareStatement("""
                     INSERT OR IGNORE INTO mensaje_destinatario(id_mensaje,id_usuario,leido,fecha_lectura)

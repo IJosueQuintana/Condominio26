@@ -2,6 +2,8 @@ package fis.dsw.sgc.administracion.model;
 
 public class Usuario {
     private int idUsuario;
+    private String cedula;
+
     private String nombre;
     private String apellido;
     private String correo;
@@ -11,6 +13,9 @@ public class Usuario {
 
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
+
+    public String getCedula() { return cedula; }
+    public void setCedula(String cedula) { this.cedula = cedula; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
