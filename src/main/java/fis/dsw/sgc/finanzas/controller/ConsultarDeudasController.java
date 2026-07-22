@@ -1,6 +1,9 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.core.util.NavigationUtil;
+import fis.dsw.sgc.finanzas.dto.DeudaConsultadaDTO;
+import fis.dsw.sgc.finanzas.service.DeudaServiceImpl;
+import fis.dsw.sgc.finanzas.service.IDeudaService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,6 +20,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
+
+import java.util.List;
+import java.util.Locale;
 
 // Controlador de la vista Consultar deudas
 public class ConsultarDeudasController {
@@ -44,6 +50,7 @@ public class ConsultarDeudasController {
 
     private final ObservableList<DeudaFila> filas = FXCollections.observableArrayList();
     private Label placeholderTabla;
+    private final IDeudaService deudaService = new DeudaServiceImpl();
 
     @FXML
     public void initialize() {
@@ -143,32 +150,34 @@ public class ConsultarDeudasController {
             setMensaje("Debe ingresar el número de cédula del residente.", "message-error");
             return;
         }
-        if (!cedula.matches("\\d{10}")) {
-            setMensaje("Cédula inválida. Ingrese 10 dígitos.", "message-error");
+        if (!cedula.matches("\\d+")) {
+            setMensaje("La cédula solo debe contener números.", "message-error");
             return;
         }
 
-        if ("0000000000".equals(cedula)) {
-            setPlaceholder(PLACEHOLDER_SIN_DEUDAS);
-            setMensaje("El residente no tiene deudas.", "message-info");
-            return;
-        }
+        try {
+            List<DeudaConsultadaDTO> deudas = deudaService.consultarDeuda(cedula);
 
-        if ("9999999999".equals(cedula)) {
-            setMensaje("No existe un cliente con el número de cédula proporcionado.", "message-error");
-            return;
+            if (deudas.isEmpty()) {
+                setPlaceholder(PLACEHOLDER_SIN_DEUDAS);
+                setMensaje("El residente no tiene deudas.", "message-info");
+                return;
+            }
+            for (DeudaConsultadaDTO dto : deudas) {
+                filas.add(aFila(dto));
+            }
+            setMensaje("Deudas del residente.", "message-success");
+        } catch (IllegalArgumentException ex) {
+            setMensaje(ex.getMessage(), "message-error");
         }
+    }
 
-        // Datos de ejemplo hasta conectar con el servicio
-        filas.addAll(
-                new DeudaFila("DEU-001", "ALICUOTA", "$45.00", "2026-07-31", "PENDIENTE",
-                        "Alícuota del mes de julio"),
-                new DeudaFila("DEU-002", "MULTA", "$20.00", "2026-07-20", "MORA",
-                        "Retraso en el pago de una reserva"),
-                new DeudaFila("DEU-003", "RESERVA", "$15.00", "2026-08-05", "EN PROCESO",
-                        "Uso del salón comunal")
-        );
-        setMensaje("Deudas del residente.", "message-success");
+    private DeudaFila aFila(DeudaConsultadaDTO dto) {
+        String id = dto.getIdDeuda() == null ? "" : String.valueOf(dto.getIdDeuda());
+        String valor = dto.getSaldoPendiente() == null ? ""
+                : String.format(Locale.US, "$%.2f", dto.getSaldoPendiente());
+        String fecha = dto.getFechaVencimiento() == null ? "" : dto.getFechaVencimiento().toString();
+        return new DeudaFila(id, dto.getMotivo(), valor, fecha, dto.getEstadoActual(), "");
     }
 
     @FXML

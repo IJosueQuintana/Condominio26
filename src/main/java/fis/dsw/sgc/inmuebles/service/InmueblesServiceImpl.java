@@ -6,6 +6,7 @@ import fis.dsw.sgc.inmuebles.dao.CasoFortuitoDAOMySQL;
 import fis.dsw.sgc.inmuebles.dao.ICasoFortuitoDAO;
 import fis.dsw.sgc.inmuebles.dao.IInmuebleDAO;
 import fis.dsw.sgc.inmuebles.dto.CasoFortuitoDTO;
+import fis.dsw.sgc.inmuebles.dto.DimensionesInmuebleDTO;
 import fis.dsw.sgc.inmuebles.dto.InmuebleResumenDTO;
 import fis.dsw.sgc.inmuebles.dto.OpcionComboDTO;
 import fis.dsw.sgc.inmuebles.model.CasoFortuito;
@@ -120,8 +121,21 @@ public class InmueblesServiceImpl implements IInmueblesService {
         casoFortuitoDAO.guardarIncidente(caso);
     }
 
-    @Override
+   @Override
     public List<CasoFortuitoDTO> listarCasosFortuitos(int idInmueble) {
         return casoFortuitoDAO.listarPorInmueble(idInmueble);
+    }
+
+    @Override
+    public DimensionesInmuebleDTO obtenerDimensiones(int idInmueble) {
+        Inmueble inmueble = inmuebleDAO.buscarPorId(idInmueble);
+        if (inmueble == null) {
+            throw new IllegalArgumentException("No existe un inmueble con id " + idInmueble + ".");
+        }
+
+        double areaDepartamento = (inmueble.getAreaM2() == null) ? 0.0 : inmueble.getAreaM2();
+        double areaCondominio = inmuebleDAO.obtenerAreaTotalCondominio();
+
+        return new DimensionesInmuebleDTO(areaCondominio, areaDepartamento);
     }
 }

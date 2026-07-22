@@ -1,5 +1,7 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.finanzas.service.DeudaServiceImpl;
+import fis.dsw.sgc.finanzas.service.IDeudaService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -31,6 +33,18 @@ public class DetalleDeudaController {
     private String resultadoAccion = "";
     private String estadoActualizado;
     private String fechaActualizada;
+    private final IDeudaService deudaService = new DeudaServiceImpl();
+
+    private Integer idDeudaNumerico() {
+        if (deuda == null || deuda.getIdDeuda() == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(deuda.getIdDeuda().replaceAll("\\D", ""));
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
 
     public void setDeuda(ConsultarDeudasController.DeudaFila deuda, Runnable alCerrar) {
         this.deuda = deuda;
@@ -70,7 +84,6 @@ public class DetalleDeudaController {
             setMensaje("Solo se valida si la deuda está EN PROCESO.", "message-error");
             return;
         }
-        // Se marca pagada sin pedir id de pago
         estadoActualizado = "PAGADA";
         resultadoAccion = "VALIDADA";
         setMensaje("Pago registrado exitosamente.", "message-success");
@@ -84,34 +97,27 @@ public class DetalleDeudaController {
             setMensaje("Seleccione la nueva fecha máxima de pago.", "message-error");
             return;
         }
-        if (!nueva.isAfter(LocalDate.now())) {
-            setMensaje("La nueva fecha máxima de pago debe ser mayor a la fecha actual.", "message-error");
-            return;
+        try {
+            deudaService.modificarFechaMaximaDePagoDeUnaDeuda(idDeudaNumerico(), nueva);
+            fechaActualizada = nueva.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            resultadoAccion = "FECHA";
+            setMensaje("Fecha máxima de pago modificada con éxito.", "message-success");
+            notificarYCerrar(event);
+        } catch (RuntimeException ex) {
+            setMensaje(ex.getMessage(), "message-error");
         }
-        if (deuda != null && deuda.getFechaMaximaPago() != null) {
-            try {
-                LocalDate actual = LocalDate.parse(deuda.getFechaMaximaPago());
-                if (!nueva.isAfter(actual)) {
-                    setMensaje(
-                            "La nueva fecha máxima de pago debe ser mayor a la fecha de pago actual de la deuda.",
-                            "message-error");
-                    return;
-                }
-            } catch (Exception ignored) {
-                // Si el formato demo no parsea, solo se valida contra hoy
-            }
-        }
-        fechaActualizada = nueva.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        resultadoAccion = "FECHA";
-        setMensaje("Fecha máxima de pago modificada con éxito.", "message-success");
-        notificarYCerrar(event);
     }
 
     @FXML
     void eliminar(ActionEvent event) {
-        resultadoAccion = "ELIMINADA";
-        setMensaje("Deuda Eliminada Exitosamente", "message-success");
-        notificarYCerrar(event);
+        try {
+            deudaService.eliminarDeuda(idDeudaNumerico());
+            resultadoAccion = "ELIMINADA";
+            setMensaje("Deuda Eliminada Exitosamente", "message-success");
+            notificarYCerrar(event);
+        } catch (RuntimeException ex) {
+            setMensaje(ex.getMessage(), "message-error");
+        }
     }
 
     @FXML

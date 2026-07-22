@@ -15,7 +15,25 @@ import javafx.scene.paint.Color;
 import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
 
+import fis.dsw.sgc.reservas.dto.EspacioReservableDTO;
+import fis.dsw.sgc.reservas.model.Reserva;
+import fis.dsw.sgc.reservas.service.IServicioReservas;
+import fis.dsw.sgc.reservas.service.ServicioReservasImpl;
+
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 public class AnadirReservaController {
+
+    // TODO(GRB): reemplazar por el id del usuario autenticado (SesionUsuario).
+    private static final int ID_RESIDENTE_ACTUAL = 2; // 'Carlos Residente' en seed.sql
+
+    private final IServicioReservas servicioReservas = new ServicioReservasImpl();
+
+    // Mapa nombre-espacio -> datos del espacio (para obtener id, costo, etc.)
+    private final Map<String, EspacioReservableDTO> espaciosPorNombre = new LinkedHashMap<>();
 
     @FXML
     private ChoiceBox<String> cbTipoEspacio;
@@ -72,8 +90,13 @@ public class AnadirReservaController {
 
     @FXML
     public void initialize() {
-        cbTipoEspacio.getItems().addAll("Cancha Sintética", "Salón de Eventos", "Área BBQ", "Gimnasio", "Piscina");
-        
+        // Cargar los espacios reservables reales desde la BD.
+        espaciosPorNombre.clear();
+        for (EspacioReservableDTO e : servicioReservas.listarEspaciosDisponibles()) {
+            espaciosPorNombre.put(e.getNombre(), e);
+            cbTipoEspacio.getItems().add(e.getNombre());
+        }
+
         colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
         colLunes.setCellValueFactory(new PropertyValueFactory<>("lunes"));
         colMartes.setCellValueFactory(new PropertyValueFactory<>("martes"));
@@ -226,7 +249,7 @@ public class AnadirReservaController {
         // Al cambiar de espacio, se recargan los datos falsos y se limpia la selección
         cbTipoEspacio.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                cargarDatosFicticios(newVal);
+                cargarDisponibilidad(newVal);
                 limpiarSeleccion();
             }
         });
@@ -268,7 +291,7 @@ public class AnadirReservaController {
             semanaOffset--;
             actualizarEtiquetaSemana();
             if (cbTipoEspacio.getValue() != null) {
-                cargarDatosFicticios(cbTipoEspacio.getValue());
+                cargarDisponibilidad(cbTipoEspacio.getValue());
             }
             limpiarSeleccion();
         }
@@ -280,7 +303,7 @@ public class AnadirReservaController {
             semanaOffset++;
             actualizarEtiquetaSemana();
             if (cbTipoEspacio.getValue() != null) {
-                cargarDatosFicticios(cbTipoEspacio.getValue());
+                cargarDisponibilidad(cbTipoEspacio.getValue());
             }
             limpiarSeleccion();
         }
@@ -322,38 +345,122 @@ public class AnadirReservaController {
         }
     }
 
-    private void cargarDatosFicticios(String espacio) {
+    /**
+     * Marca en la grilla semanal los bloques ya ocupados por reservas ACTIVAS
+     * reales del espacio seleccionado, consultando la BD dia por dia.
+     */
+    private void cargarDisponibilidad(String espacioNombre) {
         // Limpiar todo primero
         for (HorarioFila fila : datosHorario) {
             fila.limpiar();
         }
 
-        // Lógica súper básica para poner datos de ejemplo basados en el nombre y en la semana
-        if (espacio.equals("Cancha Sintética")) {
-            if (semanaOffset == 0) {
-                datosHorario.get(5).setJueves("Reservado"); // 18:00-20:00
-                datosHorario.get(4).setSabado("Reservado"); // 16:00-18:00
-                datosHorario.get(1).setLunes("Mantenimiento"); // 10:00-12:00
-            } else if (semanaOffset == 1) {
-                // Siguiente semana, horarios diferentes
-                datosHorario.get(6).setLunes("Reservado"); // 20:00-22:00
-            }
-        } else if (espacio.equals("Salón de Eventos")) {
-            if (semanaOffset == 0) {
-                datosHorario.get(6).setSabado("Reservado"); // 20:00-22:00
-                datosHorario.get(7).setSabado("Reservado"); // 22:00-00:00
-            } else {
-                datosHorario.get(3).setViernes("Reservado"); // 14:00-16:00
-            }
-        } else if (espacio.equals("Área BBQ")) {
-            if (semanaOffset == 0) {
-                datosHorario.get(2).setDomingo("Reservado"); // 12:00-14:00
-                datosHorario.get(3).setDomingo("Reservado"); // 14:00-16:00
+        EspacioReservableDTO espacio = espaciosPorNombre.get(espacioNombre);
+        if (espacio != null) {
+            LocalDate hoy = LocalDate.now();
+            LocalDate lunes = hoy.with(java.time.temporal.TemporalAdjusters
+                    .previousOrSame(java.time.DayOfWeek.MONDAY)).plusWeeks(semanaOffset);
+
+            for (int dia = 0; dia < 7; dia++) {
+                LocalDate fecha = lunes.plusDays(dia);
+                List<Reserva> reservas = servicioReservas
+                        .listarReservasPorEspacioYFecha(espacio.getIdEspacioComun(), fecha.toString());
+                for (Reserva r : reservas) {
+                    marcarBloquesReservados(dia, r.getHoraInicio(), r.getHoraFin());
+                }
             }
         }
 
         // Forzar refresco de la tabla
         tablaHorarios.refresh();
+    }
+
+    /** Marca como "Reservado" los slots de 2h que se solapan con [inicio, fin). */
+    private void marcarBloquesReservados(int diaColumna, String horaInicio, String horaFin) {
+        int inicioRes = aMinutos(horaInicio);
+        int finRes = aMinutos(horaFin);
+        if (inicioRes < 0 || finRes < 0) return;
+
+        for (HorarioFila fila : datosHorario) {
+            String[] rango = fila.getHora().split(" - ");
+            if (rango.length != 2) continue;
+            int slotInicio = aMinutos(rango[0]);
+            int slotFin = aMinutos(rango[1]);
+            if (slotFin <= slotInicio) slotFin += 24 * 60; // slot que cruza medianoche
+            // Solapamiento de intervalos
+            if (inicioRes < slotFin && slotInicio < finRes) {
+                setDia(fila, diaColumna, "Reservado");
+            }
+        }
+    }
+
+    /** Convierte "HH:MM" (o "HH:MM:SS") a minutos desde medianoche; -1 si invalido. */
+    private int aMinutos(String hora) {
+        if (hora == null) return -1;
+        try {
+            String[] p = hora.trim().split(":");
+            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    /** Asigna un valor a la columna de dia correspondiente (0=Lunes .. 6=Domingo). */
+    private void setDia(HorarioFila fila, int diaColumna, String valor) {
+        switch (diaColumna) {
+            case 0: fila.setLunes(valor); break;
+            case 1: fila.setMartes(valor); break;
+            case 2: fila.setMiercoles(valor); break;
+            case 3: fila.setJueves(valor); break;
+            case 4: fila.setViernes(valor); break;
+            case 5: fila.setSabado(valor); break;
+            case 6: fila.setDomingo(valor); break;
+            default: break;
+        }
+    }
+
+    /**
+     * Crea la reserva seleccionada en la grilla usando el servicio (que valida
+     * mora y solapamiento y registra la deuda en Finanzas si corresponde).
+     */
+    @FXML
+    void reservar(javafx.event.ActionEvent event) {
+        String espacioNombre = cbTipoEspacio.getValue();
+        String fecha = txtFecha.getText();
+        String horaInicio = txtHoraInicio.getText();
+        String horaFin = txtHoraFin.getText();
+
+        EspacioReservableDTO espacio = espaciosPorNombre.get(espacioNombre);
+        if (espacio == null || fecha == null || fecha.isEmpty()
+                || horaInicio == null || horaInicio.isEmpty()
+                || horaFin == null || horaFin.isEmpty()) {
+            mostrarError();
+            return;
+        }
+
+        boolean ok = servicioReservas.crearReserva(ID_RESIDENTE_ACTUAL,
+                espacio.getIdEspacioComun(), fecha, horaInicio, horaFin);
+
+        if (ok) {
+            // Recargar disponibilidad para reflejar la nueva reserva.
+            cargarDisponibilidad(espacioNombre);
+            limpiarSeleccion();
+        } else {
+            // Rechazada por mora o solapamiento (ver consola del servicio).
+            mostrarError();
+        }
+    }
+
+    private void mostrarError() {
+        if (panelPrincipal != null) {
+            panelPrincipal.setVisible(false);
+            panelPrincipal.setManaged(false);
+        }
+        if (panelError != null) {
+            panelError.setVisible(true);
+            panelError.setManaged(true);
+        }
+        limpiarSeleccion();
     }
 
     // --- INNER CLASS PARA LA FILA DEL HORARIO ---

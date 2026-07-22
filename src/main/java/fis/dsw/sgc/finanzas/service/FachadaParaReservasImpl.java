@@ -1,5 +1,7 @@
 package fis.dsw.sgc.finanzas.service;
 
+import fis.dsw.sgc.finanzas.dto.NuevaDeudaDTO;
+
 import java.time.LocalDate;
 
 public class FachadaParaReservasImpl implements IFachadaParaReservas {
@@ -10,8 +12,8 @@ public class FachadaParaReservasImpl implements IFachadaParaReservas {
         this.deudaService = deudaService;
     }
     @Override
-    public void registrarDeuda(String cedulaResidente, String motivoDeuda, LocalDate fechaMaximaPago, String descripcion, Double valor) {
-        deudaService.registrarDeuda(cedulaResidente, motivoDeuda, fechaMaximaPago, descripcion, valor);
+    public void registrarDeuda(NuevaDeudaDTO nuevaDeuda) {
+        deudaService.registrarDeuda(nuevaDeuda);
     }
 
     @Override

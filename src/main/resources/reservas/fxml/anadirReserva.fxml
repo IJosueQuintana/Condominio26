@@ -62,7 +62,7 @@
                         <Region HBox.hgrow="ALWAYS" />
                         <VBox alignment="BOTTOM_CENTER" spacing="4.0">
                            <children>
-                              <Button mnemonicParsing="false" styleClass="primary-button" text="Reservar Espacio" />
+                              <Button fx:id="btnReservar" mnemonicParsing="false" onAction="#reservar" styleClass="primary-button" text="Reservar Espacio" />
                            </children>
                         </VBox>
                      </children>
