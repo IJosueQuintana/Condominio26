@@ -261,17 +261,35 @@ public class mainWindowController {
     @FXML void irAPagarDeuda(ActionEvent event)    {
         pagarDeudaController pagarDeudaController = new pagarDeudaController(pagoService);
         cargarVista("/finanzas/fxml/pagarDeuda.fxml",pagarDeudaController);    }
-    @FXML void irAGenerarRendicionCuentas(ActionEvent event) { cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml"); }
+    @FXML void irAGenerarRendicionCuentas(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarRendicionCuentasController(reportesService));
+    }
     @FXML void irAConsultarDeudas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarDeudas.fxml");         }
     @FXML void irARegistrarDeuda(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarDeuda.fxml");         }
     @FXML void irAConfiguracionFinanciera(ActionEvent event) { cargarVista("/finanzas/fxml/configuracionFinanciera.fxml"); }
-    @FXML void irARegistrarPagoExterno(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarPagoExterno.fxml");         }
-    @FXML void irAGenerarReporteGastos(ActionEvent event)         { cargarVista("/finanzas/fxml/generarReporteGastos.fxml");         }
+    @FXML void irARegistrarPagoExterno(ActionEvent event) {
+        cargarVista("/finanzas/fxml/registrarPagoExterno.fxml",
+                new fis.dsw.sgc.finanzas.controller.RegistrarPagoExternoController(gastoService));
+    }
+    @FXML void irAGenerarReporteGastos(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarReporteGastos.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarReporteGastosController(reportesService));
+    }
     @FXML void irASolicitarPagoEnCuotas(ActionEvent event)         { cargarVista("/finanzas/fxml/solicitarPagoEnCuotas.fxml");         }
   
-    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml");         }
-    @FXML void irAGenerarReportePagosInternos(ActionEvent event)     { cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml"); }
-    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event)      { cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml");         }
+    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event) {
+        cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml",
+                new fis.dsw.sgc.finanzas.controller.ConsultarRendicionCuentasController(reportesService));
+    }
+    @FXML void irAGenerarReportePagosInternos(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarReportePagosRealizadosController(reportesService));
+    }
+    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarCertificadoNoDeudorController(reportesService));
+    }
 
     // ==================== Submenú Inmuebles ====================
 
