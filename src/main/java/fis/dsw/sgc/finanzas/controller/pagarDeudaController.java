@@ -1,6 +1,8 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.core.util.NavigationUtil;
+import fis.dsw.sgc.finanzas.dto.PagoTarjetaDTO;
+import fis.dsw.sgc.finanzas.service.IPagoService;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,6 +29,11 @@ public class pagarDeudaController {
 
     private boolean deudaCargada;
     private String estadoActual = "";
+    private final IPagoService pagoService;
+
+    public pagarDeudaController(IPagoService pagoService) {
+        this.pagoService = pagoService;
+    }
 
     @FXML
     public void initialize() {
@@ -91,47 +98,77 @@ public class pagarDeudaController {
             return;
         }
 
-        if ("EFECTIVO".equals(metodo)) {
-            lblEstado.setText("EN PROCESO");
-            estadoActual = "EN PROCESO";
-            setMensaje("Acérquese a las oficinas de contabilidad para efectuar el pago.", "message-success");
-            return;
-        }
+        Integer idNumerico = idDeudaNumerico(idDeuda);
 
-        if ("TRANSFERENCIA".equals(metodo)) {
-            String comp = texto(txtComprobante);
-            if (comp.isEmpty()) {
-                setMensaje("Ingrese el comprobante de depósito.", "message-error");
-                return;
+        if ("EFECTIVO".equals(metodo) || "TRANSFERENCIA".equals(metodo)) {
+            if ("TRANSFERENCIA".equals(metodo)) {
+                String comp = texto(txtComprobante);
+                if (comp.isEmpty()) {
+                    setMensaje("Ingrese el comprobante de depósito.", "message-error");
+                    return;
+                }
+                lblDatosBancarios.setText(
+                        "Banco Pichincha | Cuenta 2201234567 | Condominio Los Sauces | RUC 1799999999001");
             }
-            lblDatosBancarios.setText(
-                    "Banco Pichincha | Cuenta 2201234567 | Condominio Los Sauces | RUC 1799999999001");
-            lblEstado.setText("EN PROCESO");
-            estadoActual = "EN PROCESO";
-            setMensaje(
-                    "Se revisará el depósito y se actualizará el estado de su deuda en las próximas horas.",
-                    "message-success");
+            try {
+                pagoService.pagarDeuda(idNumerico, metodo);
+                lblEstado.setText("EN PROCESO");
+                estadoActual = "EN PROCESO";
+                if ("EFECTIVO".equals(metodo)) {
+                    setMensaje("Acérquese a las oficinas de contabilidad para efectuar el pago.", "message-success");
+                } else {
+                    setMensaje(
+                            "Se revisará el depósito y se actualizará el estado de su deuda en las próximas horas.",
+                            "message-success");
+                }
+            } catch (RuntimeException ex) {
+                setMensaje(ex.getMessage(), "message-error");
+            }
             return;
         }
 
         if ("TARJETA".equals(metodo)) {
+            SimularPagoTarjetaController ctrl;
             try {
                 FXMLLoader loader = new FXMLLoader(
                         getClass().getResource("/finanzas/fxml/simularPagoTarjeta.fxml"));
+                ctrl = new SimularPagoTarjetaController();
+                loader.setController(ctrl);
                 Parent root = loader.load();
-                SimularPagoTarjetaController ctrl = loader.getController();
                 ctrl.setIdDeuda(idDeuda);
                 NavigationUtil.openNewWindow(event, root, "Sistema externo de pago");
-                if (ctrl.isPagoAceptado()) {
+            } catch (Exception ex) {
+                setMensaje("No se pudo abrir la ventana de pago con tarjeta.", "message-error");
+                return;
+            }
+            if (ctrl.isPagoRechazado()) {
+                setMensaje("El pago con tarjeta fue rechazado. Intente de nuevo.", "message-error");
+                return;
+            }
+            if (ctrl.isPagoAceptado()) {
+                try {
+                    PagoTarjetaDTO pago = new PagoTarjetaDTO(
+                            idNumerico,
+                            ctrl.getNumeroTarjeta(),
+                            ctrl.getFechaVencimiento(),
+                            ctrl.getNombreTitular(),
+                            ctrl.getCcv());
+                    pagoService.pagarDeudaTarjeta(pago);
                     lblEstado.setText("PAGADA");
                     estadoActual = "PAGADA";
                     setMensaje("Deuda cancelada exitosamente.", "message-success");
-                } else if (ctrl.isPagoRechazado()) {
-                    setMensaje("El pago con tarjeta fue rechazado. Intente de nuevo.", "message-error");
+                } catch (RuntimeException ex) {
+                    setMensaje(ex.getMessage(), "message-error");
                 }
-            } catch (Exception ex) {
-                setMensaje("No se pudo abrir la ventana de pago con tarjeta.", "message-error");
             }
+        }
+    }
+
+    private Integer idDeudaNumerico(String idDeuda) {
+        try {
+            return Integer.valueOf(idDeuda.replaceAll("\\D", ""));
+        } catch (NumberFormatException ex) {
+            return null;
         }
     }
 
