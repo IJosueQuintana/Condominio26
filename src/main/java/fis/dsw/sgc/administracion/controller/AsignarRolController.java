@@ -5,13 +5,10 @@ import fis.dsw.sgc.administracion.model.Rol;
 import fis.dsw.sgc.administracion.model.Usuario;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-
-import java.util.UUID;
 
 public class AsignarRolController {
 
@@ -78,7 +75,6 @@ public class AsignarRolController {
 
         // Simular la asignación del rol
         Rol nuevoRol = new Rol();
-        nuevoRol.setIdRol(UUID.randomUUID());
         nuevoRol.setNombre(rolSeleccionado);
         nuevoRol.setDescripcion("Rol asignado desde interfaz");
         usuarioSeleccionado.getCuenta().getRoles().add(nuevoRol);

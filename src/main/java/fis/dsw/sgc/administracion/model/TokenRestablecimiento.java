@@ -1,16 +1,15 @@
 package fis.dsw.sgc.administracion.model;
 
 import java.util.Date;
-import java.util.UUID;
 
 public class TokenRestablecimiento {
-    private UUID idToken;
+    private int idToken;
     private String codigo;
     private Date fechaExpiracion;
     private Integer intentos;
 
-    public UUID getIdToken() { return idToken; }
-    public void setIdToken(UUID idToken) { this.idToken = idToken; }
+    public int getIdToken() { return idToken; }
+    public void setIdToken(int idToken) { this.idToken = idToken; }
 
     public String getCodigo() { return codigo; }
     public void setCodigo(String codigo) { this.codigo = codigo; }

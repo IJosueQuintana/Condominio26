@@ -15,7 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class UsuarioDAOMySQL implements IUsuarioDAO {
     private Connection dbConn;
@@ -27,7 +26,7 @@ public class UsuarioDAOMySQL implements IUsuarioDAO {
     public void actualizar(Usuario usuario) {}
 
     @Override
-    public Usuario buscarPorId(UUID idUsuario) {
+    public Usuario buscarPorId(int idUsuario) {
         return null;
     }
 

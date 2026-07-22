@@ -10,7 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 import java.util.Date;
-import java.util.UUID;
 
 public class RecuperarContrasenaController {
 
@@ -44,7 +43,6 @@ public class RecuperarContrasenaController {
 
         // Simular Generar y "enviar" Token
         tokenGenerado = new TokenRestablecimiento();
-        tokenGenerado.setIdToken(UUID.randomUUID());
         tokenGenerado.setCodigo("123456"); // Token hardcodeado para la demo
         tokenGenerado.setFechaExpiracion(new Date(System.currentTimeMillis() + 3600000));
         tokenGenerado.setIntentos(0);
