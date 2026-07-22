@@ -1,7 +1,10 @@
 package fis.dsw.sgc.finanzas.service;
 
 import fis.dsw.sgc.administracion.exception.ResidenteNoExisteException;
+import fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl;
 import fis.dsw.sgc.administracion.service.IGestionUsuariosAPI;
+import fis.dsw.sgc.finanzas.dao.DeudaDAOImpl;
+import fis.dsw.sgc.inmuebles.service.InmueblesServiceImpl;
 import fis.dsw.sgc.usuarios.dto.ResidenteFachadaDTO;
 import fis.dsw.sgc.finanzas.dao.IDeudaDAO;
 import fis.dsw.sgc.finanzas.dto.*;
@@ -30,6 +33,13 @@ public class DeudaServiceImpl implements IDeudaService {
         this.deudaDAO = deudaDAO;
         this.inmueblesService = inmueblesService;
         this.gestionUsuariosAPI = gestionUsuariosAPI;
+    }
+
+    public DeudaServiceImpl(){
+        this.deudaFactory = new DeudaFactoryImpl();
+        this.deudaDAO = new DeudaDAOImpl();
+        this.inmueblesService = new InmueblesServiceImpl();
+        this.gestionUsuariosAPI = new GestionUsuariosServiceImpl();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.finanzas.dto.EntidadBancariaDTO;
+import fis.dsw.sgc.finanzas.service.ConfiguracionFinancieraService;
 import fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -51,13 +52,18 @@ public class ConfiguracionFinancieraController {
     private final ObservableList<EntidadBancariaDTO> entidades = FXCollections.observableArrayList();
 
     // Conexión Controller -> Service: el service llega inyectado por constructor (no se instancia aquí)
-    private final IConfiguracionFinancieraService configuracionFinancieraService;
+    private IConfiguracionFinancieraService configuracionFinancieraService;
     private double valorActualAlicuota;
 
     // Inyección de dependencias: quien cargue este controlador (FXMLLoader + setController) debe pasar el service
     public ConfiguracionFinancieraController(IConfiguracionFinancieraService configuracionFinancieraService) {
         this.configuracionFinancieraService = configuracionFinancieraService;
     }
+
+    public ConfiguracionFinancieraController() {
+        this.configuracionFinancieraService = new ConfiguracionFinancieraService();
+    }
+
 
     @FXML
     public void initialize() {
